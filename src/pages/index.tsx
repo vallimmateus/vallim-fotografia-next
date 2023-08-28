@@ -27,7 +27,7 @@ export async function getServerSideProps() {
   // })
   const partyListSorted = partyListWithBlur.sort((a, b) => (a.date < b.date) ? 1 : -1)
 
-  return { props: { parties: partyListSorted }}
+  return { props: { parties: partyListSorted }, revalidte: 300}
 }
 
 export default function Home({parties}: Parties) {

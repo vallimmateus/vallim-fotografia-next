@@ -44,7 +44,7 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
     const data: DataGoogleProps = await res.json()
     const imgList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/uc?id=${item.img_id}`}})
     const thumbList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/thumbnail?id=${item.img_id}`, width: 220, height: 147, alt: item.name}})
-    return {props: {images: imgList, thumbnails: thumbList, title: "Título"}}
+    return {props: {images: imgList, thumbnails: thumbList, title: "Título"}, revalidte: 300}
 }
 
 export default function Page({images, thumbnails, title}: PageProps) {
