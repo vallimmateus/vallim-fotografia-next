@@ -17,7 +17,8 @@ const nextConfig = {
         ],
         domains: [
           'drive.google.com',
-          '**.googleusercontent.com'
+          '**.googleusercontent.com',
+          '**.com'
         ]
       }
 }
