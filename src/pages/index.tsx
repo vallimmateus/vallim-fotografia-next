@@ -37,7 +37,7 @@ export const getStaticProps: GetStaticProps<Parties> = async () => {
   })}
   const partyListSorted = partyList.parties.sort((a, b) => {return (a.date < b.date) ? 1 : -1})
 
-  return { props: { parties: partyListSorted }}
+  return { props: { parties: partyListSorted }, revalidate: 60*60*24}
 }
 
 export default function Home({parties}: Parties) {
