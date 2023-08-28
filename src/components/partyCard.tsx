@@ -1,0 +1,28 @@
+import Image from 'next/image'
+import Link from 'next/link'
+
+interface PartyCardProps {
+    cover: string,
+    date: string,
+    name: string,
+    fid: string | object,
+    isNew: boolean
+}
+
+export default function PartyCard({date, cover, name, fid, isNew}: PartyCardProps) {
+    return (
+        <Link href={`/party/${fid}`} className="w-80 border-2 border-zinc-900 rounded-lg overflow-hidden flex flex-col hover:shadow-zinc-700 hover:shadow-lg">
+            <Image
+                src={`https://drive.google.com/uc?id=${cover}&export=download`}
+                alt={`Cover image for party ${name}.`}
+                width={320}
+                height={240}
+                className={isNew ? "blur-md" : ""}
+            />
+            <div className="flex flex-col my-3 mx-5">
+                <p className="font-bold text-base">{name}</p>
+                <p className="text-sm">{date}</p>
+            </div>
+        </Link>
+    )
+}
