@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore/lite";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAVVk7wDfhQkzay4UONg4uuV9YX4Rg5Ac0",
-    authDomain: "vallim-fotografia.firebaseapp.com",
-    projectId: "vallim-fotografia",
-    storageBucket: "vallim-fotografia.appspot.com",
-    messagingSenderId: "862121855697",
-    appId: "1:862121855697:web:cfe05fe30e66a89be953f0",
-    measurementId: "G-G2PB8KBKX5"
+    apiKey: process.env.APIKEY,
+    authDomain: process.env.AUTHDOMAIN,
+    projectId: process.env.PROJECTID,
+    storageBucket: process.env.STORAGEBUCKET,
+    messagingSenderId: process.env.MESSAGINGSENDERID,
+    appId: process.env.APPID,
+    measurementId: process.env.MEASUREMENTID
   };
 
 const app = initializeApp(firebaseConfig)
