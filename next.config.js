@@ -11,6 +11,10 @@ const nextConfig = {
             hostname: '**.googleusercontent.com'
           }
         ],
+        domains: [
+          'drive.google.com',
+          '**.googleusercontent.com'
+        ]
       },
 }
 
