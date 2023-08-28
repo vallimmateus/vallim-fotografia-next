@@ -25,11 +25,21 @@ interface ImageProps {
     height: number,
     alt: string
 }
+interface DataGoogleProps {
+    status: string;
+    data: {
+        name: string;
+        img_id: string;
+    }[];
+    pages: number;
+}
+
 
 export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
-    const {fid} = context.params
+    const fid = context.params?.fid
     const res = await fetch('https://script.google.com/macros/s/AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA/exec?fid=' + fid)
-    const data = await res.json()
+    
+    const data: DataGoogleProps = await res.json()
     const imgList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/uc?id=${item.img_id}`, width: 1620, height: 1080, alt: item.name}})
     return {props: {images: imgList}}
 }
