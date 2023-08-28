@@ -11,7 +11,7 @@ interface PartyCardProps {
 
 export default function PartyCard({date, cover, name, fid, isNew}: PartyCardProps) {
     return (
-        <Link href={`/party/${fid}`} className="w-80 border-2 border-zinc-900 rounded-lg overflow-hidden flex flex-col hover:shadow-zinc-700 hover:shadow-lg">
+        <Link href={!isNew ? `/party/${fid}` : ""} className="w-80 border-2 border-zinc-900 rounded-lg overflow-hidden flex flex-col hover:shadow-zinc-950 hover:shadow-lg hover:brightness-90 transition-all">
             <Image
                 src={`https://drive.google.com/uc?id=${cover}&export=download`}
                 alt={`Cover image for party ${name}.`}
