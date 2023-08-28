@@ -15,7 +15,7 @@ const nextConfig = {
           'drive.google.com',
           '**.googleusercontent.com'
         ]
-      },
+      }
 }
 
 module.exports = nextConfig
