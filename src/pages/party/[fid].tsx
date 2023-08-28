@@ -17,7 +17,8 @@ import { useState } from 'react';
 import NextJsImage from '@/components/NextJsImage';
 
 interface PageProps {
-    images: ImageProps[],
+    images: {src: string}[],
+    thumbnails: ImageProps[],
     title: string
 }
 
@@ -41,20 +42,21 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
     const res = await fetch('https://script.google.com/macros/s/AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA/exec?fid=' + fid)
     
     const data: DataGoogleProps = await res.json()
-    const imgList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/uc?export=view&id=${item.img_id}`, width: 1620, height: 1080, alt: item.name}})
-    return {props: {images: imgList, title: "Título"}}
+    const imgList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/uc?id=${item.img_id}`}})
+    const thumbList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/thumbnail?id=${item.img_id}`, width: 220, height: 147, alt: item.name}})
+    return {props: {images: imgList, thumbnails: thumbList, title: "Título"}}
 }
 
-export default function Page({images, title}: PageProps) {
+export default function Page({images, thumbnails, title}: PageProps) {
     const [index, setIndex] = useState(-1)
   return (
   <div className="px-10 py-8">
     <h1 className='text-2xl font-bold pl-10'>{title}</h1>
     <PhotoAlbum
-        photos={images}
+        photos={thumbnails}
         layout='rows'
-        targetRowHeight={150}
         onClick={({ index }) => setIndex(index)}
+        targetRowHeight={147}
         renderPhoto={NextJsImage}
     />
     <Lightbox

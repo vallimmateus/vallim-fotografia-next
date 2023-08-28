@@ -20,7 +20,12 @@ export async function getServerSideProps() {
   const partiesCol = collection(db, 'parties');
   const partySnapshot = await getDocs(partiesCol);
   const partyList = partySnapshot.docs.map(doc => doc.data());
-  const partyListSorted = partyList.sort((a, b) => (a.date < b.date) ? 1 : -1)
+  const partyListWithBlur = partyList//.map(async (doc) => {
+  //   if (!doc.publishDate) {
+  //     const newUrl = await fetch()
+  //   }
+  // })
+  const partyListSorted = partyListWithBlur.sort((a, b) => (a.date < b.date) ? 1 : -1)
 
   return { props: { parties: partyListSorted }}
 }

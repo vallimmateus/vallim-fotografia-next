@@ -9,9 +9,9 @@ export default function NextJsImage({
     return (
         <div style={{ ...wrapperStyle, position: "relative" }}>
             <Image
+                fill
                 src={photo}
                 quality={50}
-                width={200}
                 loading="lazy"
                 placeholder={"blurDataURL" in photo ? "blur" : undefined}
                 {...{ alt, title, sizes, className, onClick }}
