@@ -1,4 +1,3 @@
-import Image from 'next/image'
 import Link from 'next/link'
 
 interface PartyCardProps {
@@ -12,7 +11,7 @@ interface PartyCardProps {
 export default function PartyCard({date, cover, name, fid, isNew}: PartyCardProps) {
     return (
         <Link href={!isNew ? `/party/${fid}` : ""} className="w-80 border-2 border-zinc-900 rounded-lg overflow-hidden flex flex-col hover:shadow-zinc-950 hover:shadow-lg hover:brightness-90 transition-all">
-            <Image
+            <img
                 src={`https://drive.google.com/uc?id=${cover}`}
                 alt={`Cover image for party ${name}.`}
                 width={320}
