@@ -2,16 +2,16 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 interface PartyCardProps {
+    id: string,
     cover: string,
     date: string,
     name: string,
-    fid: string | object,
     isNew: boolean
 }
 
-export default function PartyCard({date, cover, name, fid, isNew}: PartyCardProps) {
+export default function PartyCard({id, date, cover, name, isNew}: PartyCardProps) {
     return (
-        <Link href={!isNew ? `/party/${fid}` : ""} className="w-80 border-2 border-zinc-900 rounded-lg overflow-hidden flex flex-col hover:shadow-zinc-950 hover:shadow-lg hover:brightness-90 transition-all">
+        <Link href={!isNew ? `/party/${id}` : ""} className="w-80 border-2 border-zinc-900 rounded-lg overflow-hidden flex flex-col hover:shadow-zinc-950 hover:shadow-lg hover:brightness-90 transition-all">
             <Image
                 src={`https://drive.google.com/uc?export=view&id=${cover}`}
                 alt={`Cover image for party ${name}.`}

@@ -3,27 +3,41 @@ import { collection, getDocs } from 'firebase/firestore/lite';
 
 import {db} from "../lib/db.js"
 import PartyCard from '../components/partyCard';
-import { DocumentData } from 'firebase/firestore';
 
-interface Party {
-  fid: string | object,
+export interface MultiFid {
+  fid: string,
+  name: string
+}
+
+export interface Party {
+  fid: string | MultiFid[],
   name: string,
   cover: string,
   date: string,
   publishDate: string | null
 }
 
-interface Parties {
-  parties: Party[]
+export interface Parties {
+  parties: {
+    id: string,
+    fid: string | MultiFid[],
+    name: string,
+    cover: string,
+    date: string,
+    publishDate: string | null}[]
 }
+
 
 export const getStaticProps: GetStaticProps<Parties> = async () => {
   const partiesCol = collection(db, 'parties');
   const partySnapshot = await getDocs(partiesCol);
-  const partyList = partySnapshot.docs.map(doc => doc.data() as Party);
-  const partyListSorted = partyList.sort((a, b) => (a.date < b.date) ? 1 : -1)
+  const partyList: Parties = {parties: partySnapshot.docs.map(doc => {
+    const data = doc.data() as Party
+    return {id: doc.id, ...data}
+  })}
+  const partyListSorted = partyList.parties.sort((a, b) => {return (a.date < b.date) ? 1 : -1})
 
-  return { props: { parties: partyListSorted }, revalidte: 300}
+  return { props: { parties: partyListSorted }}
 }
 
 export default function Home({parties}: Parties) {
@@ -34,15 +48,15 @@ export default function Home({parties}: Parties) {
         {parties?.length === 0 ? (
           <div>Loading...</div>
         ) : (
-          parties?.map((party, idx) => {
+          parties?.map((party) => {
             return (
                 <PartyCard
                   date={party.date}
                   cover={party.cover}
                   name={party.name}
-                  fid={party.fid}
                   isNew={!party.publishDate}
-                  key={idx} />
+                  id={party.id}
+                  key={party.id} />
             )
           })
           )}
