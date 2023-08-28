@@ -42,8 +42,8 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
     const res = await fetch('https://script.google.com/macros/s/AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA/exec?fid=' + fid)
     
     const data: DataGoogleProps = await res.json()
-    const imgList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/uc?id=${item.img_id}`}})
-    const thumbList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map(item => {return {src: `https://drive.google.com/thumbnail?id=${item.img_id}`, width: 220, height: 147, alt: item.name}})
+    const imgList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map((item) => {return {src: `https://drive.google.com/uc?id=${item.img_id}`}})
+    const thumbList = data.data.sort((a, b) => (a.name > b.name) ? 1 : -1).map((item) => {return {src: `https://drive.google.com/thumbnail?id=${item.img_id}`, width: 220, height: 147, alt: item.name}})
     return {props: {images: imgList, thumbnails: thumbList, title: "Título"}, revalidte: 300}
 }
 
