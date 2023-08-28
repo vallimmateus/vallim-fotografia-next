@@ -1,4 +1,4 @@
-import { GetServerSideProps, NextPage } from 'next'
+import type { GetStaticProps } from 'next';
 import PhotoAlbum from "react-photo-album";
 
 import Lightbox from "yet-another-react-lightbox";
@@ -37,7 +37,7 @@ interface DataGoogleProps {
     pages: number;
 }
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
+export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
     const fid = context.params?.fid
     const res = await fetch('https://script.google.com/macros/s/AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA/exec?fid=' + fid)
     

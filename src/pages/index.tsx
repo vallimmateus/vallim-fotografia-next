@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import type { GetStaticProps } from 'next';
 import { collection, getDocs } from 'firebase/firestore/lite';
 
 import {db} from "../lib/db.js"
 import PartyCard from '../components/partyCard';
+import { DocumentData } from 'firebase/firestore';
 
 interface Party {
   fid: string | object,
@@ -16,16 +17,11 @@ interface Parties {
   parties: Party[]
 }
 
-export async function getServerSideProps() {
+export const getStaticProps: GetStaticProps<Parties> = async () => {
   const partiesCol = collection(db, 'parties');
   const partySnapshot = await getDocs(partiesCol);
-  const partyList = partySnapshot.docs.map(doc => doc.data());
-  const partyListWithBlur = partyList//.map(async (doc) => {
-  //   if (!doc.publishDate) {
-  //     const newUrl = await fetch()
-  //   }
-  // })
-  const partyListSorted = partyListWithBlur.sort((a, b) => (a.date < b.date) ? 1 : -1)
+  const partyList = partySnapshot.docs.map(doc => doc.data() as Party);
+  const partyListSorted = partyList.sort((a, b) => (a.date < b.date) ? 1 : -1)
 
   return { props: { parties: partyListSorted }, revalidte: 300}
 }
