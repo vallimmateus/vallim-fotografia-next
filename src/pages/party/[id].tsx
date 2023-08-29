@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { GetServerSideProps } from 'next'
+import { GetStaticProps, GetStaticPropsContext } from 'next'
 
 import PhotoAlbum from "react-photo-album";
 import Lightbox from "yet-another-react-lightbox";
@@ -45,29 +45,33 @@ interface DataGoogleProps {
     pages: number;
 }
 
-// export async function getStaticPaths() {
-//     const partiesCol = collection(db, 'parties');
-//     const partySnapshot = await getDocs(partiesCol);
-//     const partyList = partySnapshot.docs.map(doc => {
-//         const data = doc.data() as Party
-//         return { params: { fid: data.fid }}
-//     });
-//     return {
-//         paths: [
-//             {
-//                 params: { fid: "gasgdasghadfh" }
-//             }, {
-//                 params: { fid: "hfdahadfbdafb" }
-//             },
-//         ]
-//     }
-// }
+interface PageParams {
+    id: string
+}
 
-export const getServerSideProps: GetServerSideProps<PageProps> = async (context) => {
-    const id = context.query.id as string
+export async function getStaticPaths() {
+    const partiesCol = collection(db, 'parties');
+    const partySnapshot = await getDocs(partiesCol);
+    const pathsList = partySnapshot.forEach(((doc) => { params: { id: doc.id } }
+    ))
+    console.log("Lista de paths:", pathsList);
+    return {
+        paths: pathsList,
+        fallback: 'blocking'
+    }
+}
+
+export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
+    const id = context.params?.id as string
     const partiesRef = doc(db, 'parties', id)
     const docSnap = await getDoc(partiesRef);
     const docData = docSnap.data() as Party
+
+    if (!docData) {
+        return {
+            notFound: true
+        }
+    }
 
     const props: SectionProps[] = []
     let fids: MultiFid[]
@@ -88,7 +92,11 @@ export const getServerSideProps: GetServerSideProps<PageProps> = async (context)
         props.push({images: imgList, thumbnails: thumbList, title: fidObj.name})
     }
 
-    return {props: {sections: props}}
+    return {
+        props: {
+            sections: props
+        }
+    }
 }
 
 export default function Page({sections}: PageProps) {
