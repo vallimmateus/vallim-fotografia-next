@@ -7,11 +7,10 @@ export default function NextJsImage({
     wrapperStyle,
 }: RenderPhotoProps) {
     return (
-        <div style={{ ...wrapperStyle, position: "relative" }}>
+        <div className="rounded overflow-hidden" style={{ ...wrapperStyle, position: "relative" }}>
             <Image
                 fill
                 src={photo}
-                quality={50}
                 loading="lazy"
                 placeholder={"blurDataURL" in photo ? "blur" : undefined}
                 {...{ alt, title, sizes, className, onClick }}
