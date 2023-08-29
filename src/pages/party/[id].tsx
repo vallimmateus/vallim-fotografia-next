@@ -52,8 +52,7 @@ interface PageParams {
 export async function getStaticPaths() {
     const partiesCol = collection(db, 'parties');
     const partySnapshot = await getDocs(partiesCol);
-    const pathsList = partySnapshot.forEach(((doc) => {return { params: { id: doc.id } }}))
-    console.log("Lista de paths:", pathsList);
+    const pathsList = partySnapshot.docs.map((doc) => {return {params: { id: doc.id}}})
     return {
         paths: pathsList,
         fallback: 'blocking'
