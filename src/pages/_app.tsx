@@ -2,14 +2,15 @@ import { useEffect, useState } from 'react'
 import type { AppProps } from 'next/app'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
+import { Inter, Rubik } from 'next/font/google'
 import Image from 'next/image'
 
 import { clsx } from "clsx";
 
-import './globals.css'
-
 const inter = Inter({ subsets: ['latin'] })
+const rubik = Rubik({ subsets: ['latin'] })
+
+import './globals.css'
 
 export const metadata: Metadata = {
   title: 'Vallim Fotografia',
