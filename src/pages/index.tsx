@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import type { GetStaticProps } from 'next';
 import { collection, getDocs } from 'firebase/firestore/lite';
 
@@ -43,23 +44,27 @@ export const getStaticProps: GetStaticProps<Parties> = async () => {
 export default function Home({parties}: Parties) {
   return (
     <main className="flex flex-col items-center">
-      <h1>Home</h1>
-      <div className='mt-14 flex flex-row gap-10 max-w-screen flex-wrap mx-16 justify-center'>
-        {parties?.length === 0 ? (
-          <div>Loading...</div>
-        ) : (
-          parties?.map((party) => {
+      <div className='mt-14 flex flex-row max-w-screen flex-wrap mx-16 justify-center'>
+        {parties.map((party, idx) => {
             return (
+              <>
                 <PartyCard
                   date={party.date}
                   cover={party.cover}
                   name={party.name}
-                  isNew={!party.publishDate}
+                  publishDate={party.publishDate}
                   id={party.id}
-                  key={party.id} />
+                  key={party.id}
+                  priority={(idx <= 7) ? true : false} />
+                  <p></p>
+              </>
             )
-          })
-          )}
+          })}
+        {/* {parties?.length === 0 ? (
+          <div>Loading...</div>
+        ) : (
+          
+          )} */}
       </div>
     </main>
   )
