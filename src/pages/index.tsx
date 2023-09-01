@@ -1,65 +1,32 @@
-import { Suspense } from 'react';
-import type { GetStaticProps } from 'next';
-import { collection, getDocs } from 'firebase/firestore/lite';
+import type { InferGetStaticPropsType } from 'next'
 
-import {db} from "../lib/db.js"
-import PartyCard from '../components/partyCard';
+import PartyCard from '../components/partyCard'
+import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
 
-export interface MultiFid {
-  fid: string,
-  name: string
-}
+export const getStaticProps = GlobalProps.getStaticProps(async () => ({
+  props: {},
+  revalidate: 60 * 60 * 24,
+}))
 
-export interface Party {
-  fid: string | MultiFid[],
-  name: string,
-  cover: string,
-  date: string,
-  publishDate: string | null
-}
+type PageProps = InferGetStaticPropsType<typeof getStaticProps>
 
-export interface Parties {
-  parties: {
-    id: string,
-    fid: string | MultiFid[],
-    name: string,
-    cover: string,
-    date: string,
-    publishDate: string | null}[]
-}
-
-
-export const getStaticProps: GetStaticProps<Parties> = async () => {
-  const partiesCol = collection(db, 'parties');
-  const partySnapshot = await getDocs(partiesCol);
-  const partyList: Parties = {parties: partySnapshot.docs.map(doc => {
-    const data = doc.data() as Party
-    return {id: doc.id, ...data}
-  })}
-  const partyListSorted = partyList.parties.sort((a, b) => {return (a.date < b.date) ? 1 : -1})
-
-  return { props: { parties: partyListSorted }, revalidate: 60*60*24}
-}
-
-export default function Home({parties}: Parties) {
+export default function Home({ parties }: PageProps) {
   return (
     <main className="flex flex-col items-center">
-      <div className='mt-14 flex flex-row max-w-screen flex-wrap mx-16 justify-center'>
+      <div className="max-w-screen mx-16 mt-14 flex flex-row flex-wrap justify-center">
         {parties.map((party, idx) => {
-            return (
-              <>
-                <PartyCard
-                  date={party.date}
-                  cover={party.cover}
-                  name={party.name}
-                  publishDate={party.publishDate}
-                  id={party.id}
-                  key={party.id}
-                  priority={(idx <= 7) ? true : false} />
-                  <p></p>
-              </>
-            )
-          })}
+          return (
+            <PartyCard
+              date={party.date}
+              cover={party.cover}
+              name={party.name}
+              publishDate={party.publishDate}
+              id={party.id}
+              key={party.id}
+              priority={idx <= 7}
+            />
+          )
+        })}
         {/* {parties?.length === 0 ? (
           <div>Loading...</div>
         ) : (
