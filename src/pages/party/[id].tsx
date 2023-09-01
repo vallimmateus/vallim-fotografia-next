@@ -14,6 +14,7 @@ import 'yet-another-react-lightbox/plugins/counter.css'
 
 import { collection, doc, getDoc, getDocs } from 'firebase/firestore/lite'
 
+import Head from 'next/head.js'
 import { db } from '../../lib/db.js'
 
 import NextJsImage from '@/components/NextJsImage'
@@ -24,7 +25,6 @@ interface ImageProps {
   height: number
   alt: string
 }
-
 interface SectionProps {
   images: { src: string }[]
   thumbnails: ImageProps[]
@@ -33,6 +33,7 @@ interface SectionProps {
 
 interface PageProps {
   sections: SectionProps[]
+  title: string
 }
 
 interface DataGoogleProps {
@@ -108,47 +109,55 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   return {
     props: {
       sections: props,
+      title: docData.name,
     },
     revalidate: 1000 * 60 * 60 * 24,
   }
 }
 
-export default function Page({ sections }: PageProps) {
+export default function Page({ sections, title }: PageProps) {
   const [index, setIndex] = useState(-1)
-  return sections.map(({ images, thumbnails, title }) => {
-    return (
-      <>
-        {images.length > 0 && (
-          <div className="px-10 py-8">
-            <h1 className="mb-6 ml-4 max-w-fit border-b-[1px] px-6 pb-2 text-5xl font-bold">
-              {title}
-            </h1>
-            <PhotoAlbum
-              photos={thumbnails}
-              layout="rows"
-              onClick={({ index }) => setIndex(index)}
-              targetRowHeight={147}
-              renderPhoto={NextJsImage}
-            />
-            <Lightbox
-              slides={images}
-              open={index >= 0}
-              index={index}
-              close={() => setIndex(-1)}
-              slideshow={{ delay: 2500 }}
-              // enable optional lightbox plugins
-              plugins={[
-                Fullscreen,
-                Download,
-                Counter,
-                Slideshow,
-                Thumbnails,
-                Zoom,
-              ]}
-            />
-          </div>
-        )}
-      </>
-    )
-  })
+  return (
+    <>
+      <Head>
+        <title>{title} | Vallim Fotografia</title>
+      </Head>
+      {sections.map(({ images, thumbnails, title }) => {
+        return (
+          <>
+            {images.length > 0 && (
+              <div className="px-10 py-8">
+                <h1 className="mb-6 ml-4 max-w-fit border-b-[1px] px-6 pb-2 text-5xl font-bold">
+                  {title}
+                </h1>
+                <PhotoAlbum
+                  photos={thumbnails}
+                  layout="rows"
+                  onClick={({ index }) => setIndex(index)}
+                  targetRowHeight={147}
+                  renderPhoto={NextJsImage}
+                />
+                <Lightbox
+                  slides={images}
+                  open={index >= 0}
+                  index={index}
+                  close={() => setIndex(-1)}
+                  slideshow={{ delay: 2500 }}
+                  // enable optional lightbox plugins
+                  plugins={[
+                    Fullscreen,
+                    Download,
+                    Counter,
+                    Slideshow,
+                    Thumbnails,
+                    Zoom,
+                  ]}
+                />
+              </div>
+            )}
+          </>
+        )
+      })}
+    </>
+  )
 }
