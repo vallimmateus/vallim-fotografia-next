@@ -4,26 +4,12 @@
     "@rocketseat/eslint-config/react",
     "plugin:import/recommended",
     "plugin:import/typescript"
-    // "plugin:unused-imports"
   ],
   "plugins": ["unused-imports"],
   "rules": {
     "import/no-unresolved": "error",
     "import/namespace": ["error", { "allowComputed": true }],
     "import/order": "error",
-    // [
-    //   "error",
-    //   {
-    //     "newlines-between": "always",
-    //     "groups": [
-    //       "internal",
-    //       "unknown",
-    //       "external",
-    //       "builtin",
-    //       ["parent", "sibling", "index"]
-    //     ]
-    //   }
-    // ],
     "no-use-before-define": ["error", {
       "functions": true,
         "classes": true,

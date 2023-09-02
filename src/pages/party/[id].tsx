@@ -152,6 +152,9 @@ export default function Page({ sections, title }: PageProps) {
                     Thumbnails,
                     Zoom,
                   ]}
+                  carousel={{
+                    finite: true,
+                  }}
                 />
               </div>
             )}
