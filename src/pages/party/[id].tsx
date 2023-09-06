@@ -117,14 +117,18 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
 }
 
 export default function Page({ sections, party }: PageProps) {
-  const { cover, name } = party
+  const { cover, name, date } = party
   const title = name
   const [index, setIndex] = useState(-1)
   return (
     <>
       <Head>
         <title>{`${title} | Vallim Fotografia`}</title>
-        <meta property="og:title" content="Vallim Fotografia" />
+        <meta property="og:title" content={`${title} | Vallim Fotografia`} />
+        <meta
+          property="og:description"
+          content={`Fotos da festa ${title} de ${date}`}
+        />
         <meta
           property="og:image"
           content={imageLoader({ src: cover, width: 300, quality: 100 })}
