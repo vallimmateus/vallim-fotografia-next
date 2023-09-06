@@ -1,4 +1,5 @@
 import clsx from 'clsx'
+import Link from 'next/link'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 type LiveSearchProps<T> = {
@@ -51,7 +52,7 @@ export const LiveSearch = <T extends Record<string, unknown>>({
       e.preventDefault()
       resetSearchComplete()
     } else if (key === 'Enter') {
-      e.preventDefault()
+      // e.preventDefault()
       handleSelection(focusedIndex)
     }
     setFocusedIndex(nextIndexCount)
@@ -141,15 +142,16 @@ export const LiveSearch = <T extends Record<string, unknown>>({
         <div className="absolute mt-1 max-h-48 w-full overflow-y-auto rounded-bl-md rounded-br-md bg-zinc-800 p-2 text-sm shadow-lg">
           {results.map((item, idx) => {
             return (
-              <div
-                key={idx}
-                ref={idx === focusedIndex ? resultContainer : null}
-                onMouseDown={() => handleSelection(idx)}
-                data-focused={idx === focusedIndex}
-                className="cursor-pointer rounded-md p-2 hover:bg-white hover:bg-opacity-10 data-[focused=true]:bg-white data-[focused=true]:bg-opacity-10"
-              >
-                {renderItem(item)}
-              </div>
+              <Link href={`/party/${item.id}`} key={idx}>
+                <div
+                  ref={idx === focusedIndex ? resultContainer : null}
+                  onMouseDown={() => handleSelection(idx)}
+                  data-focused={idx === focusedIndex}
+                  className="cursor-pointer rounded-md p-2 hover:bg-white hover:bg-opacity-10 data-[focused=true]:bg-white data-[focused=true]:bg-opacity-10"
+                >
+                  {renderItem(item)}
+                </div>
+              </Link>
             )
           })}
         </div>

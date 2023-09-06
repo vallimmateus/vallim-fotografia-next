@@ -1,6 +1,6 @@
 import Image, { ImageLoaderProps } from 'next/image'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import ContentLoader from 'react-content-loader'
 
 interface PartyCardProps {
@@ -36,15 +36,18 @@ export default function PartyCard({
   const isPublished = !!publishDate
   const [isNew, setIsNew] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  if (publishDate) {
-    const publishTime = new Date(publishDate)
-    const today = new Date()
-    const diffDates =
-      (today.getTime() - publishTime.getTime()) / (1000 * 60 * 60 * 24)
-    if (diffDates < 8) {
-      setIsNew(true)
+  useEffect(() => {
+    if (publishDate) {
+      const publishTime = new Date(publishDate)
+      const today = new Date()
+      const diffDates =
+        (today.getTime() - publishTime.getTime()) / (1000 * 60 * 60 * 24)
+      if (diffDates < 8) {
+        setIsNew(true)
+      }
     }
-  }
+  }, [publishDate])
+
   return (
     <div className="z-10 aspect-[10/9] w-full px-4 pb-3 sm:w-1/2 md:w-1/3 lg:w-1/4">
       <div className="group relative">
