@@ -150,7 +150,10 @@ export default function Page({ sections, party }: PageProps) {
                   renderPhoto={NextJsImage}
                 />
                 <Lightbox
-                  slides={images}
+                  slides={images.map((image) => ({
+                    ...image,
+                    download: `${image.src}&export=download`,
+                  }))}
                   open={index >= 0}
                   index={index}
                   close={() => setIndex(-1)}
