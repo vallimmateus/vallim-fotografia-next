@@ -1,7 +1,8 @@
-import Image, { ImageLoaderProps } from 'next/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import ContentLoader from 'react-content-loader'
+import { imageLoader } from '@/lib/imageLoader'
 
 interface PartyCardProps {
   id: string
@@ -20,10 +21,6 @@ interface PartyCardProps {
 //     },
 //   },
 // })
-
-const imageLoader = ({ src }: ImageLoaderProps) => {
-  return `https://drive.google.com/uc?id=${src}`
-}
 
 export default function PartyCard({
   id,

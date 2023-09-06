@@ -18,6 +18,7 @@ import Head from 'next/head.js'
 import { db } from '../../lib/db.js'
 
 import NextJsImage from '@/components/NextJsImage'
+import { imageLoader } from '@/lib/imageLoader'
 
 interface ImageProps {
   src: string
@@ -33,7 +34,7 @@ interface SectionProps {
 
 interface PageProps {
   sections: SectionProps[]
-  title: string
+  party: Party
 }
 
 interface DataGoogleProps {
@@ -109,18 +110,25 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
   return {
     props: {
       sections: props,
-      title: docData.name,
+      party: docData,
     },
     revalidate: 60 * 60 * 24,
   }
 }
 
-export default function Page({ sections, title }: PageProps) {
+export default function Page({ sections, party }: PageProps) {
+  const { cover, name } = party
+  const title = name
   const [index, setIndex] = useState(-1)
   return (
     <>
       <Head>
-        <title>{title} | Vallim Fotografia</title>
+        <title>{`${title} | Vallim Fotografia`}</title>
+        <meta property="og:title" content="Vallim Fotografia" />
+        <meta
+          property="og:image"
+          content={imageLoader({ src: cover, width: 300, quality: 100 })}
+        />
       </Head>
       {sections.map(({ images, thumbnails, title }) => {
         return (

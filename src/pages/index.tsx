@@ -16,6 +16,8 @@ export default function Home({ parties }: PageProps) {
     <>
       <Head>
         <title>Vallim Fotografia</title>
+        <meta property="og:title" content="Vallim Fotografia" />
+        <meta property="og:image" content="/vallim-fotografia.svg" />
       </Head>
       <main className="flex flex-col items-center">
         <div className="max-w-screen mx-16 mt-14 flex flex-row flex-wrap justify-center">
