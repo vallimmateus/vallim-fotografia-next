@@ -46,7 +46,7 @@ export default function PartyCard({
   }, [publishDate])
 
   return (
-    <div className="z-10 aspect-[10/9] w-full px-4 pb-3 sm:w-1/2 md:w-1/3 lg:w-1/4">
+    <div className="z-10 aspect-[10/9] w-full px-4 pb-3 max-md:w-1/2 max-md:px-2 md:w-1/3 lg:w-1/4">
       <div className="group relative">
         <Link href={isPublished ? `/party/${id}` : ''}>
           {!isPublished && !isLoading && (
@@ -88,7 +88,7 @@ export default function PartyCard({
                 }}
               />
             </div>
-            <div className="mx-5 my-3 flex flex-col">
+            <div className="mx-5 my-3 flex flex-col max-sm:mx-2.5 max-sm:my-2">
               {isLoading ? (
                 <ContentLoader
                   width={120}
@@ -99,7 +99,7 @@ export default function PartyCard({
                   <rect x="0" y="4" width="120" height="16" />
                 </ContentLoader>
               ) : (
-                <p className="text-base font-bold text-zinc-200 transition-all group-hover:pl-0.5 group-hover:text-white">
+                <p className="text-base font-bold text-zinc-200 transition-all group-hover:pl-0.5 group-hover:text-white max-sm:text-sm">
                   {name}
                 </p>
               )}

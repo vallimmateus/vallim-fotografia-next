@@ -24,7 +24,7 @@ export default function Home({ parties }: PageProps) {
         <meta property="og:image" content="/logo_square.jpg" />
       </Head>
       <main className="flex flex-col items-center">
-        <div className="max-w-screen mx-16 mt-14 flex flex-row flex-wrap justify-center">
+        <div className="max-w-screen mx-16 mt-14 flex flex-row flex-wrap justify-center max-sm:mx-4">
           {parties.map((party, idx) => {
             return (
               <PartyCard
