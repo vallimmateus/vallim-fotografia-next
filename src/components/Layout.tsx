@@ -71,6 +71,13 @@ export default function Layout({ parties, children }: LayoutProps) {
               width={150}
               height={60}
             />
+            <Image
+              className="sm:hidden"
+              src="/logo.svg"
+              alt="Vallim Fotografia logo"
+              width={98}
+              height={60}
+            />
           </Link>
           {/* <ul className="flex items-center gap-5">
             <Link href="/">Festas</Link>
