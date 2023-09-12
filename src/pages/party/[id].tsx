@@ -112,7 +112,6 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
       sections: props,
       party: docData,
     },
-    revalidate: 60 * 60 * 24,
   }
 }
 

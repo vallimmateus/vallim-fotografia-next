@@ -6,7 +6,6 @@ import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
 
 export const getStaticProps = GlobalProps.getStaticProps(async () => ({
   props: {},
-  revalidate: 60 * 60 * 24,
 }))
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>
