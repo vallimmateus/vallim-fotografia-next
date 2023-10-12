@@ -23,7 +23,7 @@ import {
 import Head from 'next/head.js'
 import { InferGetStaticPropsType } from 'next'
 import { useRouter } from 'next/router'
-import { PhotosOfPartyContext } from './context'
+import { PhotosOfPartyContext } from '@/features/PartyProps/contexts/context'
 import { db } from '@/lib/db.js'
 
 import NextJsImage from '@/components/NextJsImage'
@@ -156,7 +156,6 @@ export default function Page({ sections, party }: PageProps) {
         return { ...data, id: doc.id } as Photo
       })
       const currentPhotos = photos.filter((photo) => {
-        console.log(photo.ref.path)
         const partyFSPath = photo.ref.path.split('parties/')[1]
         const partyURLPath = asPath.split('parties/')[1]
         return partyFSPath === partyURLPath

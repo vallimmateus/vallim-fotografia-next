@@ -49,7 +49,7 @@ import {
 } from '@/components/ui/tooltip'
 
 import { Comment, CommentFS, ReportFS, PhotoFS, Photo } from '@/types'
-import { PhotosOfPartyContext } from '@/pages/parties/context'
+import { PhotosOfPartyContext } from '@/features/PartyProps/contexts/context'
 import { db } from '@/lib/db'
 import { cn } from '@/lib/utils'
 import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
