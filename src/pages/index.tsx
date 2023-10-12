@@ -12,10 +12,6 @@ export const getStaticProps = GlobalProps.getStaticProps(async () => ({
 
 type PageProps = InferGetStaticPropsType<typeof getStaticProps>
 
-// interface PageProps {
-//   parties: Party[]
-// }
-
 export default function Home({ parties }: PageProps) {
   return (
     <>
