@@ -30,7 +30,7 @@ import NextJsImage from '@/components/NextJsImage'
 import { imageLoader } from '@/lib/imageLoader'
 import Comments from '@/components/Comments'
 import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
-import { MultiFid, Party, Photo } from '@/types'
+import { CommentFS, MultiFid, Party, Photo } from '@/types'
 
 interface ImageProps {
   src: string
@@ -143,7 +143,7 @@ export default function Page({ sections, party }: PageProps) {
       const photos = photosSnapshot.docs.map((doc) => {
         const data = doc.data()
         if (data.comments) {
-          data.comments.map((comment) => {
+          data.comments.map((comment: CommentFS) => {
             const createdAt = comment.createdAt as Timestamp
             comment.createdAt = createdAt.toDate().toISOString()
             if (comment?.updatedAt) {
