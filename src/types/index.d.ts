@@ -55,3 +55,25 @@ type GlobalProps = {
   photos: Photo[]
   users: User[]
 }
+
+type CommentFS = {
+  id: string
+  comment: string
+  email: string
+  createdAt: Timestamp
+  updatedAt?: Timestamp
+}
+
+type ReportFS = {
+  id: string
+  report: string
+  email: string
+  createdAt: Timestamp
+}
+
+type PhotoFS = {
+  ref: DocumentReference
+  comments?: CommentFS[]
+  likes?: Like[]
+  reports?: ReportFS[]
+}

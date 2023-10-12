@@ -48,7 +48,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { Comment, Like, Photo } from '@/types'
+import { Comment, CommentFS, ReportFS, PhotoFS, Photo } from '@/types'
 import { PhotosOfPartyContext } from '@/pages/parties/context'
 import { db } from '@/lib/db'
 import { cn } from '@/lib/utils'
@@ -68,28 +68,6 @@ export const useCommentsContext = makeUseContext(
   'CommentsContext',
   CommentsContext,
 )
-
-type CommentFS = {
-  id: string
-  comment: string
-  email: string
-  createdAt: Timestamp
-  updatedAt?: Timestamp
-}
-
-type ReportFS = {
-  id: string
-  report: string
-  email: string
-  createdAt: Timestamp
-}
-
-type PhotoFS = {
-  ref: DocumentReference
-  comments?: CommentFS[]
-  likes?: Like[]
-  reports?: ReportFS[]
-}
 
 export default function CommentsComponent({ children }: ComponentProps) {
   const [newComment, setNewComment] = useState<string>('')

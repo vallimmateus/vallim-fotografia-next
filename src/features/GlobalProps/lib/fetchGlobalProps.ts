@@ -5,7 +5,7 @@ import {
   Timestamp,
 } from 'firebase/firestore/lite'
 import { db } from '@/lib/db'
-import { GlobalProps, Party, Photo, User } from '@/types'
+import { CommentFS, GlobalProps, Party, Photo, User } from '@/types'
 
 export async function fetchGlobalProps(): Promise<GlobalProps> {
   const partiesCol = collection(db, 'parties')
@@ -30,7 +30,7 @@ export async function fetchGlobalProps(): Promise<GlobalProps> {
       let { ref, ...data } = doc.data()
       ref = JSON.parse(JSON.stringify(ref)) as DocumentReference
       if (data.comments) {
-        data.comments.map((comment) => {
+        data.comments.map((comment: CommentFS) => {
           const createdAt = comment.createdAt as Timestamp
           comment.createdAt = createdAt.toDate().toISOString()
           if (comment?.updatedAt) {
