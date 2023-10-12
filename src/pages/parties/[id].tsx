@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { GetStaticProps } from 'next'
+import React, { useEffect, useState } from 'react'
 import PhotoAlbum from 'react-photo-album'
 import { Lightbox } from 'yet-another-react-lightbox'
 import 'yet-another-react-lightbox/styles.css'
+import Share from 'yet-another-react-lightbox/plugins/share'
 import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
 import Slideshow from 'yet-another-react-lightbox/plugins/slideshow'
 import Download from 'yet-another-react-lightbox/plugins/download'
@@ -12,13 +12,25 @@ import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import 'yet-another-react-lightbox/plugins/counter.css'
 
-import { collection, doc, getDoc, getDocs } from 'firebase/firestore/lite'
+import {
+  Timestamp,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+} from 'firebase/firestore/lite'
 
 import Head from 'next/head.js'
-import { db } from '../../lib/db.js'
+import { InferGetStaticPropsType } from 'next'
+import { useRouter } from 'next/router'
+import { PhotosOfPartyContext } from './context'
+import { db } from '@/lib/db.js'
 
 import NextJsImage from '@/components/NextJsImage'
 import { imageLoader } from '@/lib/imageLoader'
+import Comments from '@/components/Comments'
+import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
+import { MultiFid, Party, Photo } from '@/types'
 
 interface ImageProps {
   src: string
@@ -30,11 +42,6 @@ interface SectionProps {
   images: { src: string }[]
   thumbnails: ImageProps[]
   title: string
-}
-
-interface PageProps {
-  sections: SectionProps[]
-  party: Party
 }
 
 interface DataGoogleProps {
@@ -58,7 +65,7 @@ export async function getStaticPaths() {
   }
 }
 
-export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
+export const getStaticProps = GlobalProps.getStaticProps(async (context) => {
   const id = context.params?.id as string
   const partiesRef = doc(db, 'parties', id)
   const docSnap = await getDoc(partiesRef)
@@ -113,14 +120,54 @@ export const getStaticProps: GetStaticProps<PageProps> = async (context) => {
       party: docData,
     },
   }
+})
+
+interface PageProps extends InferGetStaticPropsType<typeof getStaticProps> {
+  sections: SectionProps[]
+  party: Party
 }
 
 export default function Page({ sections, party }: PageProps) {
   const { cover, name, date } = party
   const title = name
   const [index, setIndex] = useState(-1)
+
+  const { asPath } = useRouter()
+
+  const [photosInfo, setPhotosInfo] = useState<Photo[]>([])
+
+  useEffect(() => {
+    const getCurrentPhoto = async () => {
+      const photosCol = collection(db, 'photos')
+      const photosSnapshot = await getDocs(photosCol)
+      const photos = photosSnapshot.docs.map((doc) => {
+        const data = doc.data()
+        if (data.comments) {
+          data.comments.map((comment) => {
+            const createdAt = comment.createdAt as Timestamp
+            comment.createdAt = createdAt.toDate().toISOString()
+            if (comment?.updatedAt) {
+              const updatedAt = comment.updatedAt as Timestamp
+              comment.updatedAt = updatedAt.toDate().toISOString()
+            }
+            return comment
+          })
+        }
+        return { ...data, id: doc.id } as Photo
+      })
+      const currentPhotos = photos.filter((photo) => {
+        console.log(photo.ref.path)
+        const partyFSPath = photo.ref.path.split('parties/')[1]
+        const partyURLPath = asPath.split('parties/')[1]
+        return partyFSPath === partyURLPath
+      })
+      return currentPhotos
+    }
+    getCurrentPhoto().then(setPhotosInfo).catch(console.error)
+  }, [asPath])
+
   return (
-    <>
+    <PhotosOfPartyContext.Provider value={photosInfo}>
       <Head>
         <title>{`${title} | Vallim Fotografia`}</title>
         <meta property="og:title" content={`${title} | Vallim Fotografia`} />
@@ -133,9 +180,9 @@ export default function Page({ sections, party }: PageProps) {
           content={imageLoader({ src: cover, width: 300, quality: 100 })}
         />
       </Head>
-      {sections.map(({ images, thumbnails, title }) => {
+      {sections.map(({ images, thumbnails, title }, idx) => {
         return (
-          <>
+          <div key={idx}>
             {images.length > 0 && (
               <div className="px-10 py-8">
                 <h1 className="mb-6 ml-4 max-w-fit border-b-[1px] px-6 pb-2 text-5xl font-bold">
@@ -157,11 +204,14 @@ export default function Page({ sections, party }: PageProps) {
                   index={index}
                   close={() => setIndex(-1)}
                   slideshow={{ delay: 2500 }}
+                  // photos={}
                   // enable optional lightbox plugins
                   plugins={[
-                    Fullscreen,
+                    Share,
                     Download,
+                    Fullscreen,
                     Counter,
+                    Comments,
                     Slideshow,
                     Thumbnails,
                     Zoom,
@@ -169,12 +219,16 @@ export default function Page({ sections, party }: PageProps) {
                   carousel={{
                     finite: true,
                   }}
+                  controller={{
+                    closeOnBackdropClick: true,
+                    closeOnPullDown: true,
+                  }}
                 />
               </div>
             )}
-          </>
+          </div>
         )
       })}
-    </>
+    </PhotosOfPartyContext.Provider>
   )
 }

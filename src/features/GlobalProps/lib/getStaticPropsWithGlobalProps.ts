@@ -4,6 +4,7 @@ import {
   GetStaticPropsResult,
 } from 'next'
 import { fetchGlobalProps } from './fetchGlobalProps'
+import { GlobalProps } from '@/types'
 
 export function getStaticPropsWithGlobalProps<
   T extends Record<string, unknown>,

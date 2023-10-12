@@ -46,9 +46,9 @@ export default function PartyCard({
   }, [publishDate])
 
   return (
-    <div className="z-10 aspect-[10/9] w-full px-4 pb-3 max-md:w-1/2 max-md:px-2 md:w-1/3 lg:w-1/4">
+    <div className="z-10 w-full">
       <div className="group relative">
-        <Link href={isPublished ? `/party/${id}` : ''}>
+        <Link href={isPublished ? `/parties/${id}` : ''}>
           {!isPublished && !isLoading && (
             <p className="absolute -right-2 -top-2 z-50 rounded-md bg-slate-700 px-3 py-2 shadow-lg transition-all group-hover:-right-3 group-hover:-top-3">
               Em breve
