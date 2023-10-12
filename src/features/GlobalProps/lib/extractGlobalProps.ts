@@ -5,6 +5,7 @@ const isParty = <Party>(arg: unknown): arg is Party => true
 const isPhoto = <Photo>(arg: unknown): arg is Photo => true
 const isUser = <User>(arg: unknown): arg is User => true
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function extractGlobalProps(data: any): GlobalProps {
   if (!data) return defaultGlobalPropsContextValue
 
