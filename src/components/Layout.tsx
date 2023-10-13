@@ -4,7 +4,6 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Inter, Rubik, Oswald } from 'next/font/google'
 import { signOut, useSession } from 'next-auth/react'
-import { useRouter } from 'next/router'
 
 import clsx from 'clsx'
 import { v4 as uuidv4 } from 'uuid'
@@ -95,7 +94,6 @@ ListItem.displayName = 'ListItem'
 export default function Layout({ children, parties }: LayoutProps) {
   const { data: session } = useSession()
   const { users } = GlobalProps.use()
-  const router = useRouter()
 
   const [openDialog, setOpenDialog] = useState(false)
   const [nickname, setNickname] = useState(session?.user?.name || '')
