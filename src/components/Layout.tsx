@@ -349,8 +349,8 @@ export default function Layout({ children, parties }: LayoutProps) {
                     }
                     try {
                       await setDoc(docRef, data)
+                      setMe({ ...data, id })
                       setOpenDialog(false)
-                      router.reload()
                     } catch (error) {
                       console.error(error)
                     }
