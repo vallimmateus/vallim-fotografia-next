@@ -9,7 +9,7 @@ import clsx from 'clsx'
 import { v4 as uuidv4 } from 'uuid'
 
 import { ChevronRightIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
-import { collection, doc, getDocs, setDoc } from 'firebase/firestore/lite'
+import { doc, setDoc } from 'firebase/firestore/lite'
 import SigninButton from './SigninButton'
 import {
   NavigationMenu,
@@ -100,25 +100,34 @@ export default function Layout({ children, parties }: LayoutProps) {
   const [me, setMe] = useState<User>()
 
   useEffect(() => {
-    const getMe = async () => {
-      const usersRef = collection(db, 'users')
-      const usersSnap = await getDocs(usersRef)
-      const users: User[] = usersSnap.docs.map((user) => {
-        const data = user.data() as Omit<User, 'id'>
-        return { ...data, id: user.id }
-      })
+    try {
+      const { users } = GlobalProps.use()
       const me = users.find((user) => user.email === session?.user?.email)
       setMe(me)
+      if (
+        !users.find((user) => user.email === session?.user?.email) &&
+        session?.user
+      ) {
+        setOpenDialog(true)
+        setNickname(session?.user?.name || '')
+      }
+    } catch (error) {
+      console.error(error)
     }
-    if (
-      !users.find((user) => user.email === session?.user?.email) &&
-      session?.user
-    ) {
-      setOpenDialog(true)
-      setNickname(session?.user?.name || '')
-    } else {
-      getMe()
-    }
+    // const getMe = async () => {
+    //   const usersRef = collection(db, 'users')
+    //   const usersSnap = await getDocs(usersRef)
+    //   const users: User[] = usersSnap.docs.map((user) => {
+    //     const data = user.data() as Omit<User, 'id'>
+    //     return { ...data, id: user.id }
+    //   })
+    //   const me = users.find((user) => user.email === session?.user?.email)
+    //   setMe(me)
+    //   return [users, me]
+    // }
+    //  else {
+    // getMe()
+    // }
   }, [session, users])
 
   const [clientWindowHeight, setClientWindowHeight] = useState(0)
