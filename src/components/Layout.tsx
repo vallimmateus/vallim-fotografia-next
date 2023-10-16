@@ -11,7 +11,6 @@ import { ChevronRightIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
 import {
   addDoc,
   collection,
-  getDocs,
   onSnapshot,
   query,
   where,
@@ -47,7 +46,6 @@ import { Label } from '@/components/ui/label'
 
 import { cn } from '@/lib/utils'
 import { Party, User } from '@/types'
-import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
 import { db } from '@/lib/db'
 
 const inter = Inter({
@@ -99,65 +97,66 @@ ListItem.displayName = 'ListItem'
 
 export default function Layout({ children, parties }: LayoutProps) {
   const { data: session } = useSession()
-  const { users } = GlobalProps.use()
+  // const { users } = GlobalProps.use()
 
   const [openDialog, setOpenDialog] = useState(false)
   const [nickname, setNickname] = useState(session?.user?.name || '')
-  const [loadingMe, setLoadingMe] = useState(false)
+  const [loadingMe, setLoadingMe] = useState(true)
+  const [waitingMe, setWaitingMe] = useState(false)
   const [me, setMe] = useState<User>()
 
   useEffect(() => {
-    const getMe = async () => {
-      const usersRef = collection(db, 'users')
-      const usersSnap = await getDocs(usersRef)
-      const users: User[] = usersSnap.docs.map((user) => {
-        const data = user.data() as Omit<User, 'id'>
-        return { ...data, id: user.id }
+    if (session) {
+      const collectionRef = collection(db, 'users')
+      const q = query(collectionRef, where('email', '==', session?.user?.email))
+      const unsubscribe = onSnapshot(q, (snap) => {
+        if (snap.docs.length === 1) {
+          const user = snap.docs[0].data() as User
+          if (snap.docs[0].exists() && user.nickname) {
+            setOpenDialog(false)
+            setLoadingMe(false)
+            setWaitingMe(false)
+            setMe(user)
+          } else {
+            setOpenDialog(true)
+            setNickname(session?.user?.name || '')
+          }
+        }
       })
-      const me = users.find((user) => user.email === session?.user?.email)
-      setMe(me)
-      return [users, me]
+      if (!loadingMe && !waitingMe && unsubscribe) {
+        unsubscribe()
+      }
     }
-    if (
-      !users.find((user) => user.email === session?.user?.email) &&
-      session?.user
-    ) {
-      setOpenDialog(true)
-      setNickname(session?.user?.name || '')
-    } else {
-      getMe()
-    }
-  }, [session, users])
+  }, [loadingMe, waitingMe, session])
+
+  // useEffect(() => {
+  //   const getMe = async () => {
+  //     const usersRef = collection(db, 'users')
+  //     const usersSnap = await getDocs(usersRef)
+  //     const users: User[] = usersSnap.docs.map((user) => {
+  //       const data = user.data() as Omit<User, 'id'>
+  //       return { ...data, id: user.id }
+  //     })
+  //     const me = users.find((user) => user.email === session?.user?.email)
+  //     setMe(me)
+  //     return [users, me]
+  //   }
+  //   if (
+  //     !users.find((user) => user.email === session?.user?.email) &&
+  //     session?.user
+  //   ) {
+  //     setOpenDialog(true)
+  //     setNickname(session?.user?.name || '')
+  //   } else {
+  //     getMe()
+  //   }
+  // }, [session, users])
 
   const [clientWindowHeight, setClientWindowHeight] = useState(0)
 
   const handleScroll = () => {
     setClientWindowHeight(window.scrollY)
   }
-
-  useEffect(() => {
-    if (session && loadingMe) {
-      const collectionRef = collection(db, 'users')
-      const q = query(collectionRef, where('email', '==', session?.user?.email))
-      const snapUsers = onSnapshot(
-        q,
-        (snap) => {
-          const dataUser = snap.docs.map((doc) => ({
-            ...(doc.data() as Omit<User, 'id'>),
-            id: doc.id,
-          }))[0]
-          setMe(dataUser)
-          setLoadingMe(false)
-        },
-        (error) => {
-          console.log(error.message)
-        },
-      )
-
-      return () => snapUsers()
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
@@ -377,10 +376,8 @@ export default function Layout({ children, parties }: LayoutProps) {
                       nickname,
                     }
                     addDoc(colRef, data)
-                      .then((docRef) => {
-                        console.log('docRef:', docRef)
-                        setLoadingMe(true)
-                        setMe({ ...data, id: docRef.id })
+                      .then(() => {
+                        setWaitingMe(true)
                       })
                       .catch(console.error)
                       .finally(() => {
