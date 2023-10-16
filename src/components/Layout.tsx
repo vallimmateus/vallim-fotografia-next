@@ -110,11 +110,8 @@ export default function Layout({ children, parties }: LayoutProps) {
       const collectionRef = collection(db, 'users')
       const q = query(collectionRef, where('email', '==', session?.user?.email))
       const unsubscribe = onSnapshot(q, (snap) => {
-        console.log('entrou no onSnapshot')
         if (snap.docs.length === 1) {
-          console.log('snap.docs.length === 1 =>', snap.docs.length === 1)
           const user = snap.docs[0].data() as User
-          console.log('user:', user)
           if (snap.docs[0].exists() && user.nickname) {
             setOpenDialog(false)
             setLoadingMe(false)

@@ -20,7 +20,13 @@ import {
 } from 'yet-another-react-lightbox'
 
 import { useRouter } from 'next/router'
-import { DocumentReference, doc, setDoc } from 'firebase/firestore'
+import {
+  DocumentReference,
+  collection,
+  doc,
+  onSnapshot,
+  setDoc,
+} from 'firebase/firestore'
 import { Separator } from '../ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { CommentCard } from './CommentCard'
@@ -37,10 +43,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { Comment, Photo } from '@/types'
+import { Comment, Photo, User } from '@/types'
 import { db } from '@/lib/db'
 import { cn } from '@/lib/utils'
-import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
 
 // const SIDEBAR_WIDTH = 320
 
@@ -91,7 +96,23 @@ export default function CommentsComponent({
 
   const { data: session } = useSession()
 
-  const { users } = GlobalProps.use()
+  // const { users } = GlobalProps.use()
+
+  const [users, setUsers] = useState<User[]>([])
+
+  useEffect(() => {
+    const collectionRef = collection(db, 'users')
+    onSnapshot(collectionRef, (snap) => {
+      const usersList: User[] = snap.docs.map((doc) => {
+        const data = doc.data() as Omit<User, 'id'>
+        return {
+          ...data,
+          id: doc.id,
+        }
+      })
+      setUsers(usersList)
+    })
+  }, [])
 
   const [open, setOpen] = useState(false)
   const { currentSlide } = useLightboxState()
@@ -305,8 +326,8 @@ export default function CommentsComponent({
   }
 
   const allLikes =
-    singlePhotoInfo?.likes?.map((photo) => {
-      const user = users.find((user) => user.email === photo.email)
+    singlePhotoInfo?.likes?.map((like) => {
+      const user = users.find((user) => user.email === like.email)
       if (user) {
         return {
           nickname: user?.nickname,
@@ -314,7 +335,7 @@ export default function CommentsComponent({
           email: user.email,
         }
       }
-      return { nickname: photo.email, email: photo.email }
+      return { nickname: like.email, email: like.email }
     }) || []
   return (
     <CommentsContext.Provider value={context}>
@@ -362,13 +383,13 @@ export default function CommentsComponent({
                     return (
                       <CommentCard
                         key={comment.id}
-                        id={comment.id}
                         docId={singlePhotoInfo.id}
                         handleDeleteComment={() =>
                           handleDeleteComment(comment.id)
                         }
                         comment={comment}
                         editable={comment.email === session?.user?.email}
+                        users={users}
                       />
                     )
                   })}

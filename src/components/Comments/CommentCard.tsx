@@ -6,8 +6,7 @@ import { Textarea } from '../ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '@/components/ui/button'
 import { db } from '@/lib/db'
-import { Photo } from '@/types'
-import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
+import { Photo, User } from '@/types'
 
 interface CommentCardProps {
   comment: {
@@ -17,19 +16,20 @@ interface CommentCardProps {
     createdAt: string
     updatedAt?: string
   }
-  id: string
   docId: string
   handleDeleteComment: () => void
   editable?: boolean
+  users: User[]
 }
 
 export function CommentCard({
   comment,
-  id,
   docId,
   handleDeleteComment,
   editable,
+  users,
 }: CommentCardProps) {
+  const id = comment.id
   const [commentText, setCommentText] = useState(comment.comment)
   const [commentEditText, setCommentEditText] = useState(comment.comment)
   const [editing, setEditing] = useState(false)
@@ -37,8 +37,6 @@ export function CommentCard({
     comment.updatedAt ? new Date(comment.updatedAt) : undefined,
   )
   const [loading, setLoading] = useState(false)
-
-  const { users } = GlobalProps.use()
 
   const createdAt = new Date(comment.createdAt)
 
