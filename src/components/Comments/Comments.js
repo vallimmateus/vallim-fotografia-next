@@ -1,5 +1,4 @@
 import {
-  PluginProps,
   addToolbarButton,
   createModule,
   MODULE_CONTROLLER,
@@ -7,15 +6,12 @@ import {
 } from 'yet-another-react-lightbox'
 
 import CommentsButton from './CommentsButton'
-import CommentsContext from './CommentsContext'
+import CommentsContext, { resolveCommentsProps } from './CommentsContext'
 
-export default function Comments({
-  augment,
-  contains,
-  addParent,
-}: PluginProps) {
-  augment(({ toolbar, ...rest }) => ({
+export default function Comments({ augment, contains, addParent }) {
+  augment(({ toolbar, comments, ...rest }) => ({
     toolbar: addToolbarButton(toolbar, 'Comments', <CommentsButton />),
+    comments: resolveCommentsProps(comments),
     ...rest,
   }))
 

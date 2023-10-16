@@ -13,12 +13,14 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import 'yet-another-react-lightbox/plugins/counter.css'
 
 import {
-  Timestamp,
   collection,
   doc,
   getDoc,
   getDocs,
-} from 'firebase/firestore/lite'
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore'
 
 import Head from 'next/head.js'
 import { InferGetStaticPropsType } from 'next'
@@ -30,7 +32,8 @@ import NextJsImage from '@/components/NextJsImage'
 import { imageLoader } from '@/lib/imageLoader'
 import Comments from '@/components/Comments'
 import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
-import { CommentFS, MultiFid, Party, Photo } from '@/types'
+import { MultiFid, Party, Photo, PhotoFS } from '@/types'
+import { transformToNext } from '@/components/Comments/utils'
 
 interface ImageProps {
   src: string
@@ -137,33 +140,21 @@ export default function Page({ sections, party }: PageProps) {
   const [photosInfo, setPhotosInfo] = useState<Photo[]>([])
 
   useEffect(() => {
-    const getCurrentPhoto = async () => {
-      const photosCol = collection(db, 'photos')
-      const photosSnapshot = await getDocs(photosCol)
-      const photos = photosSnapshot.docs.map((doc) => {
-        const data = doc.data()
-        if (data.comments) {
-          data.comments.map((comment: CommentFS) => {
-            const createdAt = comment.createdAt as Timestamp
-            comment.createdAt = createdAt.toDate().toISOString()
-            if (comment?.updatedAt) {
-              const updatedAt = comment.updatedAt as Timestamp
-              comment.updatedAt = updatedAt.toDate().toISOString()
-            }
-            return comment
-          })
-        }
-        return { ...data, id: doc.id } as Photo
-      })
-      const currentPhotos = photos.filter((photo) => {
-        const partyFSPath = photo.ref.path.split('parties/')[1]
-        const partyURLPath = asPath.split('parties/')[1]
-        return partyFSPath === partyURLPath
-      })
-      return currentPhotos
-    }
-    getCurrentPhoto().then(setPhotosInfo).catch(console.error)
-  }, [asPath])
+    const collectionRef = collection(db, 'photos')
+    const q = query(
+      collectionRef,
+      where('ref', '==', doc(db, 'parties', asPath.split('parties/')[1])),
+    )
+    onSnapshot(q, (snap) => {
+      const photos = snap.docs.map(
+        (doc) => transformToNext(doc.data() as PhotoFS, doc.id).data,
+      )
+      if (photos !== photosInfo && photos.length > 0) {
+        setPhotosInfo(photos)
+      }
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <PhotosOfPartyContext.Provider value={photosInfo}>
@@ -199,11 +190,16 @@ export default function Page({ sections, party }: PageProps) {
                     ...image,
                     download: `${image.src}&export=download`,
                   }))}
+                  on={{
+                    view: ({ index }) => {
+                      setIndex(index)
+                    },
+                  }}
                   open={index >= 0}
                   index={index}
                   close={() => setIndex(-1)}
                   slideshow={{ delay: 2500 }}
-                  // photos={}
+                  comments={{ photosList: photosInfo }}
                   // enable optional lightbox plugins
                   plugins={[
                     Share,

@@ -1,11 +1,4 @@
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react'
+import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import clsx from 'clsx'
 import { v4 as uuidv4 } from 'uuid'
 import {
@@ -27,16 +20,12 @@ import {
 } from 'yet-another-react-lightbox'
 
 import { useRouter } from 'next/router'
-import {
-  DocumentReference,
-  Timestamp,
-  doc,
-  setDoc,
-} from 'firebase/firestore/lite'
+import { DocumentReference, doc, setDoc } from 'firebase/firestore'
 import { Separator } from '../ui/separator'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { CommentCard } from './CommentCard'
 
+import { transformToFirestore } from './utils'
 import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { ScrollArea } from '@/components/ui/scroll-area'
@@ -48,8 +37,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { Comment, CommentFS, ReportFS, PhotoFS, Photo } from '@/types'
-import { PhotosOfPartyContext } from '@/features/PartyProps/contexts/context'
+import { Comment, Photo } from '@/types'
 import { db } from '@/lib/db'
 import { cn } from '@/lib/utils'
 import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
@@ -59,38 +47,60 @@ import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
 export type CommentsContextType = {
   open: boolean
   toggle: () => void
+  photosList: Photo[] | null
 }
+
+const defaultCommentsProps = {
+  photosList: [],
+}
+export const resolveCommentsProps = (comments: CommentsContextType) => ({
+  ...defaultCommentsProps,
+  ...comments,
+})
 
 const CommentsContext = createContext<CommentsContextType | null>(null)
 
-export const useCommentsContext = makeUseContext(
-  'useCommentsContext',
+export const useComments = makeUseContext(
+  'useComments',
   'CommentsContext',
   CommentsContext,
 )
 
-export default function CommentsComponent({ children }: ComponentProps) {
+export default function CommentsComponent({
+  comments: commentsProps,
+  children,
+}: ComponentProps & { comments: CommentsContextType }) {
+  const { photosList } = resolveCommentsProps(commentsProps)
   const [newComment, setNewComment] = useState<string>('')
   const [anonymous, setAnonymous] = useState<boolean>(false)
-  const [listPhotosInfo, setListPhotosInfo] = useState<Photo[]>(
-    useContext(PhotosOfPartyContext),
-  )
   const [photoInfoLoading, setPhotoInfoLoading] = useState(false)
+
+  const { asPath } = useRouter()
+
+  // List of party's photos info
+  const [listPhotosInfo, setListPhotosInfo] = useState<Photo[]>([])
+
+  useEffect(() => {
+    if (photosList) {
+      setListPhotosInfo(photosList)
+    }
+  }, [photosList])
 
   // Current photo infos
   const [singlePhotoInfo, setSinglePhotoInfo] = useState<Photo>()
 
   const { data: session } = useSession()
-  const { asPath } = useRouter()
+
   const { users } = GlobalProps.use()
 
   const [open, setOpen] = useState(false)
   const { currentSlide } = useLightboxState()
 
+  if (open && !currentSlide) {
+    setOpen(false)
+  }
+
   useEffect(() => {
-    if (open && !currentSlide) {
-      setOpen(false)
-    }
     if (currentSlide) {
       setPhotoInfoLoading(true)
       const currentPhotoInfo = listPhotosInfo.find((photo) => {
@@ -105,41 +115,10 @@ export default function CommentsComponent({ children }: ComponentProps) {
     setOpen((prev) => !prev)
   }, [])
 
-  const context = useMemo(() => ({ open, toggle }), [open, toggle])
-
-  const transformDataToFirestore = (data: Photo): [PhotoFS, string] => {
-    let dataFS: PhotoFS = { ref: data.ref }
-    if (data?.comments) {
-      const newComments: CommentFS[] = data.comments.map((comment) => {
-        const {
-          // eslint-disable-next-line unused-imports/no-unused-vars
-          updatedAt: oldUpdatedAt,
-          // eslint-disable-next-line unused-imports/no-unused-vars
-          createdAt: oldCreatedAt,
-          ...rest
-        } = comment
-        const createdAt = Timestamp.fromDate(new Date(comment.createdAt))
-        if (comment?.updatedAt) {
-          const updatedAt = Timestamp.fromDate(new Date(comment.updatedAt))
-          return { ...comment, createdAt, updatedAt }
-        }
-        return { ...rest, createdAt }
-      })
-      dataFS = { ...dataFS, comments: newComments }
-    }
-    if (data?.reports) {
-      const newReports: ReportFS[] = data.reports.map((report) => {
-        const { createdAt: _, ...rest } = report
-        const createdAt = Timestamp.fromDate(new Date(report.createdAt))
-        return { ...rest, createdAt }
-      })
-      dataFS = { ...dataFS, reports: newReports }
-    }
-    if (data?.likes) {
-      dataFS = { ...dataFS, likes: data.likes }
-    }
-    return [dataFS, data.id]
-  }
+  const context = useMemo(
+    () => ({ open, toggle, photosList }),
+    [open, toggle, photosList],
+  )
 
   const toggleLiked = async () => {
     if (!session) {
@@ -201,7 +180,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
 
       // Tenta atualizar os dados no Firestore
       try {
-        const [dataForFS, _] = transformDataToFirestore(data)
+        const { data: dataForFS } = transformToFirestore(data)
         await setDoc(docRef, dataForFS)
       } catch (error) {
         console.error(error)
@@ -238,7 +217,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
 
         // Tenta atualizar os dados no Firestore
         try {
-          const [dataForFS, _] = transformDataToFirestore(data)
+          const { data: dataForFS } = transformToFirestore(data)
           await setDoc(docRef, dataForFS)
         } catch (error) {
           console.error(error)
@@ -311,7 +290,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
 
       // Tenta atualizar os dados no Firestore
       try {
-        const [dataForFS, _] = transformDataToFirestore(data)
+        const { data: dataForFS } = transformToFirestore(data)
         await setDoc(docRef, dataForFS)
       } catch (error) {
         console.error(error)
@@ -354,7 +333,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
       {currentSlide && (
         <div
           className={clsx(
-            'absolute bottom-0 top-0 z-10 flex h-screen w-[320px] flex-col bg-primary-foreground p-3 text-center transition-all',
+            'absolute bottom-0 top-0 z-10 flex h-full max-h-screen w-[320px] flex-col bg-primary-foreground p-3 text-center transition-all',
             {
               'right-0': open,
               '-right-[320px]': !open,

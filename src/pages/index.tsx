@@ -29,7 +29,7 @@ export default function Home({ parties }: PageProps) {
           <h2 className="mb-4 max-w-fit text-5xl font-bold">Últimas festas</h2>
           <Separator className="max-w-lg" />
           <LastParties parties={parties} />
-          <Button variant="secondary" className="w-72">
+          <Button variant="secondary" className="w-72 max-md:mt-3">
             <Link href="/parties">Ver mais</Link>
           </Button>
         </div>

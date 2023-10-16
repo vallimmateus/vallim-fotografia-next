@@ -6,10 +6,16 @@ import { Inter, Rubik, Oswald } from 'next/font/google'
 import { signOut, useSession } from 'next-auth/react'
 
 import clsx from 'clsx'
-import { v4 as uuidv4 } from 'uuid'
 
 import { ChevronRightIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
-import { doc, setDoc } from 'firebase/firestore/lite'
+import {
+  addDoc,
+  collection,
+  getDocs,
+  onSnapshot,
+  query,
+  where,
+} from 'firebase/firestore'
 import SigninButton from './SigninButton'
 import {
   NavigationMenu,
@@ -97,37 +103,30 @@ export default function Layout({ children, parties }: LayoutProps) {
 
   const [openDialog, setOpenDialog] = useState(false)
   const [nickname, setNickname] = useState(session?.user?.name || '')
+  const [loadingMe, setLoadingMe] = useState(false)
   const [me, setMe] = useState<User>()
 
   useEffect(() => {
-    try {
-      const { users } = GlobalProps.use()
+    const getMe = async () => {
+      const usersRef = collection(db, 'users')
+      const usersSnap = await getDocs(usersRef)
+      const users: User[] = usersSnap.docs.map((user) => {
+        const data = user.data() as Omit<User, 'id'>
+        return { ...data, id: user.id }
+      })
       const me = users.find((user) => user.email === session?.user?.email)
       setMe(me)
-      if (
-        !users.find((user) => user.email === session?.user?.email) &&
-        session?.user
-      ) {
-        setOpenDialog(true)
-        setNickname(session?.user?.name || '')
-      }
-    } catch (error) {
-      console.error(error)
+      return [users, me]
     }
-    // const getMe = async () => {
-    //   const usersRef = collection(db, 'users')
-    //   const usersSnap = await getDocs(usersRef)
-    //   const users: User[] = usersSnap.docs.map((user) => {
-    //     const data = user.data() as Omit<User, 'id'>
-    //     return { ...data, id: user.id }
-    //   })
-    //   const me = users.find((user) => user.email === session?.user?.email)
-    //   setMe(me)
-    //   return [users, me]
-    // }
-    //  else {
-    // getMe()
-    // }
+    if (
+      !users.find((user) => user.email === session?.user?.email) &&
+      session?.user
+    ) {
+      setOpenDialog(true)
+      setNickname(session?.user?.name || '')
+    } else {
+      getMe()
+    }
   }, [session, users])
 
   const [clientWindowHeight, setClientWindowHeight] = useState(0)
@@ -135,6 +134,30 @@ export default function Layout({ children, parties }: LayoutProps) {
   const handleScroll = () => {
     setClientWindowHeight(window.scrollY)
   }
+
+  useEffect(() => {
+    if (session && loadingMe) {
+      const collectionRef = collection(db, 'users')
+      const q = query(collectionRef, where('email', '==', session?.user?.email))
+      const snapUsers = onSnapshot(
+        q,
+        (snap) => {
+          const dataUser = snap.docs.map((doc) => ({
+            ...(doc.data() as Omit<User, 'id'>),
+            id: doc.id,
+          }))[0]
+          setMe(dataUser)
+          setLoadingMe(false)
+        },
+        (error) => {
+          console.log(error.message)
+        },
+      )
+
+      return () => snapUsers()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
@@ -339,28 +362,30 @@ export default function Layout({ children, parties }: LayoutProps) {
                 Logout
               </Button>
               <Button
-                onClick={async () => {
+                onClick={() => {
                   if (
                     session?.user?.email &&
                     session.user.image &&
                     session.user.name &&
                     nickname.length > 0
                   ) {
-                    const id = uuidv4()
-                    const docRef = doc(db, 'users', id)
+                    const colRef = collection(db, 'users')
                     const data: Omit<User, 'id'> = {
                       email: session.user.email,
                       name: session.user.name,
                       image: session.user.image,
                       nickname,
                     }
-                    try {
-                      await setDoc(docRef, data)
-                      setMe({ ...data, id })
-                      setOpenDialog(false)
-                    } catch (error) {
-                      console.error(error)
-                    }
+                    addDoc(colRef, data)
+                      .then((docRef) => {
+                        console.log('docRef:', docRef)
+                        setLoadingMe(true)
+                        setMe({ ...data, id: docRef.id })
+                      })
+                      .catch(console.error)
+                      .finally(() => {
+                        setOpenDialog(false)
+                      })
                   }
                 }}
               >

@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { Pencil2Icon, PersonIcon, TrashIcon } from '@radix-ui/react-icons'
 
-import { Timestamp, doc, getDoc, setDoc } from 'firebase/firestore/lite'
+import { Timestamp, doc, getDoc, setDoc } from 'firebase/firestore'
 import { Textarea } from '../ui/textarea'
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar'
 import { Button } from '@/components/ui/button'

@@ -3,7 +3,7 @@ import {
   collection,
   getDocs,
   Timestamp,
-} from 'firebase/firestore/lite'
+} from 'firebase/firestore'
 import { db } from '@/lib/db'
 import { CommentFS, GlobalProps, Party, Photo, User } from '@/types'
 

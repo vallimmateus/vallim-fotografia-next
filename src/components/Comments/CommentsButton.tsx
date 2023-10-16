@@ -1,10 +1,11 @@
 import { IconButton, useLightboxState } from 'yet-another-react-lightbox'
 
 import { MessagesSquare } from 'lucide-react'
-import { useCommentsContext } from './CommentsContext'
+import { useComments } from './CommentsContext'
 
 export default function CommentsButton() {
-  const { toggle } = useCommentsContext()
+  const { toggle } = useComments()
+
   const { currentSlide } = useLightboxState()
 
   return (

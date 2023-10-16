@@ -27,7 +27,7 @@ export default function LastParties({ parties }: LastPartiesProps) {
     }
   }, [width, parties])
   return (
-    <div className="my-6 flex max-md:max-w-sm max-md:flex-col max-md:gap-4 md:w-[80%] md:max-w-7xl md:items-end">
+    <div className="my-6 flex max-md:max-w-sm max-md:flex-col max-md:gap-6 md:w-[80%] md:max-w-7xl md:items-end">
       {mapped.map((party, idx) => {
         const isPublished = !!party.publishDate
         return (
@@ -40,6 +40,7 @@ export default function LastParties({ parties }: LastPartiesProps) {
               perspective={1000}
               glareMaxOpacity={0.2}
               glareBorderRadius="6px"
+              gyroscope={true}
               scale={1.1}
               className={clsx(
                 'group relative flex aspect-[3/2] overflow-hidden rounded-md border-2 border-black shadow-xl shadow-black',
