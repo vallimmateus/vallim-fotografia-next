@@ -35,7 +35,7 @@ export function getStaticPropsWithGlobalProps<
         ...result.props,
         ...globalProps,
       },
-      revalidate: result.revalidate,
+      // revalidate: result.revalidate,
     }
   }
 }
