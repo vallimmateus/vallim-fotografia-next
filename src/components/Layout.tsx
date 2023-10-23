@@ -1,21 +1,21 @@
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from "react";
 
-import Link from 'next/link'
-import Image from 'next/image'
-import { Inter, Rubik, Oswald } from 'next/font/google'
-import { signOut, useSession } from 'next-auth/react'
+import Link from "next/link";
+import Image from "next/image";
+import { Inter, Rubik, Oswald } from "next/font/google";
+import { signOut, useSession } from "next-auth/react";
 
-import clsx from 'clsx'
+import clsx from "clsx";
 
-import { ChevronRightIcon, HamburgerMenuIcon } from '@radix-ui/react-icons'
+import { ChevronRightIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import {
   addDoc,
   collection,
   onSnapshot,
   query,
   where,
-} from 'firebase/firestore'
-import SigninButton from './SigninButton'
+} from "firebase/firestore";
+import SigninButton from "./SigninButton";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -24,15 +24,15 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from '@/components/ui/navigation-menu'
+} from "@/components/ui/navigation-menu";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Button } from '@/components/ui/button'
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -40,38 +40,38 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-import { cn } from '@/lib/utils'
-import { Party, User } from '@/types'
-import { db } from '@/lib/db'
+import { cn } from "@/lib/utils";
+import { Party, User } from "@/types";
+import { db } from "@/lib/db";
 
 const inter = Inter({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-inter',
-})
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
 const rubik = Rubik({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-rubik',
-})
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-rubik",
+});
 const oswald = Oswald({
-  subsets: ['latin'],
-  display: 'swap',
-  variable: '--font-oswald',
-})
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-oswald",
+});
 
 interface LayoutProps {
-  children: ReactNode
-  parties: Party[]
+  children: ReactNode;
+  parties: Party[];
 }
 
 const ListItem = React.forwardRef<
-  React.ElementRef<'a'>,
-  React.ComponentPropsWithoutRef<'a'>
+  React.ElementRef<"a">,
+  React.ComponentPropsWithoutRef<"a">
 >(({ className, title, children, ...props }, ref) => {
   return (
     <li>
@@ -79,7 +79,7 @@ const ListItem = React.forwardRef<
         <a
           ref={ref}
           className={cn(
-            'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
             className,
           )}
           {...props}
@@ -91,88 +91,71 @@ const ListItem = React.forwardRef<
         </a>
       </NavigationMenuLink>
     </li>
-  )
-})
-ListItem.displayName = 'ListItem'
+  );
+});
+ListItem.displayName = "ListItem";
 
 export default function Layout({ children, parties }: LayoutProps) {
-  const { data: session } = useSession()
+  const { data: session } = useSession();
   // const { users } = GlobalProps.use()
+  // const { reload } = useRouter();
 
-  const [openDialog, setOpenDialog] = useState(false)
-  const [nickname, setNickname] = useState(session?.user?.name || '')
-  const [loadingMe, setLoadingMe] = useState(true)
-  const [waitingMe, setWaitingMe] = useState(false)
-  const [me, setMe] = useState<User>()
+  const [openDialog, setOpenDialog] = useState(false);
+  const [nickname, setNickname] = useState(session?.user?.name || "");
+  const [loadingMe, setLoadingMe] = useState(true);
+  const [waitingMe, setWaitingMe] = useState(false);
+  const [me, setMe] = useState<User>();
 
   useEffect(() => {
     if (session) {
-      const collectionRef = collection(db, 'users')
-      const q = query(collectionRef, where('email', '==', session?.user?.email))
+      const collectionRef = collection(db, "users");
+      const q = query(
+        collectionRef,
+        where("email", "==", session?.user?.email),
+      );
       const unsubscribe = onSnapshot(q, (snap) => {
         if (snap.docs.length === 1) {
-          const user = snap.docs[0].data() as User
+          const user = snap.docs[0].data() as User;
           if (snap.docs[0].exists() && user.nickname) {
-            setOpenDialog(false)
-            setLoadingMe(false)
-            setWaitingMe(false)
-            setMe(user)
+            setOpenDialog(false);
+            setLoadingMe(false);
+            setWaitingMe(false);
+            setMe(user);
+            // reload()
           } else {
-            setOpenDialog(true)
-            setNickname(session?.user?.name || '')
+            setOpenDialog(true);
+            setNickname(session?.user?.name || "");
           }
         } else {
-          setOpenDialog(true)
-          setNickname(session?.user?.name || '')
+          setOpenDialog(true);
+          setNickname(session?.user?.name || "");
         }
-      })
+      });
       if (!loadingMe && !waitingMe && unsubscribe) {
-        unsubscribe()
+        unsubscribe();
       }
     }
-  }, [loadingMe, waitingMe, session])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadingMe, waitingMe, session]);
 
-  // useEffect(() => {
-  //   const getMe = async () => {
-  //     const usersRef = collection(db, 'users')
-  //     const usersSnap = await getDocs(usersRef)
-  //     const users: User[] = usersSnap.docs.map((user) => {
-  //       const data = user.data() as Omit<User, 'id'>
-  //       return { ...data, id: user.id }
-  //     })
-  //     const me = users.find((user) => user.email === session?.user?.email)
-  //     setMe(me)
-  //     return [users, me]
-  //   }
-  //   if (
-  //     !users.find((user) => user.email === session?.user?.email) &&
-  //     session?.user
-  //   ) {
-  //     setOpenDialog(true)
-  //     setNickname(session?.user?.name || '')
-  //   } else {
-  //     getMe()
-  //   }
-  // }, [session, users])
-
-  const [clientWindowHeight, setClientWindowHeight] = useState(0)
+  const [clientWindowHeight, setClientWindowHeight] = useState(0);
 
   const handleScroll = () => {
-    setClientWindowHeight(window.scrollY)
-  }
+    setClientWindowHeight(window.scrollY);
+  };
 
   useEffect(() => {
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
   return (
     <>
       <header
         className={clsx(
-          'sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all',
+          "sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all",
           {
-            'h-20': clientWindowHeight <= 50,
-            'h-14': clientWindowHeight > 50,
+            "h-20": clientWindowHeight <= 50,
+            "h-14": clientWindowHeight > 50,
           },
         )}
       >
@@ -285,7 +268,7 @@ export default function Layout({ children, parties }: LayoutProps) {
                               className="flex h-full select-none items-center rounded-md bg-gradient-to-b from-muted/50 to-muted p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground"
                             >
                               <p className="inline-flex w-full items-center gap-1 text-base font-semibold leading-none">
-                                Ver mais{' '}
+                                Ver mais{" "}
                                 <ChevronRightIcon className="h-4 w-4" />
                               </p>
                             </Link>
@@ -331,7 +314,7 @@ export default function Layout({ children, parties }: LayoutProps) {
                 <Input
                   id="name"
                   disabled={!!session?.user?.name}
-                  defaultValue={session?.user?.name || ''}
+                  defaultValue={session?.user?.name || ""}
                   className="col-span-3"
                 />
               </div>
@@ -342,7 +325,7 @@ export default function Layout({ children, parties }: LayoutProps) {
                 <Input
                   id="email"
                   disabled={!!session?.user?.email}
-                  defaultValue={session?.user?.email || ''}
+                  defaultValue={session?.user?.email || ""}
                   className="col-span-3"
                 />
               </div>
@@ -371,21 +354,21 @@ export default function Layout({ children, parties }: LayoutProps) {
                     session.user.name &&
                     nickname.length > 0
                   ) {
-                    const colRef = collection(db, 'users')
-                    const data: Omit<User, 'id'> = {
+                    const colRef = collection(db, "users");
+                    const data: Omit<User, "id"> = {
                       email: session.user.email,
                       name: session.user.name,
                       image: session.user.image,
                       nickname,
-                    }
+                    };
                     addDoc(colRef, data)
                       .then(() => {
-                        setWaitingMe(true)
+                        setWaitingMe(true);
                       })
                       .catch(console.error)
                       .finally(() => {
-                        setOpenDialog(false)
-                      })
+                        setOpenDialog(false);
+                      });
                   }
                 }}
               >
@@ -397,5 +380,5 @@ export default function Layout({ children, parties }: LayoutProps) {
         {children}
       </main>
     </>
-  )
+  );
 }
