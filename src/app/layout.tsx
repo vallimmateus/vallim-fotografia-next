@@ -1,4 +1,7 @@
+"use client";
+
 import React, { ReactNode, useEffect, useState } from "react";
+import "./globals.css";
 
 import Link from "next/link";
 import Image from "next/image";
@@ -8,14 +11,6 @@ import { signOut, useSession } from "next-auth/react";
 import clsx from "clsx";
 
 import { ChevronRightIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
-import {
-  addDoc,
-  collection,
-  onSnapshot,
-  query,
-  where,
-} from "firebase/firestore";
-import SigninButton from "./SigninButton";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -47,6 +42,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Party, User } from "@/types";
 import { db } from "@/lib/db";
+import { Metadata } from "next";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -95,7 +91,12 @@ const ListItem = React.forwardRef<
 });
 ListItem.displayName = "ListItem";
 
-export default function Layout({ children, parties }: LayoutProps) {
+// export const metadata: Metadata = {
+//   title: "Vallim Fotografia",
+//   description: "Fotógrafo da universidade EEL-USP",
+// };
+
+export default function Layout({ children }: { children: React.ReactNode }) {
   const [clientWindowHeight, setClientWindowHeight] = useState(0);
 
   const handleScroll = () => {
@@ -107,81 +108,82 @@ export default function Layout({ children, parties }: LayoutProps) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
   return (
-    <>
-      <header
-        className={clsx(
-          "sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all",
-          {
-            "h-20": clientWindowHeight <= 50,
-            "h-14": clientWindowHeight > 50,
-          },
-        )}
-      >
-        {/* <div className='flex flex-row justify-between mx-12 max-w-3xl w-full'> */}
-        {/* Mobile */}
-        <div className="flex w-full max-w-screen-xl items-center justify-between p-4 max-xl:px-10 lg:hidden">
-          <Link href="/">
-            <Image
-              className="max-h-10"
-              src="/logo.svg"
-              alt="Vallim Fotografia logo"
-              width={98}
-              height={60}
-            />
-          </Link>
-          <div className="flex flex-row items-center">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="h-10 w-10 p-0">
-                  <HamburgerMenuIcon />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56">
-                <Link href="/">
-                  <DropdownMenuItem>Home</DropdownMenuItem>
-                </Link>
-                <DropdownMenuSeparator />
-                <Link href="/parties">
-                  <DropdownMenuItem>Festas Universitárias</DropdownMenuItem>
-                </Link>
-                <DropdownMenuItem disabled>Eventos</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem disabled>Orçamentos</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            <Button variant="outline" className="h-10 w-10">
-              Fazer login
-            </Button>
-            {/* <SigninButton me={me} /> */}
-          </div>
-        </div>
-        {/* Desktop */}
-        <div className="grid w-full max-w-screen-xl grid-cols-3 items-center p-4 max-xl:px-10 max-lg:hidden">
-          <Link href="/">
-            <Image
-              src="/vallim-fotografia.svg"
-              alt="Vallim Fotografia logo"
-              width={150}
-              height={60}
-            />
-          </Link>
-          <div className="flex justify-center">
-            <NavigationMenu>
-              <NavigationMenuList>
-                <NavigationMenuItem>
-                  <Link href="/" passHref legacyBehavior>
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                    >
-                      Home
-                    </NavigationMenuLink>
+    <html lang="pt-br">
+      <body>
+        <header
+          className={clsx(
+            "sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all",
+            {
+              "h-20": clientWindowHeight <= 50,
+              "h-14": clientWindowHeight > 50,
+            },
+          )}
+        >
+          {/* <div className='flex flex-row justify-between mx-12 max-w-3xl w-full'> */}
+          {/* Mobile */}
+          <div className="flex w-full max-w-screen-xl items-center justify-between p-4 max-xl:px-10 lg:hidden">
+            <Link href="/">
+              <Image
+                className="max-h-10"
+                src="/logo.svg"
+                alt="Vallim Fotografia logo"
+                width={98}
+                height={60}
+              />
+            </Link>
+            <div className="flex flex-row items-center">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="h-10 w-10 p-0">
+                    <HamburgerMenuIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <Link href="/">
+                    <DropdownMenuItem>Home</DropdownMenuItem>
                   </Link>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuTrigger>
-                    Festas Universitárias
-                  </NavigationMenuTrigger>
-                  {parties && (
+                  <DropdownMenuSeparator />
+                  <Link href="/parties">
+                    <DropdownMenuItem>Festas Universitárias</DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuItem disabled>Eventos</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem disabled>Orçamentos</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <Button variant="outline" className="h-10 w-10">
+                Fazer login
+              </Button>
+              {/* <SigninButton me={me} /> */}
+            </div>
+          </div>
+          {/* Desktop */}
+          <div className="grid w-full max-w-screen-xl grid-cols-3 items-center p-4 max-xl:px-10 max-lg:hidden">
+            <Link href="/">
+              <Image
+                src="/vallim-fotografia.svg"
+                alt="Vallim Fotografia logo"
+                width={150}
+                height={60}
+              />
+            </Link>
+            <div className="flex justify-center">
+              <NavigationMenu>
+                <NavigationMenuList>
+                  <NavigationMenuItem>
+                    <Link href="/" passHref legacyBehavior>
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Home
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <NavigationMenuTrigger>
+                      Festas Universitárias
+                    </NavigationMenuTrigger>
+                    {/* {parties && (
                     <NavigationMenuContent className="p-4">
                       <ul className="grid gap-3 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
                         <li className="row-span-4">
@@ -237,32 +239,32 @@ export default function Layout({ children, parties }: LayoutProps) {
                         </li>
                       </ul>
                     </NavigationMenuContent>
-                  )}
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <Link href="/event" passHref legacyBehavior>
-                    <NavigationMenuLink
-                      className={navigationMenuTriggerStyle()}
-                    >
-                      Eventos
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-              </NavigationMenuList>
-            </NavigationMenu>
+                  )} */}
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link href="/event" passHref legacyBehavior>
+                      <NavigationMenuLink
+                        className={navigationMenuTriggerStyle()}
+                      >
+                        Eventos
+                      </NavigationMenuLink>
+                    </Link>
+                  </NavigationMenuItem>
+                </NavigationMenuList>
+              </NavigationMenu>
+            </div>
+            <div className="flex justify-end">
+              <Button variant="outline" className="h-10 w-10">
+                Fazer login
+              </Button>
+              {/* <SigninButton me={me} /> */}
+            </div>
           </div>
-          <div className="flex justify-end">
-            <Button variant="outline" className="h-10 w-10">
-              Fazer login
-            </Button>
-            {/* <SigninButton me={me} /> */}
-          </div>
-        </div>
-      </header>
-      <main
-        className={`${inter.variable} ${rubik.variable} ${oswald.variable}`}
-      >
-        {/* <Dialog open={openDialog} onOpenChange={() => signOut()}>
+        </header>
+        <main
+          className={`${inter.variable} ${rubik.variable} ${oswald.variable}`}
+        >
+          {/* <Dialog open={openDialog} onOpenChange={() => signOut()}>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
               <DialogTitle>Termine de criar a sua conta.</DialogTitle>
@@ -341,8 +343,9 @@ export default function Layout({ children, parties }: LayoutProps) {
             </DialogFooter>
           </DialogContent>
         </Dialog> */}
-        {children}
-      </main>
-    </>
+          {children}
+        </main>
+      </body>
+    </html>
   );
 }

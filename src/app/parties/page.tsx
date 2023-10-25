@@ -1,17 +1,17 @@
-import React from 'react'
-import { InferGetStaticPropsType } from 'next'
-import { GlobalProps } from '@/features/GlobalProps/GlobalProps'
-import PartyCard from '@/components/partyCard'
+import React from "react";
+import { InferGetStaticPropsType } from "next";
+import { GlobalProps } from "@/features/GlobalProps/GlobalProps";
+import PartyCard from "@/components/partyCard";
 
-export const getStaticProps = GlobalProps.getEmptyStaticProps
+// export const getStaticProps = GlobalProps.getEmptyStaticProps
 
-type PageProps = InferGetStaticPropsType<typeof getStaticProps>
+// type PageProps = InferGetStaticPropsType<typeof getStaticProps>
 
-export default function Party({ parties }: PageProps) {
+export default function Party() {
   return (
     <main className="flex flex-col items-center">
       <div className="max-w-screen mx-16 mt-14 flex flex-row flex-wrap justify-center max-sm:mx-4">
-        {parties.map((party, idx) => {
+        {/* {parties.map((party, idx) => {
           return (
             <div
               key={party.id}
@@ -27,8 +27,8 @@ export default function Party({ parties }: PageProps) {
               />
             </div>
           )
-        })}
+        })} */}
       </div>
     </main>
-  )
+  );
 }
