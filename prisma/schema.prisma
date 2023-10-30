@@ -26,11 +26,12 @@ model Party {
 }
 
 model Photo {
-  id       String    @id @default(cuid())
-  imageURL String    @unique
-  partyId  String
-  comments Comment[]
-  likes    Likes[]
+  id         String    @id @default(cuid())
+  imageUrlId String    @unique
+  name       String
+  partyId    String
+  comments   Comment[]
+  likes      Likes[]
 
   party Party @relation(fields: [partyId], references: [id])
 }
