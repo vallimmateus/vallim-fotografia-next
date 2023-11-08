@@ -11,18 +11,36 @@ datasource db {
 }
 
 model Party {
-  id           String    @id @default(cuid())
-  name         String
-  description  String?
-  organization String
-  coverURL     String
-  slug         String    @unique
-  fid          String    @unique
-  date         DateTime
-  publishDate  DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime? @updatedAt
-  photos       Photo[]
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  coverUrl    String
+  slug        String    @unique
+  fid         String[]  @unique
+  date        DateTime
+  publishDate DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime? @updatedAt
+
+  organizations OrganizationsOnParties[]
+  photos        Photo[]
+}
+
+model Organization {
+  id      String                   @id @default(cuid())
+  name    String
+  logoUrl String
+  parties OrganizationsOnParties[]
+}
+
+model OrganizationsOnParties {
+  partyId        String
+  organizationId String
+
+  party        Party        @relation(fields: [partyId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@id([partyId, organizationId])
 }
 
 model Photo {
