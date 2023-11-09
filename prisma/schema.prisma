@@ -10,10 +10,12 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Party {
+model Event {
   id          String    @id @default(cuid())
   name        String
+  type        String
   description String?
+  logoUrl     String
   coverUrl    String
   slug        String    @unique
   fid         String[]  @unique
@@ -22,36 +24,36 @@ model Party {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
 
-  organizations OrganizationsOnParties[]
+  organizations OrganizationsOnEvents[]
   photos        Photo[]
 }
 
 model Organization {
-  id      String                   @id @default(cuid())
-  name    String                   @unique
+  id      String                  @id @default(cuid())
+  name    String                  @unique
   logoUrl String
-  parties OrganizationsOnParties[]
+  parties OrganizationsOnEvents[]
 }
 
-model OrganizationsOnParties {
-  partyId        String
+model OrganizationsOnEvents {
+  eventId        String
   organizationId String
 
-  party        Party        @relation(fields: [partyId], references: [id])
+  event        Event        @relation(fields: [eventId], references: [id])
   organization Organization @relation(fields: [organizationId], references: [id])
 
-  @@id([partyId, organizationId])
+  @@id([eventId, organizationId])
 }
 
 model Photo {
   id         String    @id @default(cuid())
   imageUrlId String    @unique
   name       String
-  partyId    String
+  eventId    String
   comments   Comment[]
   likes      Likes[]
 
-  party Party @relation(fields: [partyId], references: [id])
+  event Event @relation(fields: [eventId], references: [id])
 }
 
 model Comment {
