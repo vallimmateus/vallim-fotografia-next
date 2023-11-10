@@ -15,43 +15,35 @@ model Event {
   name        String
   type        String
   description String?
-  logoUrl     String
-  coverUrl    String
-  slug        String    @unique
+  logoUrl     String?   @unique
+  coverUrl    String    @unique
+  slug        String
   fid         String[]  @unique
   date        DateTime
   publishDate DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime? @updatedAt
 
-  organizations OrganizationsOnEvents[]
+  organizations Organization[]
   photos        Photo[]
 }
 
 model Organization {
-  id      String                  @id @default(cuid())
-  name    String                  @unique
-  logoUrl String
-  parties OrganizationsOnEvents[]
-}
+  id      String  @id @default(cuid())
+  name    String  @unique
+  logoUrl String? @unique
 
-model OrganizationsOnEvents {
-  eventId        String
-  organizationId String
-
-  event        Event        @relation(fields: [eventId], references: [id])
-  organization Organization @relation(fields: [organizationId], references: [id])
-
-  @@id([eventId, organizationId])
+  events Event[]
 }
 
 model Photo {
-  id         String    @id @default(cuid())
-  imageUrlId String    @unique
+  id         String @id @default(cuid())
+  imageUrlId String @unique
   name       String
   eventId    String
-  comments   Comment[]
-  likes      Likes[]
+
+  comments Comment[]
+  likes    Likes[]
 
   event Event @relation(fields: [eventId], references: [id])
 }
