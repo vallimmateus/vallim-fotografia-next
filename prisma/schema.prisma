@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,57 +8,51 @@ datasource db {
 }
 
 model Event {
-  id                  String    @id @default(cuid())
+  id                  String                  @id @default(cuid())
   name                String
   type                String
   description         String?
-  logoUrl             String?   @unique
-  coverUrl            String    @unique
+  coverUrl            String                  @unique
   slug                String
-  fid                 String[]  @unique
+  fid                 String[]                @unique
   date                DateTime
   publishDate         DateTime?
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime? @updatedAt
+  createdAt           DateTime                @default(now())
+  updatedAt           DateTime?               @updatedAt
+  logoUrl             String?                 @unique
   validateByUserEmail String?
-
-  organizations OrganizationsOnEvents[]
-  photos        Photo[]
-
-  validateBy User? @relation(fields: [validateByUserEmail], references: [email])
+  validateBy          User?                   @relation(fields: [validateByUserEmail], references: [email])
+  organizations       OrganizationsOnEvents[]
+  photos              Photo[]
 
   @@unique([name, date])
 }
 
 model Organization {
-  id      String  @id @default(cuid())
-  name    String  @unique
-  logoUrl String? @unique
-
-  events OrganizationsOnEvents[]
+  id      String                  @id @default(cuid())
+  name    String                  @unique
+  logoUrl String?                 @unique
+  events  OrganizationsOnEvents[]
 }
 
 model OrganizationsOnEvents {
-  id             String @id @default(cuid())
+  id             String       @id @default(cuid())
   organizationId String
   eventId        String
-
-  organization Organization @relation(fields: [organizationId], references: [id])
-  event        Event        @relation(fields: [eventId], references: [id])
+  event          Event        @relation(fields: [eventId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([organizationId, eventId])
 }
 
 model Photo {
-  id         String @id @default(cuid())
-  imageUrlId String @unique
+  id         String    @id @default(cuid())
+  imageUrlId String    @unique
   name       String
   eventId    String
-
-  comments Comment[]
-  likes    Likes[]
-
-  event Event @relation(fields: [eventId], references: [id])
+  comments   Comment[]
+  likes      Like[]
+  event      Event     @relation(fields: [eventId], references: [id])
 }
 
 model Comment {
@@ -71,19 +62,19 @@ model Comment {
   updatedAt DateTime? @updatedAt
   photoId   String
   userId    String
-
-  user  User  @relation(fields: [userId], references: [id])
-  photo Photo @relation(fields: [photoId], references: [id])
+  photo     Photo     @relation(fields: [photoId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 }
 
-model Likes {
+model Like {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now())
   photoId   String
   userId    String
+  photo     Photo    @relation(fields: [photoId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
-  user  User  @relation(fields: [userId], references: [id])
-  photo Photo @relation(fields: [photoId], references: [id])
+  @@unique([photoId, userId])
 }
 
 model Account {
@@ -92,15 +83,14 @@ model Account {
   type              String
   provider          String
   providerAccountId String
-  refresh_token     String? @db.Text
-  access_token      String? @db.Text
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
-  id_token          String? @db.Text
+  id_token          String?
   session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
@@ -116,15 +106,16 @@ model Session {
 model User {
   id            String    @id @default(cuid())
   name          String?
-  nickname      String?
   email         String?   @unique
   emailVerified DateTime?
   image         String?
+  nickname      String?
+  role          String    @default("user")
   accounts      Account[]
-  sessions      Session[]
   comment       Comment[]
-  likes         Likes[]
   Event         Event[]
+  likes         Like[]
+  sessions      Session[]
 }
 
 model VerificationToken {
