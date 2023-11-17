@@ -1,6 +1,5 @@
 import { formSchema } from "@/app/event/register/components/form"
 import { prismaClient } from "@/lib/prisma"
-import cuid from "cuid"
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
@@ -23,7 +22,6 @@ export async function POST(req: Request) {
       .then((data) => {
         return data.data.map((photo: { name: string; img_id: string }) => {
           return {
-            id: cuid(),
             name: photo.name,
             imageUrlId: photo.img_id
           }

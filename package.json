@@ -37,7 +37,6 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cors": "^2.8.5",
-    "cuid": "^3.0.0",
     "date-fns": "^2.30.0",
     "firebase": "^10.3.0",
     "lucide-react": "^0.286.0",
