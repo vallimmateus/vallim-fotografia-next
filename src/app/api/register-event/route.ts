@@ -10,9 +10,9 @@ type PhotoListProps = {
   imageUrlId: string
 }[]
 
-export async function POST(req: Request, res: Response) {
+export async function POST(req: Request) {
   const data: z.infer<typeof formSchema> = await req.json()
-  var photos: PhotoListProps = []
+  let photos: PhotoListProps = []
 
   for (const singleFid of data.fid) {
     const newPhotos = await fetch(

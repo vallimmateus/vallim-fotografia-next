@@ -32,7 +32,6 @@ export async function GET(req: Request) {
     return NextResponse.json({ likes, message: "success" }, { status: 200 })
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
-  } finally {
   }
 }
 

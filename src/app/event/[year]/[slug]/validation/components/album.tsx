@@ -1,28 +1,26 @@
 "use client"
-import { Photo as PhotoPC, Event as EventPC } from "@prisma/client"
+import { Event as EventPC, Photo as PhotoPC } from "@prisma/client"
 import { signIn, useSession } from "next-auth/react"
 import Image from "next/image"
-import { useParams, useSearchParams, useRouter } from "next/navigation"
-import React, { useState } from "react"
+import { useParams, useRouter, useSearchParams } from "next/navigation"
+import { useState } from "react"
 import type { RenderPhotoProps } from "react-photo-album"
 import PhotoAlbum, { Photo as PhotoRPA } from "react-photo-album"
 
-import { Trash2Icon, ChevronUpIcon, Undo2Icon, Copy } from "lucide-react"
+import { ChevronUpIcon, Copy, Trash2Icon, Undo2Icon } from "lucide-react"
 import Lightbox from "yet-another-react-lightbox"
-import "yet-another-react-lightbox/styles.css"
 import Counter from "yet-another-react-lightbox/plugins/counter"
+import "yet-another-react-lightbox/plugins/counter.css"
 import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
 import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
-import Zoom from "yet-another-react-lightbox/plugins/zoom"
 import "yet-another-react-lightbox/plugins/thumbnails.css"
-import "yet-another-react-lightbox/plugins/counter.css"
+import Zoom from "yet-another-react-lightbox/plugins/zoom"
+import "yet-another-react-lightbox/styles.css"
 
-import axios from "axios"
 import { DialogClose } from "@radix-ui/react-dialog"
+import axios from "axios"
 import { format } from "date-fns"
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,8 +30,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from "@/components/ui/alert-dialog"
-import EventCard from "@/components/ui/event-card"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -43,12 +40,9 @@ import {
   DialogTitle,
   DialogTrigger
 } from "@/components/ui/dialog"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip"
+import EventCard from "@/components/ui/event-card"
+import { Input } from "@/components/ui/input"
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
 import {
   Sheet,
   SheetContent,
@@ -59,7 +53,13 @@ import {
   SheetTrigger
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
-import { Input } from "@/components/ui/input"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger
+} from "@/components/ui/tooltip"
+import { cn } from "@/lib/utils"
 
 type AlbumProps = {
   thumbnails: PhotoRPA[]
@@ -71,29 +71,6 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
   const router = useRouter()
   const { status, data } = useSession()
 
-  if (status === "unauthenticated") {
-    return (
-      <div>
-        <AlertDialog defaultOpen={true}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-xl">
-                Você precisa fazer login para validar o evento!
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Por favor, faça o login com a sua conta Google para continuar.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogAction onClick={() => signIn}>
-                Login
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </div>
-    )
-  }
   const searchParams = useSearchParams()
   const photoNumber = Number(searchParams.get("photo"))
   const [index, setIndex] = useState(photoNumber || -1)
@@ -118,6 +95,29 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
       )
       .then(() => setOpenModal(true))
   }
+  if (status === "unauthenticated") {
+    return (
+      <div>
+        <AlertDialog defaultOpen={true}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-xl">
+                Você precisa fazer login para validar o evento!
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Por favor, faça o login com a sua conta Google para continuar.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogAction onClick={() => signIn}>
+                Login
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    )
+  }
   return (
     <div>
       <AlertDialog defaultOpen={true}>
@@ -136,7 +136,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
               <span className="font-bold">{event.name}</span>. Caso note alguma
               foto que contenha algum problema, clique no ícone de lixeira para
               deletá-la. Se não houver nenhum problema, clique em{" "}
-              <span className="font-semibold">"Validar"</span> no canto inferior
+              <span className="font-semibold">Validar</span> no canto inferior
               da página para continuar.
             </p>
             {event.type === "party" && (
@@ -264,6 +264,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                         (photoKey) => photoKey === thumbnails[index]
                       )
                     })}
+                    key="delete"
                     onClick={() => {
                       if (
                         deletedPhotos.some(
@@ -328,8 +329,8 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
               {deletedPhotos.length > 0 && (
                 <ScrollArea className="h-24 whitespace-nowrap">
                   <div className="flex h-24 w-max space-x-4">
-                    {deletedPhotos.map((photo) => (
-                      <div className="relative h-full">
+                    {deletedPhotos.map((photo, idx) => (
+                      <div className="relative h-full" key={idx}>
                         <button
                           onClick={() =>
                             setDeletedPhotos((prev) =>

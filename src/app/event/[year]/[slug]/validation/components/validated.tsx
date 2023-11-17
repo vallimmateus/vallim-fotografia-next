@@ -35,7 +35,7 @@ export default function Validated({
             <AlertDialogDescription>
               O usuário{" "}
               <span className="text-bold text-white">
-                {userValidator?.nickname || userValidator?.name!}
+                {userValidator?.nickname || userValidator?.name}
               </span>{" "}
               validou este evento em{" "}
               <span className="text-bold text-white">
