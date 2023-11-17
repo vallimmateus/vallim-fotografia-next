@@ -1,8 +1,21 @@
-"use client";
+"use client"
 
-import Link from "next/link";
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { Event, User } from "@prisma/client"
+import { signIn, signOut, useSession } from "next-auth/react"
+import Image from "next/image"
+import Link from "next/link"
+import { useCallback, useEffect, useState } from "react"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -10,78 +23,67 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu";
-import { cn } from "@/lib/utils";
-import { useCallback, useEffect, useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { ChevronRightIcon, LogInIcon, LogOutIcon } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Event, User } from "@prisma/client";
-import { format } from "date-fns";
-import { imageLoader } from "@/lib/imageLoader";
-import axios from "axios";
+  navigationMenuTriggerStyle
+} from "@/components/ui/navigation-menu"
+import { imageLoader } from "@/lib/imageLoader"
+import { cn } from "@/lib/utils"
+
+import { HamburgerMenuIcon } from "@radix-ui/react-icons"
+import axios from "axios"
+import { format } from "date-fns"
+import { ChevronRightIcon, LogInIcon, LogOutIcon } from "lucide-react"
 
 export function Header() {
-  const { status, data } = useSession();
+  const { status, data } = useSession()
 
-  const [parties, setParties] = useState<Event[]>([]);
-  const [events, setEvents] = useState<Event[]>([]);
-  const [user, setUser] = useState<User>();
+  const [parties, setParties] = useState<Event[]>([])
+  const [events, setEvents] = useState<Event[]>([])
+  const [user, setUser] = useState<User>()
 
   const getUserData = useCallback(async (email: string) => {
     await axios
       .get("/api/user", { headers: { userEmail: email } })
-      .then((res) => setUser(res.data.userData));
-  }, []);
+      .then((res) => setUser(res.data.userData))
+  }, [])
 
   const getParties = useCallback(async () => {
     await axios
       .get("/api/events", { headers: { type: "party", quantity: 4 } })
-      .then((res) => setParties(res.data.eventData));
-  }, []);
+      .then((res) => setParties(res.data.eventData))
+  }, [])
 
   const getEvents = useCallback(async () => {
     await axios
       .get("/api/events", { headers: { type: "event", quantity: 2 } })
-      .then((res) => setEvents(res.data.eventData));
-  }, []);
+      .then((res) => setEvents(res.data.eventData))
+  }, [])
 
   const handleLoginCLick = async () => {
-    await signIn();
-  };
+    await signIn()
+  }
 
   const handleLogoutClick = async () => {
-    await signOut();
-  };
+    await signOut()
+  }
 
-  const [clientWindowHeight, setClientWindowHeight] = useState(0);
+  const [clientWindowHeight, setClientWindowHeight] = useState(0)
 
   const handleScroll = () => {
-    setClientWindowHeight(window.scrollY);
-  };
+    setClientWindowHeight(window.scrollY)
+  }
 
   useEffect(() => {
-    getParties();
-    getEvents();
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    getParties()
+    getEvents()
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   useEffect(() => {
     if (data?.user?.email && !user) {
-      getUserData(data?.user?.email);
+      getUserData(data?.user?.email)
     }
-  }, [data]);
+  }, [data])
 
   return (
     <header
@@ -89,8 +91,8 @@ export function Header() {
         "sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all",
         {
           "h-20": clientWindowHeight <= 50,
-          "h-14": clientWindowHeight > 50,
-        },
+          "h-14": clientWindowHeight > 50
+        }
       )}
     >
       <div className="grid w-full max-w-screen-xl items-center p-4 max-xl:px-10 max-md:grid-cols-2 md:grid-cols-3">
@@ -132,7 +134,7 @@ export function Header() {
                             <Link
                               className="group relative flex h-full w-full select-none flex-col overflow-hidden rounded-md bg-muted no-underline outline-none focus:shadow-md"
                               href={`/event/${new Date(
-                                parties[0].date,
+                                parties[0].date
                               ).getFullYear()}/${parties[0].slug}`}
                             >
                               <div className="h-full w-full">
@@ -153,7 +155,7 @@ export function Header() {
                                   <p className="text-sm leading-tight text-zinc-200">
                                     {format(
                                       new Date(parties[0].date),
-                                      "dd/MM/yyyy",
+                                      "dd/MM/yyyy"
                                     )}
                                   </p>
                                 </div>
@@ -210,7 +212,7 @@ export function Header() {
                             <Link
                               className="group relative flex h-56 w-full select-none flex-col overflow-hidden rounded-md bg-muted no-underline outline-none focus:shadow-md"
                               href={`/event/${new Date(
-                                event.date,
+                                event.date
                               ).getFullYear()}/${event.slug}`}
                             >
                               <div className="h-full w-full">
@@ -367,5 +369,5 @@ export function Header() {
         </div>
       </div>
     </header>
-  );
+  )
 }

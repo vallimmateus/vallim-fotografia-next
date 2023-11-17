@@ -1,13 +1,14 @@
-"use client";
-import CommentCard from "./commentCard";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { CommentWithUserType } from "./commentsContext";
+"use client"
+import { ScrollArea } from "@/components/ui/scroll-area"
+
+import CommentCard from "./commentCard"
+import { CommentWithUserType } from "./commentsContext"
 
 type CommentsListProps = {
-  comments: CommentWithUserType[];
-  getComments: () => void;
-  getUser: () => void;
-};
+  comments: CommentWithUserType[]
+  getComments: () => void
+  getUser: () => void
+}
 
 export default function CommentsList({
   comments,
@@ -25,5 +26,5 @@ export default function CommentsList({
         />
       ))}
     </ScrollArea>
-  );
+  )
 }

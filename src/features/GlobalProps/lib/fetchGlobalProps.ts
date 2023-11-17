@@ -3,23 +3,23 @@ import {
   collection,
   getDocs,
   Timestamp,
-  onSnapshot,
-} from 'firebase/firestore'
-import { db } from '@/lib/db'
-import { CommentFS, GlobalProps, Party, Photo, User } from '@/types'
+  onSnapshot
+} from "firebase/firestore"
+import { db } from "@/lib/db"
+import { CommentFS, GlobalProps, Party, Photo, User } from "@/types"
 
 export async function fetchGlobalProps(): Promise<GlobalProps> {
-  const partiesCol = collection(db, 'parties')
+  const partiesCol = collection(db, "parties")
   const partySnapshot = await getDocs(partiesCol)
 
-  const photosCol = collection(db, 'photos')
+  const photosCol = collection(db, "photos")
   const photosSnapshot = await getDocs(photosCol)
 
   let users: User[] = []
-  const usersCol = collection(db, 'users')
+  const usersCol = collection(db, "users")
   onSnapshot(usersCol, (snap) => {
     users = snap.docs.map((doc) => {
-      const data = doc.data() as Omit<User, 'id'>
+      const data = doc.data() as Omit<User, "id">
       return { ...data, id: doc.id }
     })
   })
@@ -50,7 +50,7 @@ export async function fetchGlobalProps(): Promise<GlobalProps> {
       }
       return { ...data, ref, id: doc.id } as Photo
     }),
-    users,
+    users
     // usersSnapshot.docs.map((doc) => {
     //   const data = doc.data()
     //   return { ...data, id: doc.id } as User

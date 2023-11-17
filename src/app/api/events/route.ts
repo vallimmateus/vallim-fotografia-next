@@ -1,24 +1,21 @@
-import { prismaClient } from "@/lib/prisma";
-import { NextResponse } from "next/server";
+import { prismaClient } from "@/lib/prisma"
+import { NextResponse } from "next/server"
 
 export async function GET(req: Request) {
-  const type = req.headers.get("type");
-  const quantity = req.headers.get("quantity");
+  const type = req.headers.get("type")
+  const quantity = req.headers.get("quantity")
   try {
     const eventData = await prismaClient.event.findMany({
       where: {
-        type: type!,
+        type: type!
       },
       orderBy: {
-        date: "desc",
+        date: "desc"
       },
-      take: parseInt(quantity!),
-    });
-    return NextResponse.json(
-      { eventData, message: "success" },
-      { status: 200 },
-    );
+      take: parseInt(quantity!)
+    })
+    return NextResponse.json({ eventData, message: "success" }, { status: 200 })
   } catch (err) {
-    return NextResponse.json({ message: err }, { status: 403 });
+    return NextResponse.json({ message: err }, { status: 403 })
   }
 }

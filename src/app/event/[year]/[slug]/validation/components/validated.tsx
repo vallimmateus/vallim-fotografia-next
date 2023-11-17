@@ -1,31 +1,31 @@
-"use client";
+"use client"
+import { User } from "@prisma/client"
+import { useRouter } from "next/navigation"
+
 import {
   AlertDialog,
   AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { User } from "@prisma/client";
-import { format } from "date-fns/esm";
-import { useRouter } from "next/navigation";
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+
+import { format } from "date-fns/esm"
 
 type ValidatedProps = {
-  userValidator: User;
-  publishDate: Date;
-  link: string;
-};
+  userValidator: User
+  publishDate: Date
+  link: string
+}
 
 export default function Validated({
   userValidator,
   publishDate,
-  link,
+  link
 }: ValidatedProps) {
-  const router = useRouter();
+  const router = useRouter()
   return (
     <div className="w-full flex-1">
       <AlertDialog defaultOpen={true}>
@@ -52,5 +52,5 @@ export default function Validated({
         </AlertDialogContent>
       </AlertDialog>
     </div>
-  );
+  )
 }

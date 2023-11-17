@@ -1,23 +1,26 @@
-"use client";
-import * as z from "zod";
-import axios from "axios";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+"use client"
+import Image from "next/image"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
+import { useFieldArray, useForm } from "react-hook-form"
 
-import { CalendarIcon, Loader2, TrashIcon } from "lucide-react";
-import { format } from "date-fns";
-import { useFieldArray, useForm } from "react-hook-form";
-import { useState } from "react";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger
+} from "@/components/ui/accordion"
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Button, buttonVariants } from "@/components/ui/button";
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
+import { Button, buttonVariants } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import EventCard from "@/components/ui/event-card"
 import {
   Form,
   FormControl,
@@ -25,51 +28,48 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Input } from "@/components/ui/input";
+  FormMessage
+} from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
+  PopoverTrigger
+} from "@/components/ui/popover"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { imageLoader } from "@/lib/imageLoader"
+import { cn } from "@/lib/utils"
 
-import { cn } from "@/lib/utils";
-import { Calendar } from "@/components/ui/calendar";
-import { imageLoader } from "@/lib/imageLoader";
-import EventCard from "@/components/ui/event-card";
+import { zodResolver } from "@hookform/resolvers/zod"
+import axios from "axios"
+import { format } from "date-fns"
+import { CalendarIcon, Loader2, TrashIcon } from "lucide-react"
+import * as z from "zod"
 
 export const formSchema = z.object({
   name: z.string(),
   type: z.union([
     z.literal("party"),
     z.literal("event"),
-    z.literal("personal"),
+    z.literal("personal")
   ]),
   description: z.string().optional(),
   logoUrl: z.string().optional(),
   organization: z.array(
-    z.object({ value: z.string(), logoUrl: z.string().optional() }),
+    z.object({ value: z.string(), logoUrl: z.string().optional() })
   ),
   coverUrl: z.string(),
   slug: z.string(),
   fid: z.array(
     z.object({
-      value: z.string().length(33, "O fid não contem 33 caracteres."),
-    }),
+      value: z.string().length(33, "O fid não contem 33 caracteres.")
+    })
   ),
   date: z.date(),
   publishDate: z.date().optional(),
   createdAt: z.date(),
-  validateByUserEmail: z.string().email().optional(),
-});
+  validateByUserEmail: z.string().email().optional()
+})
 
 export default function FormEvent() {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -78,40 +78,40 @@ export default function FormEvent() {
       type: "party",
       organization: [{ value: "" }],
       fid: [{ value: "" }],
-      createdAt: new Date(Date.now()),
-    },
-  });
+      createdAt: new Date(Date.now())
+    }
+  })
 
-  const router = useRouter();
-  const [openModal, setOpenModal] = useState(false);
-  const [logoUrl, setLogoUrl] = useState("");
-  const [fid, setFid] = useState<string[]>([]);
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [openModal, setOpenModal] = useState(false)
+  const [logoUrl, setLogoUrl] = useState("")
+  const [fid, setFid] = useState<string[]>([])
+  const [loading, setLoading] = useState(false)
 
   const {
     fields: fieldsOrganization,
     append: appendOrganization,
-    remove: removeOrganization,
+    remove: removeOrganization
   } = useFieldArray({
     name: "organization",
-    control: form.control,
-  });
+    control: form.control
+  })
 
   const {
     fields: fieldsFid,
     append: appendFid,
-    remove: removeFid,
+    remove: removeFid
   } = useFieldArray({
     name: "fid",
-    control: form.control,
-  });
+    control: form.control
+  })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    setLoading(true);
+    setLoading(true)
     await axios.post("/api/register-event", { ...values }).then(() => {
-      setOpenModal(true);
-      setLoading(false);
-    });
+      setOpenModal(true)
+      setLoading(false)
+    })
   }
   return (
     <div className="flex w-full justify-center">
@@ -132,11 +132,11 @@ export default function FormEvent() {
                       placeholder="Insira o nome do evento"
                       {...field}
                       onBlur={(e) => {
-                        field.onBlur();
+                        field.onBlur()
                         form.setValue(
                           "slug",
-                          e.target.value.toLowerCase().replaceAll(" ", "-"),
-                        );
+                          e.target.value.toLowerCase().replaceAll(" ", "-")
+                        )
                       }}
                     />
                   </FormControl>
@@ -217,12 +217,12 @@ export default function FormEvent() {
                                 placeholder="Insira um link válido para ser usado de logo da organização."
                                 {...field}
                                 onChange={(e) => {
-                                  field.onChange(e);
+                                  field.onChange(e)
                                   setFid((prev) => [
                                     ...prev.slice(0, index),
                                     e.target.value,
-                                    ...prev.slice(index + 1),
-                                  ]);
+                                    ...prev.slice(index + 1)
+                                  ])
                                 }}
                               />
                             </FormControl>
@@ -231,7 +231,7 @@ export default function FormEvent() {
                         <div
                           className={cn(
                             buttonVariants({ variant: "outline" }),
-                            "h-28 w-28 p-2",
+                            "h-28 w-28 p-2"
                           )}
                         >
                           {fid[index] && fid[index].length > 0 && (
@@ -358,7 +358,7 @@ export default function FormEvent() {
                             variant={"outline"}
                             className={cn(
                               "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground",
+                              !field.value && "text-muted-foreground"
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
@@ -380,7 +380,7 @@ export default function FormEvent() {
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                );
+                )
               }}
             />
             <Accordion type="single" collapsible className="w-full">
@@ -401,15 +401,15 @@ export default function FormEvent() {
                               placeholder="Insira um link válido para ser usado de logo"
                               {...field}
                               onChange={(e) => {
-                                field.onChange(e);
-                                setLogoUrl(e.target.value);
+                                field.onChange(e)
+                                setLogoUrl(e.target.value)
                               }}
                             />
                           </FormControl>
                           <div
                             className={cn(
                               buttonVariants({ variant: "outline" }),
-                              "h-9 w-28 p-2",
+                              "h-9 w-28 p-2"
                             )}
                           >
                             {logoUrl && logoUrl.length > 0 && (
@@ -444,7 +444,7 @@ export default function FormEvent() {
                                   variant={"outline"}
                                   className={cn(
                                     "w-full justify-start text-left font-normal",
-                                    !field.value && "text-muted-foreground",
+                                    !field.value && "text-muted-foreground"
                                   )}
                                 >
                                   <CalendarIcon className="mr-2 h-4 w-4" />
@@ -466,7 +466,7 @@ export default function FormEvent() {
                           </FormControl>
                           <FormMessage />
                         </FormItem>
-                      );
+                      )
                     }}
                   />
                   <FormField
@@ -503,22 +503,22 @@ export default function FormEvent() {
             <AlertDialogFooter>
               <AlertDialogAction
                 onClick={() => {
-                  setOpenModal(false);
+                  setOpenModal(false)
                   router.push(
                     `/event/${form.getValues().date.getFullYear().toString()}/${
                       form.getValues().slug
-                    }`,
-                  );
+                    }`
+                  )
                 }}
               >
                 Acessar a página
               </AlertDialogAction>
               <AlertDialogAction
                 onClick={() => {
-                  setOpenModal(false);
-                  setLogoUrl("");
-                  setFid([]);
-                  form.reset();
+                  setOpenModal(false)
+                  setLogoUrl("")
+                  setFid([])
+                  form.reset()
                 }}
               >
                 Criar outro evento
@@ -537,5 +537,5 @@ export default function FormEvent() {
         logo={form.getValues("organization").map((org) => org.logoUrl || "")}
       />
     </div>
-  );
+  )
 }

@@ -1,18 +1,17 @@
-"use client";
-import Link from "next/link";
-import Image from "next/image";
-import Tilt from "react-parallax-tilt";
+"use client"
+import { Event } from "@prisma/client"
+import Image from "next/image"
+import Link from "next/link"
+import Tilt from "react-parallax-tilt"
 
-import { Event } from "@prisma/client";
-
-import { imageLoader } from "@/lib/imageLoader";
+import { imageLoader } from "@/lib/imageLoader"
 
 interface LastEventsProps {
-  event: Event;
+  event: Event
 }
 
 export function LastEvent({ event }: LastEventsProps) {
-  const isPublished = !!event.publishDate;
+  const isPublished = !!event.publishDate
   return (
     <Link
       className="aspect-[3/2] h-full"
@@ -33,7 +32,7 @@ export function LastEvent({ event }: LastEventsProps) {
         scale={1.1}
         className="group relative flex rounded-xl"
         style={{
-          transformStyle: "preserve-3d",
+          transformStyle: "preserve-3d"
         }}
       >
         <div className="h-full w-full overflow-hidden rounded-xl border-2 border-black shadow-xl shadow-black">
@@ -63,5 +62,5 @@ export function LastEvent({ event }: LastEventsProps) {
         </div>
       </Tilt>
     </Link>
-  );
+  )
 }

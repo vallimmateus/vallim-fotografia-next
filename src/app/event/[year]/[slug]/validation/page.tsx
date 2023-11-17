@@ -1,20 +1,21 @@
-import { prismaClient } from "@/lib/prisma";
-import Album from "./components/album";
-import Validated from "./components/validated";
+import { prismaClient } from "@/lib/prisma"
+
+import Album from "./components/album"
+import Validated from "./components/validated"
 
 export async function generateStaticParams() {
-  const events = await prismaClient.event.findMany({});
+  const events = await prismaClient.event.findMany({})
 
   return events.map((event) => ({
     year: event.date.getFullYear().toString(),
-    slug: event.slug,
-  }));
+    slug: event.slug
+  }))
 }
 
 export default async function Page({
-  params: { year, slug },
+  params: { year, slug }
 }: {
-  params: { year: string; slug: string };
+  params: { year: string; slug: string }
 }) {
   const event = await prismaClient.event.findFirst({
     where: {
@@ -23,45 +24,45 @@ export default async function Page({
         {
           date: {
             gte: new Date(`${year}-01-01`),
-            lte: new Date(`${year}-12-31`),
-          },
-        },
-      ],
-    },
-  });
+            lte: new Date(`${year}-12-31`)
+          }
+        }
+      ]
+    }
+  })
 
   if (event?.publishDate) {
     const userValidator = await prismaClient.user.findFirst({
       where: {
-        email: event.validateByUserEmail,
-      },
-    });
+        email: event.validateByUserEmail
+      }
+    })
     return (
       <Validated
         userValidator={userValidator!}
         publishDate={event.publishDate}
         link={`/event/${year}/${slug}`}
       />
-    );
+    )
   }
 
   const photos = await prismaClient.photo.findMany({
     where: {
-      eventId: event?.id,
+      eventId: event?.id
     },
     orderBy: {
-      name: "asc",
-    },
-  });
+      name: "asc"
+    }
+  })
 
   const thumbnails = photos.map((photo) => {
     return {
       src: `https://lh4.googleusercontent.com/d/${photo.imageUrlId}=h250`,
       width: (250 * 3) / 2,
       height: 250,
-      key: photo.id,
-    };
-  });
+      key: photo.id
+    }
+  })
 
   return (
     <div className="w-full flex-1">
@@ -69,5 +70,5 @@ export default async function Page({
         <Album event={event} photos={photos} thumbnails={thumbnails} />
       )}
     </div>
-  );
+  )
 }

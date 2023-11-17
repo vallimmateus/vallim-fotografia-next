@@ -1,26 +1,26 @@
-import React, { useState } from "react";
-import { prismaClient } from "@/lib/prisma";
-import Album from "./components/album";
-import NotValidate from "./components/not-validate";
-import Image from "next/image";
-import { imageLoader } from "@/lib/imageLoader";
-import { Organization } from "./components/organization";
+import React from "react"
 
-export const dynamicParams = false;
+import { prismaClient } from "@/lib/prisma"
+
+import Album from "./components/album"
+import NotValidate from "./components/not-validate"
+import { Organization } from "./components/organization"
+
+export const dynamicParams = false
 
 export async function generateStaticParams() {
-  const events = await prismaClient.event.findMany({});
+  const events = await prismaClient.event.findMany({})
 
   return events.map((event) => ({
     year: event.date.getFullYear().toString(),
-    slug: event.slug,
-  }));
+    slug: event.slug
+  }))
 }
 
 export default async function Page({
-  params: { year, slug },
+  params: { year, slug }
 }: {
-  params: { year: string; slug: string };
+  params: { year: string; slug: string }
 }) {
   const event = await prismaClient.event.findFirst({
     where: {
@@ -29,38 +29,38 @@ export default async function Page({
         {
           date: {
             gte: new Date(`${year}-01-01`),
-            lte: new Date(`${year}-12-31`),
-          },
-        },
-      ],
+            lte: new Date(`${year}-12-31`)
+          }
+        }
+      ]
     },
     include: {
       photos: {
         orderBy: {
-          name: "asc",
-        },
+          name: "asc"
+        }
       },
       organizations: {
         include: {
-          organization: true,
-        },
-      },
-    },
-  });
+          organization: true
+        }
+      }
+    }
+  })
 
   if (!event?.publishDate) {
-    return <NotValidate />;
+    return <NotValidate />
   }
 
-  const photos = event.photos;
+  const photos = event.photos
 
   const thumbnails = photos.map((photo) => {
     return {
       src: `https://lh4.googleusercontent.com/d/${photo.imageUrlId}=w250`,
       width: 250,
-      height: (250 * 2) / 3,
-    };
-  });
+      height: (250 * 2) / 3
+    }
+  })
   return (
     <div className="w-full flex-1">
       {event && photos.length > 0 && (
@@ -87,7 +87,7 @@ export default async function Page({
                       link="#"
                       key={org.organization.id}
                     />
-                  );
+                  )
                 })}
             </div>
           </div>
@@ -95,5 +95,5 @@ export default async function Page({
         </div>
       )}
     </div>
-  );
+  )
 }

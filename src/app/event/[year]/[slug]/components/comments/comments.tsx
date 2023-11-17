@@ -1,26 +1,26 @@
+import CommentsButton from "./commentsButton"
+import CommentsContext from "./commentsContext"
+
 import {
   addToolbarButton,
   createModule,
   MODULE_CONTROLLER,
   PLUGIN_THUMBNAILS,
-  PluginProps,
-} from "yet-another-react-lightbox";
-
-import CommentsButton from "./commentsButton";
-import CommentsContext from "./commentsContext";
+  PluginProps
+} from "yet-another-react-lightbox"
 
 export default function Comments({
   augment,
   contains,
-  addParent,
+  addParent
 }: PluginProps) {
   augment(({ toolbar, ...rest }) => ({
     toolbar: addToolbarButton(toolbar, "Comments", <CommentsButton />),
-    ...rest,
-  }));
+    ...rest
+  }))
 
   addParent(
     contains(PLUGIN_THUMBNAILS) ? PLUGIN_THUMBNAILS : MODULE_CONTROLLER,
-    createModule("Comments", CommentsContext),
-  );
+    createModule("Comments", CommentsContext)
+  )
 }

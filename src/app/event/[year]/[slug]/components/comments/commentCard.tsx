@@ -1,19 +1,22 @@
-"use client";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Pencil2Icon, PersonIcon, TrashIcon } from "@radix-ui/react-icons";
-import axios from "axios";
-import { format } from "date-fns";
-import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
-import { CommentWithUserType } from "./commentsContext";
+"use client"
+import { useSession } from "next-auth/react"
+import { useEffect, useState } from "react"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Textarea } from "@/components/ui/textarea"
+
+import { CommentWithUserType } from "./commentsContext"
+
+import { Pencil2Icon, PersonIcon, TrashIcon } from "@radix-ui/react-icons"
+import axios from "axios"
+import { format } from "date-fns"
 
 type CommentCardProps = {
-  comment: CommentWithUserType;
-  getComments: () => void;
-  getUser: () => void;
-};
+  comment: CommentWithUserType
+  getComments: () => void
+  getUser: () => void
+}
 
 export default function CommentCard({
   comment: {
@@ -21,53 +24,53 @@ export default function CommentCard({
     text,
     createdAt,
     updatedAt,
-    user: { image, name, nickname, email },
+    user: { image, name, nickname, email }
   },
   getComments,
-  getUser,
+  getUser
 }: CommentCardProps) {
-  const { data } = useSession();
-  const [editing, setEditing] = useState(false);
-  const [editable, setEditable] = useState(false);
-  const [commentText, setCommentText] = useState(text);
-  const [loading, setLoading] = useState(false);
+  const { data } = useSession()
+  const [editing, setEditing] = useState(false)
+  const [editable, setEditable] = useState(false)
+  const [commentText, setCommentText] = useState(text)
+  const [loading, setLoading] = useState(false)
   // const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
-    const user = getUser();
-    console.log(user);
-    setEditable(data?.user?.email === email);
-  }, [data]);
+    const user = getUser()
+    console.log(user)
+    setEditable(data?.user?.email === email)
+  }, [data])
 
   const handleEditComment = async () => {
     if (commentText.length === 0) {
-      return;
+      return
     }
-    setLoading(true);
+    setLoading(true)
     await axios
       .patch("/api/comments", { text: commentText, id })
       .then(() => {
-        setLoading(false);
-        text = commentText;
-        setEditing(false);
-        getComments();
+        setLoading(false)
+        text = commentText
+        setEditing(false)
+        getComments()
       })
       .catch((err) => {
-        alert(err);
-        setCommentText(text);
-        setLoading(false);
-        setEditing(false);
-      });
-  };
+        alert(err)
+        setCommentText(text)
+        setLoading(false)
+        setEditing(false)
+      })
+  }
 
   const handleDeleteComment = async () => {
     if (confirm("Tem certeza que deseja deletar esse comentário?")) {
       await axios.delete("/api/comments", { data: { id } }).then(() => {
         // setIsDeleted(true);
-        getComments();
-      });
+        getComments()
+      })
     }
-  };
+  }
 
   // if (isDeleted) {
   //   return;
@@ -125,7 +128,7 @@ export default function CommentCard({
           <Textarea
             value={commentText}
             onChange={(e) => {
-              setCommentText(e.target.value);
+              setCommentText(e.target.value)
             }}
             disabled={loading}
           />
@@ -140,5 +143,5 @@ export default function CommentCard({
         </div>
       )}
     </div>
-  );
+  )
 }

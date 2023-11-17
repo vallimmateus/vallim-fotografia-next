@@ -1,11 +1,12 @@
-import { Trash2Icon } from "lucide-react";
-import Image from "next/image";
-import type { RenderPhotoProps } from "react-photo-album";
+import Image from "next/image"
+import type { RenderPhotoProps } from "react-photo-album"
+
+import { Trash2Icon } from "lucide-react"
 
 export default function NextJsImage({
   photo,
   imageProps: { alt, title, sizes, className, onClick },
-  wrapperStyle,
+  wrapperStyle
 }: RenderPhotoProps) {
   return (
     <div
@@ -24,5 +25,5 @@ export default function NextJsImage({
         {...{ alt, title, sizes, className, onClick }}
       />
     </div>
-  );
+  )
 }

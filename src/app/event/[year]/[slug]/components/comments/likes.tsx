@@ -1,61 +1,63 @@
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { useSession } from "next-auth/react"
+import { useEffect, useState, memo } from "react"
+
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { HeartFilledIcon, HeartIcon, PersonIcon } from "@radix-ui/react-icons";
-import { LikesWithUserType } from "./commentsContext";
-import { useSession } from "next-auth/react";
-import { useEffect, useState, memo } from "react";
-import axios from "axios";
-import { useLightboxState } from "yet-another-react-lightbox";
-import cuid from "cuid";
+  TooltipTrigger
+} from "@/components/ui/tooltip"
+
+import { LikesWithUserType } from "./commentsContext"
+
+import { HeartFilledIcon, HeartIcon, PersonIcon } from "@radix-ui/react-icons"
+import axios from "axios"
+import { useLightboxState } from "yet-another-react-lightbox"
 
 type LikesProps = {
-  likes: LikesWithUserType[];
-  getLikes: () => void;
-  handleLoginCLick: () => void;
-};
+  likes: LikesWithUserType[]
+  getLikes: () => void
+  handleLoginCLick: () => void
+}
 
 function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
-  const { data, status } = useSession();
-  const { currentSlide } = useLightboxState();
+  const { data, status } = useSession()
+  const { currentSlide } = useLightboxState()
 
   const [liked, setLiked] = useState(
-    likes.some((like) => like.user.email === data?.user?.email),
-  );
+    likes.some((like) => like.user.email === data?.user?.email)
+  )
 
   useEffect(() => {
     if (status === "authenticated" && data?.user) {
-      setLiked(likes.some((like) => like.user.email === data.user?.email));
+      setLiked(likes.some((like) => like.user.email === data.user?.email))
     }
-  }, [data, currentSlide, status, likes]);
+  }, [data, currentSlide, status, likes])
 
   const toggleLiked = async () => {
     if (status !== "authenticated") {
-      handleLoginCLick();
-      return;
+      handleLoginCLick()
+      return
     }
     if (!liked === true) {
       await axios.post("/api/likes", {
         photoName: currentSlide?.alt,
-        email: data?.user?.email,
-      });
+        email: data?.user?.email
+      })
     } else {
       await axios.delete("/api/likes", {
         data: {
-          id: likes.find((like) => like.user.email === data?.user?.email)?.id,
-        },
-      });
+          id: likes.find((like) => like.user.email === data?.user?.email)?.id
+        }
+      })
     }
-    setLiked((prev) => !prev);
-    getLikes();
-  };
+    setLiked((prev) => !prev)
+    getLikes()
+  }
 
   return (
     <div className="flex h-8 items-center justify-start gap-2">
@@ -85,7 +87,7 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                     {likes
                       .slice(0, 3)
                       .map((like) => {
-                        return like.user.nickname || like.user.name;
+                        return like.user.nickname || like.user.name
                       })
                       .join(", ")}
                   </p>
@@ -118,7 +120,7 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                           </p>
                         </div>
                       </>
-                    );
+                    )
                   })}
                 </ScrollArea>
               </TooltipContent>
@@ -127,7 +129,7 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
         </div>
       )}
     </div>
-  );
+  )
 }
 
-export default memo(Likes);
+export default memo(Likes)

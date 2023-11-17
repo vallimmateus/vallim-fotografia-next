@@ -1,12 +1,12 @@
-import { IconButton, useLightboxState } from "yet-another-react-lightbox";
+import { useCommentsContext } from "./commentsContext"
 
-import { MessagesSquare } from "lucide-react";
-import { useCommentsContext } from "./commentsContext";
+import { MessagesSquare } from "lucide-react"
+import { IconButton, useLightboxState } from "yet-another-react-lightbox"
 
 export default function CommentsButton() {
-  const { toggle } = useCommentsContext();
+  const { toggle } = useCommentsContext()
 
-  const { currentSlide } = useLightboxState();
+  const { currentSlide } = useLightboxState()
 
   return (
     <IconButton
@@ -15,5 +15,5 @@ export default function CommentsButton() {
       onClick={toggle}
       disabled={!currentSlide}
     />
-  );
+  )
 }

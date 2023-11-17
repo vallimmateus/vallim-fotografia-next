@@ -1,13 +1,14 @@
-import { Metadata } from "next";
-import "./globals.css";
-import { Header } from "@/components/ui/header";
-import { AuthProvider } from "@/providers/auth";
-import { Footer } from "@/components/ui/footer";
+import { Metadata } from "next"
+
+import "./globals.css"
+import { Footer } from "@/components/ui/footer"
+import { Header } from "@/components/ui/header"
+import { AuthProvider } from "@/providers/auth"
 
 export const metadata: Metadata = {
   title: "Vallim Fotografia",
-  description: "Bem-vindos ao meu site de fotografia!",
-};
+  description: "Bem-vindos ao meu site de fotografia!"
+}
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -20,5 +21,5 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         </body>
       </AuthProvider>
     </html>
-  );
+  )
 }

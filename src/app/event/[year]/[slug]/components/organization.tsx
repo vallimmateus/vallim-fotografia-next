@@ -1,14 +1,15 @@
-"use client";
-import { imageLoader } from "@/lib/imageLoader";
-import { Url } from "next/dist/shared/lib/router/router";
-import Image from "next/image";
-import Link from "next/link";
+"use client"
+import { Url } from "next/dist/shared/lib/router/router"
+import Image from "next/image"
+import Link from "next/link"
+
+import { imageLoader } from "@/lib/imageLoader"
 
 type OrganizationProps = {
-  logoUrl: string;
-  name: string;
-  link: Url;
-};
+  logoUrl: string
+  name: string
+  link: Url
+}
 
 export function Organization({ logoUrl, name, link }: OrganizationProps) {
   return (
@@ -22,5 +23,5 @@ export function Organization({ logoUrl, name, link }: OrganizationProps) {
         className="h-32 w-32 object-contain drop-shadow-[0_0_5px_#e4e4e770] transition-all hover:scale-105"
       />
     </Link>
-  );
+  )
 }

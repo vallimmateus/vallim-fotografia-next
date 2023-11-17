@@ -1,16 +1,17 @@
-import { createContext, useContext, ReactNode } from 'react'
-import { GlobalProps } from '@/types'
+import { createContext, useContext, ReactNode } from "react"
+
+import { GlobalProps } from "@/types"
 
 // Default value for global props
 export const defaultGlobalPropsContextValue: GlobalProps = {
   parties: [],
   photos: [],
-  users: [],
+  users: []
 }
 
 // Global props context
 export const GlobalPropsContext = createContext<GlobalProps>(
-  defaultGlobalPropsContextValue,
+  defaultGlobalPropsContextValue
 )
 
 // Global props context provider props
@@ -21,7 +22,7 @@ export interface GlobalPropsContextProviderProps {
 
 // Global props context provider
 export function GlobalPropsContextProvider(
-  props: GlobalPropsContextProviderProps,
+  props: GlobalPropsContextProviderProps
 ) {
   return (
     <GlobalPropsContext.Provider value={props.globalProps}>

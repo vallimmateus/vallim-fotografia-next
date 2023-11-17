@@ -1,21 +1,22 @@
-"use client";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import ContentLoader from "react-content-loader";
-import { imageLoader } from "@/lib/imageLoader";
-import { cn } from "@/lib/utils";
+"use client"
+import Image from "next/image"
+import { useEffect, useState } from "react"
+import ContentLoader from "react-content-loader"
+
+import { imageLoader } from "@/lib/imageLoader"
+import { cn } from "@/lib/utils"
 
 type EventCardProps = {
-  date?: string;
-  name?: string;
-  cover?: string;
-  logo?: string[];
-};
+  date?: string
+  name?: string
+  cover?: string
+  logo?: string[]
+}
 
 export default function EventCard({ cover, date, name, logo }: EventCardProps) {
-  const [isLoadingCover, setIsLoadingCover] = useState(true);
-  const [isLoadingName, setIsLoadingName] = useState(true);
-  const [isLoadingDate, setIsLoadingDate] = useState(true);
+  const [isLoadingCover, setIsLoadingCover] = useState(true)
+  const [isLoadingName, setIsLoadingName] = useState(true)
+  const [isLoadingDate, setIsLoadingDate] = useState(true)
 
   // useEffect(() => {
   //   if (!cover) {
@@ -25,19 +26,19 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
 
   useEffect(() => {
     if (date) {
-      setIsLoadingDate(false);
+      setIsLoadingDate(false)
     } else {
-      setIsLoadingDate(true);
+      setIsLoadingDate(true)
     }
-  }, [date]);
+  }, [date])
 
   useEffect(() => {
     if (name) {
-      setIsLoadingName(false);
+      setIsLoadingName(false)
     } else {
-      setIsLoadingName(true);
+      setIsLoadingName(true)
     }
-  }, [name]);
+  }, [name])
 
   return (
     <div className="z-10 w-full max-w-sm">
@@ -57,11 +58,11 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
                       width={40}
                       height={40}
                       className={cn("h-10 w-10 object-contain shadow", {
-                        "-ml-5": index > 0,
+                        "-ml-5": index > 0
                       })}
                       key={index}
                     />
-                  ),
+                  )
               )}
           </div>
           <div className="relative w-full overflow-hidden transition-all group-hover:brightness-95">
@@ -84,7 +85,7 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
                 height={280}
                 className={cn({ "opacity-0": isLoadingCover })}
                 onLoad={() => {
-                  setIsLoadingCover(false);
+                  setIsLoadingCover(false)
                 }}
               />
             )}
@@ -122,5 +123,5 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
         </div>
       </div>
     </div>
-  );
+  )
 }

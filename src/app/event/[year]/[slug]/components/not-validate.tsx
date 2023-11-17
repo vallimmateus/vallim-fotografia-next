@@ -1,4 +1,6 @@
-"use client";
+"use client"
+import { useRouter } from "next/navigation"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -6,12 +8,11 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { useRouter } from "next/navigation";
+  AlertDialogTitle
+} from "@/components/ui/alert-dialog"
 
 export default function NotValidate() {
-  const router = useRouter();
+  const router = useRouter()
   return (
     <AlertDialog defaultOpen={true}>
       <AlertDialogContent>
@@ -32,5 +33,5 @@ export default function NotValidate() {
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-  );
+  )
 }

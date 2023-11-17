@@ -1,32 +1,31 @@
-"use client";
-import Link from "next/link";
-import Image from "next/image";
-import Tilt from "react-parallax-tilt";
+"use client"
+import { Event } from "@prisma/client"
+import Image from "next/image"
+import Link from "next/link"
+import Tilt from "react-parallax-tilt"
 
-import { Event } from "@prisma/client";
-
-import useWindowDimensions from "@/hooks/useWindowDimensions";
-import { cn } from "@/lib/utils";
-import { imageLoader } from "@/lib/imageLoader";
+import useWindowDimensions from "@/hooks/useWindowDimensions"
+import { imageLoader } from "@/lib/imageLoader"
+import { cn } from "@/lib/utils"
 
 interface LastEventsProps {
-  events: Event[];
+  events: Event[]
 }
 
 export function LastEvents({ events }: LastEventsProps) {
-  const { width } = useWindowDimensions();
+  const { width } = useWindowDimensions()
   if (width && width >= 768 && events.length === 3) {
-    events = [events[1], events[0], events[2]];
+    events = [events[1], events[0], events[2]]
   }
   return (
     <div className="flex max-md:max-w-sm max-md:flex-col max-md:gap-6 md:w-[80%] md:max-w-7xl md:items-end">
       {events.map((event, idx) => {
-        const isPublished = !!event.publishDate;
+        const isPublished = !!event.publishDate
         return (
           <Link
             className={cn("aspect-[3/2] h-full w-full", {
               "md:z-10 md:-mx-[10%] md:w-[120%]": idx === 1,
-              "md:mb-4 md:w-full": idx !== 1,
+              "md:mb-4 md:w-full": idx !== 1
             })}
             key={event.id}
             href={
@@ -47,7 +46,7 @@ export function LastEvents({ events }: LastEventsProps) {
               scale={1.1}
               className="group relative flex h-full w-full rounded-xl"
               style={{
-                transformStyle: "preserve-3d",
+                transformStyle: "preserve-3d"
               }}
             >
               <div className="aspect-[3/2] h-full w-full overflow-hidden rounded-xl border-2 border-black shadow-xl shadow-black">
@@ -79,8 +78,8 @@ export function LastEvents({ events }: LastEventsProps) {
               </div>
             </Tilt>
           </Link>
-        );
+        )
       })}
     </div>
-  );
+  )
 }
