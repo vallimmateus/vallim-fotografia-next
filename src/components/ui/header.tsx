@@ -75,6 +75,9 @@ export function Header() {
   useEffect(() => {
     getParties()
     getEvents()
+  }, [getEvents, getParties])
+
+  useEffect(() => {
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -83,7 +86,7 @@ export function Header() {
     if (data?.user?.email && !user) {
       getUserData(data?.user?.email)
     }
-  }, [data])
+  }, [data, getUserData, user])
 
   return (
     <header
@@ -205,9 +208,9 @@ export function Header() {
                 </NavigationMenuLink>
                 {events.length > 0 && (
                   <NavigationMenuContent className="flex flex-col gap-3 p-4">
-                    <ul className="grid gap-3 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
-                      {events.map((event) => (
-                        <li>
+                    <div className="grid gap-3 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
+                      {events.map((event, idx) => (
+                        <div key={idx}>
                           <NavigationMenuLink asChild>
                             <Link
                               className="group relative flex h-56 w-full select-none flex-col overflow-hidden rounded-md bg-muted no-underline outline-none focus:shadow-md"
@@ -237,9 +240,9 @@ export function Header() {
                               </div>
                             </Link>
                           </NavigationMenuLink>
-                        </li>
+                        </div>
                       ))}
-                    </ul>
+                    </div>
                     <NavigationMenuLink asChild>
                       <Link
                         href="/category/event"

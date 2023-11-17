@@ -40,7 +40,7 @@ export default function CommentCard({
     const user = getUser()
     console.log(user)
     setEditable(data?.user?.email === email)
-  }, [data])
+  }, [data, email, getUser])
 
   const handleEditComment = async () => {
     if (commentText.length === 0) {

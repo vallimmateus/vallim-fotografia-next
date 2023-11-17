@@ -148,7 +148,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
   useEffect(() => {
     getComments()
     getLikes()
-  }, [currentSlide])
+  }, [currentSlide, getComments, getLikes])
 
   return (
     <CommentsContext.Provider value={context}>
