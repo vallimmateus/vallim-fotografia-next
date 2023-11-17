@@ -1,12 +1,12 @@
-import {
-  DocumentReference,
-  collection,
-  getDocs,
-  Timestamp,
-  onSnapshot
-} from "firebase/firestore"
 import { db } from "@/lib/db"
 import { CommentFS, GlobalProps, Party, Photo, User } from "@/types"
+import {
+  DocumentReference,
+  Timestamp,
+  collection,
+  getDocs,
+  onSnapshot
+} from "firebase/firestore"
 
 export async function fetchGlobalProps(): Promise<GlobalProps> {
   const partiesCol = collection(db, "parties")
@@ -35,6 +35,7 @@ export async function fetchGlobalProps(): Promise<GlobalProps> {
         return a.date < b.date ? 1 : -1
       }),
     photos: photosSnapshot.docs.map((doc) => {
+      // eslint-disable-next-line prefer-const
       let { ref, ...data } = doc.data()
       ref = JSON.parse(JSON.stringify(ref)) as DocumentReference
       if (data.comments) {
