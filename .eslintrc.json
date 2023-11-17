@@ -25,19 +25,20 @@
     "react-hooks/exhaustive-deps": "warn",
     "react/react-in-jsx-scope": "off",
     "prettier/prettier": "error",
-    "import-helpers/order-imports": [
-      "warn",
-      {
-        "newlinesBetween": "always",
-        "groups": [
-          ["/^react/", "/^next/", "/^@next/", "/^@prisma/"],
-          "/module/",
-          "/absolute/",
-          ["parent", "sibling", "index"]
-        ],
-        "alphabetize": { "order": "asc", "ignoreCase": true }
-      }
-    ],
-    "indent": ["error", 2]
+    "import-helpers/order-imports": "off",
+    //   {
+    //     "newlinesBetween": "always",
+    //     "groups": [
+    //       ["/^react/", "/^next/", "/^@next/", "/^@prisma/"],
+    //       "/module/",
+    //       "/absolute/",
+    //       ["parent", "sibling", "index"]
+    //     ],
+    //     "alphabetize": { "order": "asc", "ignoreCase": true }
+    //   }
+    // ],
+    "indent": ["error", 2],
+    "react/prop-types": "off"
+
   }
 }
