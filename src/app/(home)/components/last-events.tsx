@@ -1,12 +1,12 @@
-"use client"
-import { Event } from "@prisma/client"
-import Image from "next/image"
-import Link from "next/link"
-import Tilt from "react-parallax-tilt"
+'use client'
+import { Event } from '@prisma/client'
+import Image from 'next/image'
+import Link from 'next/link'
+import Tilt from 'react-parallax-tilt'
 
-import useWindowDimensions from "@/hooks/useWindowDimensions"
-import { imageLoader } from "@/lib/imageLoader"
-import { cn } from "@/lib/utils"
+import useWindowDimensions from '@/hooks/useWindowDimensions'
+import { imageLoader } from '@/lib/imageLoader'
+import { cn } from '@/lib/utils'
 
 interface LastEventsProps {
   events: Event[]
@@ -23,15 +23,15 @@ export function LastEvents({ events }: LastEventsProps) {
         const isPublished = !!event.publishDate
         return (
           <Link
-            className={cn("aspect-[3/2] h-full w-full", {
-              "md:z-10 md:-mx-[10%] md:w-[120%]": idx === 1,
-              "md:mb-4 md:w-full": idx !== 1
+            className={cn('aspect-[3/2] h-full w-full', {
+              'md:z-10 md:-mx-[10%] md:w-[120%]': idx === 1,
+              'md:mb-4 md:w-full': idx !== 1,
             })}
             key={event.id}
             href={
               isPublished
                 ? `/event/${event.date.getFullYear()}/${event.slug}`
-                : ""
+                : ''
             }
           >
             <Tilt
@@ -46,7 +46,7 @@ export function LastEvents({ events }: LastEventsProps) {
               scale={1.1}
               className="group relative flex h-full w-full rounded-xl"
               style={{
-                transformStyle: "preserve-3d"
+                transformStyle: 'preserve-3d',
               }}
             >
               <div className="aspect-[3/2] h-full w-full overflow-hidden rounded-xl border-2 border-black shadow-xl shadow-black">

@@ -1,10 +1,10 @@
-import Image from "next/image"
-import Link from "next/link"
+import Image from 'next/image'
+import Link from 'next/link'
 
-import { Button } from "./button"
-import { Separator } from "./separator"
+import { Button } from './button'
+import { Separator } from './separator'
 
-import { InstagramIcon, GithubIcon } from "lucide-react"
+import { GithubIcon, InstagramIcon } from 'lucide-react'
 
 export function Footer() {
   return (

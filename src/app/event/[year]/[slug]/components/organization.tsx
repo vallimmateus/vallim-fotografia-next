@@ -1,9 +1,9 @@
-"use client"
-import { Url } from "next/dist/shared/lib/router/router"
-import Image from "next/image"
-import Link from "next/link"
+'use client'
+import { Url } from 'next/dist/shared/lib/router/router'
+import Image from 'next/image'
+import Link from 'next/link'
 
-import { imageLoader } from "@/lib/imageLoader"
+import { imageLoader } from '@/lib/imageLoader'
 
 type OrganizationProps = {
   logoUrl: string

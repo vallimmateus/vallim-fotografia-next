@@ -1,18 +1,19 @@
-import { prismaClient } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { prismaClient } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
-  const data = req.headers.get("photoName")
+  const data = req.headers.get('photoName')
   try {
+    if (data === null)
+      throw new Error('Não foi possível o argumento photoName no header')
     const photoData = await prismaClient.photo.findFirst({
-      // mudar name para @unique a mudar o findFirst para findUnique
       where: {
-        name: data!
-      }
+        name: data,
+      },
     })
     const comments = await prismaClient.comment.findMany({
       where: {
-        photoId: photoData!.id
+        photoId: photoData?.id,
       },
       include: {
         user: {
@@ -20,12 +21,12 @@ export async function GET(req: Request) {
             name: true,
             nickname: true,
             image: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     })
-    return NextResponse.json({ comments, message: "success" }, { status: 200 })
+    return NextResponse.json({ comments, message: 'success' }, { status: 200 })
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
   }
@@ -37,27 +38,27 @@ export async function POST(req: Request) {
   try {
     const photoData = await prismaClient.photo.findFirst({
       where: {
-        name: data.photoName
-      }
+        name: data.photoName,
+      },
     })
     await prismaClient.comment.create({
       data: {
         text: data.comment,
         photo: {
           connect: {
-            id: photoData!.id
-          }
+            id: photoData?.id,
+          },
         },
         user: {
           connect: {
-            email: data.email
-          }
-        }
-      }
+            email: data.email,
+          },
+        },
+      },
     })
     return NextResponse.json(
-      { message: "O comentário foi criado com sucesso" },
-      { status: 200 }
+      { message: 'O comentário foi criado com sucesso' },
+      { status: 200 },
     )
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
@@ -69,12 +70,12 @@ export async function DELETE(req: Request) {
   try {
     await prismaClient.comment.delete({
       where: {
-        id: data.id
-      }
+        id: data.id,
+      },
     })
     return NextResponse.json(
-      { message: "O comentário foi deletado com sucesso" },
-      { status: 200 }
+      { message: 'O comentário foi deletado com sucesso' },
+      { status: 200 },
     )
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
@@ -86,16 +87,16 @@ export async function PATCH(req: Request) {
   try {
     await prismaClient.comment.update({
       where: {
-        id: data.id
+        id: data.id,
       },
       data: {
         text: data.text,
-        updatedAt: new Date()
-      }
+        updatedAt: new Date(),
+      },
     })
     return NextResponse.json(
-      { message: "O comentário foi atualizado com sucesso" },
-      { status: 200 }
+      { message: 'O comentário foi atualizado com sucesso' },
+      { status: 200 },
     )
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })

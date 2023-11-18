@@ -1,4 +1,4 @@
-import { DocumentReference } from "firebase/firestore"
+import { DocumentReference } from 'firebase/firestore'
 
 type MultiFid = {
   fid: string
@@ -47,7 +47,7 @@ type User = {
   image: string
   name: string
   nickname: string
-  role?: "admin" | "editor"
+  role?: 'admin' | 'editor'
 }
 
 type GlobalProps = {

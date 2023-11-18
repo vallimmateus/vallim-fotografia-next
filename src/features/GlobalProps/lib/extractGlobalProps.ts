@@ -1,5 +1,5 @@
-import { GlobalProps } from "@/types"
-import { defaultGlobalPropsContextValue } from "../contexts/GlobalPropsContext"
+import { GlobalProps } from '@/types'
+import { defaultGlobalPropsContextValue } from '../contexts/GlobalPropsContext'
 
 const isParty = <Party>(arg: unknown): arg is Party => true
 const isPhoto = <Photo>(arg: unknown): arg is Photo => true
@@ -13,7 +13,7 @@ export function extractGlobalProps(data: any): GlobalProps {
   return {
     parties: isParty(data.parties) ? data.parties : [],
     photos: isPhoto(data.photos) ? data.photos : [],
-    users: isUser(data.users) ? data.users : []
+    users: isUser(data.users) ? data.users : [],
   }
 
   // Or do it the lazy, error prone way if you trust your pageProps to have

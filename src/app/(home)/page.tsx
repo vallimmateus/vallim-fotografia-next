@@ -1,34 +1,34 @@
-import { Event } from "@prisma/client"
-import Image from "next/image"
-import Link from "next/link"
+import { Event } from '@prisma/client'
+import Image from 'next/image'
+import Link from 'next/link'
 
-import { LastEvent } from "./components/last-event"
-import { LastEvents } from "./components/last-events"
+import { LastEvent } from './components/last-event'
+import { LastEvents } from './components/last-events'
 
-import { prismaClient } from "@/lib/prisma"
-import { format } from "date-fns"
+import { prismaClient } from '@/lib/prisma'
+import { format } from 'date-fns'
 
 export default async function Page() {
   const parties = await prismaClient.event.findMany({
     take: 3,
 
     orderBy: {
-      publishDate: "desc"
+      publishDate: 'desc',
     },
 
     where: {
-      type: "party"
-    }
+      type: 'party',
+    },
   })
 
   const event = (await prismaClient.event.findFirst({
     where: {
-      type: "event"
+      type: 'event',
     },
 
     orderBy: {
-      publishDate: "desc"
-    }
+      publishDate: 'desc',
+    },
   })) as Event
 
   return (
@@ -50,7 +50,7 @@ export default async function Page() {
               <p className="text-zinc-300">{event.name}</p>
 
               <p className="text-sm text-muted-foreground">
-                {format(event.date, "dd/MM/yyyy")}
+                {format(event.date, 'dd/MM/yyyy')}
               </p>
             </div>
           </div>

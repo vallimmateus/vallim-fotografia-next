@@ -1,26 +1,26 @@
-"use client"
-import Image from "next/image"
-import { useRouter } from "next/navigation"
-import { useState } from "react"
-import { useFieldArray, useForm } from "react-hook-form"
+'use client'
+import Image from 'next/image'
+import { useRouter } from 'next/navigation'
+import { useState } from 'react'
+import { useFieldArray, useForm } from 'react-hook-form'
 
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger
-} from "@/components/ui/accordion"
+  AccordionTrigger,
+} from '@/components/ui/accordion'
 import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogContent,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog"
-import { Button, buttonVariants } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
-import EventCard from "@/components/ui/event-card"
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { Calendar } from '@/components/ui/calendar'
+import EventCard from '@/components/ui/event-card'
 import {
   Form,
   FormControl,
@@ -28,87 +28,87 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
+  FormMessage,
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
 import {
   Popover,
   PopoverContent,
-  PopoverTrigger
-} from "@/components/ui/popover"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import { imageLoader } from "@/lib/imageLoader"
-import { cn } from "@/lib/utils"
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { imageLoader } from '@/lib/imageLoader'
+import { cn } from '@/lib/utils'
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import axios from "axios"
-import { format } from "date-fns"
-import { CalendarIcon, Loader2, TrashIcon } from "lucide-react"
-import * as z from "zod"
+import { zodResolver } from '@hookform/resolvers/zod'
+import axios from 'axios'
+import { format } from 'date-fns'
+import { CalendarIcon, Loader2, TrashIcon } from 'lucide-react'
+import * as z from 'zod'
 
 export const formSchema = z.object({
   name: z.string(),
   type: z.union([
-    z.literal("party"),
-    z.literal("event"),
-    z.literal("personal")
+    z.literal('party'),
+    z.literal('event'),
+    z.literal('personal'),
   ]),
   description: z.string().optional(),
   logoUrl: z.string().optional(),
   organization: z.array(
-    z.object({ value: z.string(), logoUrl: z.string().optional() })
+    z.object({ value: z.string(), logoUrl: z.string().optional() }),
   ),
   coverUrl: z.string(),
   slug: z.string(),
   fid: z.array(
     z.object({
-      value: z.string().length(33, "O fid não contem 33 caracteres.")
-    })
+      value: z.string().length(33, 'O fid não contem 33 caracteres.'),
+    }),
   ),
   date: z.date(),
   publishDate: z.date().optional(),
   createdAt: z.date(),
-  validateByUserEmail: z.string().email().optional()
+  validateByUserEmail: z.string().email().optional(),
 })
 
 export default function FormEvent() {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      type: "party",
-      organization: [{ value: "" }],
-      fid: [{ value: "" }],
-      createdAt: new Date(Date.now())
-    }
+      type: 'party',
+      organization: [{ value: '' }],
+      fid: [{ value: '' }],
+      createdAt: new Date(Date.now()),
+    },
   })
 
   const router = useRouter()
   const [openModal, setOpenModal] = useState(false)
-  const [logoUrl, setLogoUrl] = useState("")
+  const [logoUrl, setLogoUrl] = useState('')
   const [fid, setFid] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
 
   const {
     fields: fieldsOrganization,
     append: appendOrganization,
-    remove: removeOrganization
+    remove: removeOrganization,
   } = useFieldArray({
-    name: "organization",
-    control: form.control
+    name: 'organization',
+    control: form.control,
   })
 
   const {
     fields: fieldsFid,
     append: appendFid,
-    remove: removeFid
+    remove: removeFid,
   } = useFieldArray({
-    name: "fid",
-    control: form.control
+    name: 'fid',
+    control: form.control,
   })
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
-    await axios.post("/api/register-event", { ...values }).then(() => {
+    await axios.post('/api/register-event', { ...values }).then(() => {
       setOpenModal(true)
       setLoading(false)
     })
@@ -134,8 +134,8 @@ export default function FormEvent() {
                       onBlur={(e) => {
                         field.onBlur()
                         form.setValue(
-                          "slug",
-                          e.target.value.toLowerCase().replaceAll(" ", "-")
+                          'slug',
+                          e.target.value.toLowerCase().replaceAll(' ', '-'),
                         )
                       }}
                     />
@@ -221,7 +221,7 @@ export default function FormEvent() {
                                   setFid((prev) => [
                                     ...prev.slice(0, index),
                                     e.target.value,
-                                    ...prev.slice(index + 1)
+                                    ...prev.slice(index + 1),
                                   ])
                                 }}
                               />
@@ -230,8 +230,8 @@ export default function FormEvent() {
                         />
                         <div
                           className={cn(
-                            buttonVariants({ variant: "outline" }),
-                            "h-28 w-28 p-2"
+                            buttonVariants({ variant: 'outline' }),
+                            'h-28 w-28 p-2',
                           )}
                         >
                           {fid[index] && fid[index].length > 0 && (
@@ -264,7 +264,7 @@ export default function FormEvent() {
               variant="outline"
               size="sm"
               className="mt-2"
-              onClick={() => appendOrganization({ value: "" })}
+              onClick={() => appendOrganization({ value: '' })}
             >
               Adicionar organização
             </Button>
@@ -308,10 +308,10 @@ export default function FormEvent() {
                   name={`fid.${index}.value`}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className={cn(index !== 0 && "sr-only")}>
+                      <FormLabel className={cn(index !== 0 && 'sr-only')}>
                         Fid
                       </FormLabel>
-                      <FormDescription className={cn(index !== 0 && "sr-only")}>
+                      <FormDescription className={cn(index !== 0 && 'sr-only')}>
                         Insira o(s) fid(s) da(s) pasta(s) onde estão armazenadas
                         todas as fotos
                       </FormDescription>
@@ -339,7 +339,7 @@ export default function FormEvent() {
                 variant="outline"
                 size="sm"
                 className="mt-2"
-                onClick={() => appendFid({ value: "" })}
+                onClick={() => appendFid({ value: '' })}
               >
                 Adicionar organização
               </Button>
@@ -355,15 +355,15 @@ export default function FormEvent() {
                       <Popover>
                         <PopoverTrigger asChild>
                           <Button
-                            variant={"outline"}
+                            variant={'outline'}
                             className={cn(
-                              "w-full justify-start text-left font-normal",
-                              !field.value && "text-muted-foreground"
+                              'w-full justify-start text-left font-normal',
+                              !field.value && 'text-muted-foreground',
                             )}
                           >
                             <CalendarIcon className="mr-2 h-4 w-4" />
                             {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
+                              format(field.value, 'dd/MM/yyyy')
                             ) : (
                               <span>Pick a date</span>
                             )}
@@ -408,8 +408,8 @@ export default function FormEvent() {
                           </FormControl>
                           <div
                             className={cn(
-                              buttonVariants({ variant: "outline" }),
-                              "h-9 w-28 p-2"
+                              buttonVariants({ variant: 'outline' }),
+                              'h-9 w-28 p-2',
                             )}
                           >
                             {logoUrl && logoUrl.length > 0 && (
@@ -441,15 +441,15 @@ export default function FormEvent() {
                             <Popover>
                               <PopoverTrigger asChild>
                                 <Button
-                                  variant={"outline"}
+                                  variant={'outline'}
                                   className={cn(
-                                    "w-full justify-start text-left font-normal",
-                                    !field.value && "text-muted-foreground"
+                                    'w-full justify-start text-left font-normal',
+                                    !field.value && 'text-muted-foreground',
                                   )}
                                 >
                                   <CalendarIcon className="mr-2 h-4 w-4" />
                                   {field.value ? (
-                                    format(field.value, "dd/MM/yyyy")
+                                    format(field.value, 'dd/MM/yyyy')
                                   ) : (
                                     <span>Pick a date</span>
                                   )}
@@ -507,7 +507,7 @@ export default function FormEvent() {
                   router.push(
                     `/event/${form.getValues().date.getFullYear().toString()}/${
                       form.getValues().slug
-                    }`
+                    }`,
                   )
                 }}
               >
@@ -516,7 +516,7 @@ export default function FormEvent() {
               <AlertDialogAction
                 onClick={() => {
                   setOpenModal(false)
-                  setLogoUrl("")
+                  setLogoUrl('')
                   setFid([])
                   form.reset()
                 }}
@@ -530,11 +530,11 @@ export default function FormEvent() {
       <div className="items-start"></div>
       <EventCard
         date={
-          form.getValues("date") && format(form.getValues("date"), "dd/MM/yyyy")
+          form.getValues('date') && format(form.getValues('date'), 'dd/MM/yyyy')
         }
-        name={form.getValues("name")}
-        cover={form.getValues("coverUrl")}
-        logo={form.getValues("organization").map((org) => org.logoUrl || "")}
+        name={form.getValues('name')}
+        cover={form.getValues('coverUrl')}
+        logo={form.getValues('organization').map((org) => org.logoUrl || '')}
       />
     </div>
   )

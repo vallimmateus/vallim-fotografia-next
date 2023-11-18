@@ -1,5 +1,5 @@
-"use client"
-import { useRouter } from "next/navigation"
+'use client'
+import { useRouter } from 'next/navigation'
 
 import {
   AlertDialog,
@@ -8,8 +8,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog"
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
 export default function NotValidate() {
   const router = useRouter()

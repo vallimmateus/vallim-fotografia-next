@@ -1,25 +1,25 @@
-"use client"
-import { Event as EventPC, Photo as PhotoPC } from "@prisma/client"
-import { signIn, useSession } from "next-auth/react"
-import Image from "next/image"
-import { useParams, useRouter, useSearchParams } from "next/navigation"
-import { useState } from "react"
-import type { RenderPhotoProps } from "react-photo-album"
-import PhotoAlbum, { Photo as PhotoRPA } from "react-photo-album"
+'use client'
+import { Event as EventPC, Photo as PhotoPC } from '@prisma/client'
+import { signIn, useSession } from 'next-auth/react'
+import Image from 'next/image'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import type { RenderPhotoProps } from 'react-photo-album'
+import PhotoAlbum, { Photo as PhotoRPA } from 'react-photo-album'
 
-import { ChevronUpIcon, Copy, Trash2Icon, Undo2Icon } from "lucide-react"
-import Lightbox from "yet-another-react-lightbox"
-import Counter from "yet-another-react-lightbox/plugins/counter"
-import "yet-another-react-lightbox/plugins/counter.css"
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
-import "yet-another-react-lightbox/plugins/thumbnails.css"
-import Zoom from "yet-another-react-lightbox/plugins/zoom"
-import "yet-another-react-lightbox/styles.css"
+import { ChevronUpIcon, Copy, Trash2Icon, Undo2Icon } from 'lucide-react'
+import Lightbox from 'yet-another-react-lightbox'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
+import 'yet-another-react-lightbox/plugins/counter.css'
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
+import 'yet-another-react-lightbox/plugins/thumbnails.css'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import 'yet-another-react-lightbox/styles.css'
 
-import { DialogClose } from "@radix-ui/react-dialog"
-import axios from "axios"
-import { format } from "date-fns"
+import { DialogClose } from '@radix-ui/react-dialog'
+import axios from 'axios'
+import { format } from 'date-fns'
 
 import {
   AlertDialog,
@@ -28,9 +28,9 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog"
-import { Button } from "@/components/ui/button"
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -38,11 +38,11 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger
-} from "@/components/ui/dialog"
-import EventCard from "@/components/ui/event-card"
-import { Input } from "@/components/ui/input"
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area"
+  DialogTrigger,
+} from '@/components/ui/dialog'
+import EventCard from '@/components/ui/event-card'
+import { Input } from '@/components/ui/input'
+import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import {
   Sheet,
   SheetContent,
@@ -50,16 +50,16 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger
-} from "@/components/ui/sheet"
-import { Textarea } from "@/components/ui/textarea"
+  SheetTrigger,
+} from '@/components/ui/sheet'
+import { Textarea } from '@/components/ui/textarea'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger
-} from "@/components/ui/tooltip"
-import { cn } from "@/lib/utils"
+  TooltipTrigger,
+} from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 
 type AlbumProps = {
   thumbnails: PhotoRPA[]
@@ -72,7 +72,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
   const { status, data } = useSession()
 
   const searchParams = useSearchParams()
-  const photoNumber = Number(searchParams.get("photo"))
+  const photoNumber = Number(searchParams.get('photo'))
   const [index, setIndex] = useState(photoNumber || -1)
   const [deletedPhotos, setDeletedPhotos] = useState<PhotoRPA[]>([])
   const [openModal, setOpenModal] = useState(false)
@@ -81,21 +81,21 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
   async function onSubmit() {
     await axios
       .post(
-        "/api/validate-event",
+        '/api/validate-event',
         {
           id: event.id,
           deletedPhotosIds: deletedPhotos.map((photo) => photo.key),
-          date: new Date()
+          date: new Date(),
         },
         {
           headers: {
-            "user-email": data!.user!.email
-          }
-        }
+            'user-email': data?.user?.email,
+          },
+        },
       )
       .then(() => setOpenModal(true))
   }
-  if (status === "unauthenticated") {
+  if (status === 'unauthenticated') {
     return (
       <div>
         <AlertDialog defaultOpen={true}>
@@ -130,16 +130,16 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
             </AlertDialogHeader>
             <h3 className="text-lg">Olá, {data?.user?.name} 👋</h3>
             <p>
-              Te enviei este link para que{" "}
+              Te enviei este link para que{' '}
               <span className="font-semibold italic">somente você</span> possa
-              verificar foto por foto e validar o evento{" "}
+              verificar foto por foto e validar o evento{' '}
               <span className="font-bold">{event.name}</span>. Caso note alguma
               foto que contenha algum problema, clique no ícone de lixeira para
-              deletá-la. Se não houver nenhum problema, clique em{" "}
+              deletá-la. Se não houver nenhum problema, clique em{' '}
               <span className="font-semibold">Validar</span> no canto inferior
               da página para continuar.
             </p>
-            {event.type === "party" && (
+            {event.type === 'party' && (
               <p className="text-sm text-zinc-300">
                 Problemas comuns que você pode encontrar:
                 <ul className="list-disc pl-8">
@@ -175,7 +175,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
               renderPhoto={({
                 photo,
                 imageProps: { alt, title, sizes, className, onClick },
-                wrapperStyle
+                wrapperStyle,
               }: RenderPhotoProps) => {
                 return (
                   <div
@@ -188,19 +188,19 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                           deletedPhotos.some((photoKey) => photoKey === photo)
                         ) {
                           setDeletedPhotos((prev) =>
-                            prev.filter((photoKey) => photoKey !== photo)
+                            prev.filter((photoKey) => photoKey !== photo),
                           )
                         } else {
                           setDeletedPhotos((prev) => [...prev, photo])
                         }
                       }}
                       className={cn(
-                        "absolute right-1 top-1 z-20 cursor-pointer rounded-full bg-gray-800 p-2 transition-all hover:bg-red-700",
+                        'absolute right-1 top-1 z-20 cursor-pointer rounded-full bg-gray-800 p-2 transition-all hover:bg-red-700',
                         {
-                          "hover:bg-green-700": deletedPhotos.some(
-                            (photoKey) => photoKey === photo
-                          )
-                        }
+                          'hover:bg-green-700': deletedPhotos.some(
+                            (photoKey) => photoKey === photo,
+                          ),
+                        },
                       )}
                     >
                       {deletedPhotos.some((photoKey) => photoKey === photo) ? (
@@ -211,12 +211,12 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                     </button>
                     <div
                       className={cn(
-                        "absolute left-0 top-0 z-10 h-full w-full bg-transparent mix-blend-overlay transition-all",
+                        'absolute left-0 top-0 z-10 h-full w-full bg-transparent mix-blend-overlay transition-all',
                         {
-                          "bg-red-500": deletedPhotos.some(
-                            (photoKey) => photoKey === photo
-                          )
-                        }
+                          'bg-red-500': deletedPhotos.some(
+                            (photoKey) => photoKey === photo,
+                          ),
+                        },
                       )}
                       onClick={onClick}
                     />
@@ -225,10 +225,10 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                       src={photo}
                       unoptimized={true}
                       loading="lazy"
-                      placeholder={"blurDataURL" in photo ? "blur" : undefined}
-                      className={cn(className, "rounded transition-all", {
-                        "border-4 border-red-500 saturate-0":
-                          deletedPhotos.some((photoKey) => photoKey === photo)
+                      placeholder={'blurDataURL' in photo ? 'blur' : undefined}
+                      className={cn(className, 'rounded transition-all', {
+                        'border-4 border-red-500 saturate-0':
+                          deletedPhotos.some((photoKey) => photoKey === photo),
                       })}
                       {...{ alt, title, sizes, onClick }}
                     />
@@ -244,13 +244,13 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                 share: {
                   url: `https://www.vallimfotografia.com.br/event/${year}/${slug}?photo=${idx}`,
                   title: event.name,
-                  text: `Olha essa foto do evento ${event.name}`
-                }
+                  text: `Olha essa foto do evento ${event.name}`,
+                },
               }))}
               on={{
                 view: ({ index }) => {
                   setIndex(index)
-                }
+                },
               }}
               open={index >= 0}
               index={index}
@@ -259,22 +259,22 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
               toolbar={{
                 buttons: [
                   <button
-                    className={cn("yarl__button rounded hover:bg-red-700/50", {
-                      "hover:bg-green-700/50": deletedPhotos.some(
-                        (photoKey) => photoKey === thumbnails[index]
-                      )
+                    className={cn('yarl__button rounded hover:bg-red-700/50', {
+                      'hover:bg-green-700/50': deletedPhotos.some(
+                        (photoKey) => photoKey === thumbnails[index],
+                      ),
                     })}
                     key="delete"
                     onClick={() => {
                       if (
                         deletedPhotos.some(
-                          (photoKey) => photoKey === thumbnails[index]
+                          (photoKey) => photoKey === thumbnails[index],
                         )
                       ) {
                         setDeletedPhotos((prev) =>
                           prev.filter(
-                            (photoKey) => photoKey !== thumbnails[index]
-                          )
+                            (photoKey) => photoKey !== thumbnails[index],
+                          ),
                         )
                       } else {
                         setDeletedPhotos((prev) => [...prev, thumbnails[index]])
@@ -282,25 +282,25 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                     }}
                   >
                     {deletedPhotos.some(
-                      (photoKey) => photoKey === thumbnails[index]
+                      (photoKey) => photoKey === thumbnails[index],
                     ) ? (
                       <Undo2Icon size={20} />
                     ) : (
                       <Trash2Icon size={20} />
                     )}
                   </button>,
-                  "fullscreen",
-                  "zoom",
-                  "close"
-                ]
+                  'fullscreen',
+                  'zoom',
+                  'close',
+                ],
               }}
               plugins={[Fullscreen, Counter, Thumbnails, Zoom]}
               carousel={{
-                finite: true
+                finite: true,
               }}
               controller={{
                 closeOnBackdropClick: true,
-                closeOnPullDown: true
+                closeOnPullDown: true,
               }}
             />
           </div>
@@ -317,8 +317,8 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
               <SheetHeader>
                 <SheetTitle>
                   {deletedPhotos.length === 0
-                    ? "Tem certeza que não deseja deletar nenhuma foto?"
-                    : "Fotos que serão deletadas"}
+                    ? 'Tem certeza que não deseja deletar nenhuma foto?'
+                    : 'Fotos que serão deletadas'}
                 </SheetTitle>
                 <SheetDescription>
                   {deletedPhotos.length === 0
@@ -334,7 +334,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                         <button
                           onClick={() =>
                             setDeletedPhotos((prev) =>
-                              prev.filter((photoKey) => photoKey !== photo)
+                              prev.filter((photoKey) => photoKey !== photo),
                             )
                           }
                           className="absolute right-1 top-1 z-20 cursor-pointer rounded-full bg-gray-800 p-2 transition-all hover:bg-green-700"
@@ -345,7 +345,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                           unoptimized={true}
                           key={photo.key}
                           src={photo.src}
-                          alt={photo.alt || ""}
+                          alt={photo.alt || ''}
                           height={96}
                           width={144}
                           className="aspect-[3/2] h-full rounded object-cover"
@@ -374,7 +374,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
             <div className="flex w-full flex-col items-center space-y-4">
               <EventCard
                 cover={event.coverUrl}
-                date={format(event.date, "dd/MM/yyyy")}
+                date={format(event.date, 'dd/MM/yyyy')}
                 name={event.name}
               />
               <TooltipProvider>
@@ -387,7 +387,7 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
                       variant="outline"
                       onClick={() => {
                         navigator.clipboard.writeText(
-                          `https://www.vallimfotografia.com.br/event/${year}/${slug}`
+                          `https://www.vallimfotografia.com.br/event/${year}/${slug}`,
                         )
                       }}
                     >

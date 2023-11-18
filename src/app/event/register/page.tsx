@@ -1,4 +1,4 @@
-import FormEvent from "./components/form"
+import FormEvent from './components/form'
 
 export interface OrganizationOption {
   readonly value: string

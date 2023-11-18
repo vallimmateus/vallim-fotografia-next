@@ -1,21 +1,21 @@
-"use client"
-import { useSession } from "next-auth/react"
-import { useEffect, useState } from "react"
+'use client'
+import { useEffect, useState } from 'react'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
 
-import { CommentWithUserType } from "./commentsContext"
+import { CommentWithUserType } from './commentsContext'
 
-import { Pencil2Icon, PersonIcon, TrashIcon } from "@radix-ui/react-icons"
-import axios from "axios"
-import { format } from "date-fns"
+import { User } from '@prisma/client'
+import { Pencil2Icon, PersonIcon, TrashIcon } from '@radix-ui/react-icons'
+import axios from 'axios'
+import { format } from 'date-fns'
 
 type CommentCardProps = {
   comment: CommentWithUserType
   getComments: () => void
-  getUser: () => void
+  getUser: () => Promise<User>
 }
 
 export default function CommentCard({
@@ -24,23 +24,27 @@ export default function CommentCard({
     text,
     createdAt,
     updatedAt,
-    user: { image, name, nickname, email }
+    user: { image, name, nickname, email },
   },
   getComments,
-  getUser
+  getUser,
 }: CommentCardProps) {
-  const { data } = useSession()
   const [editing, setEditing] = useState(false)
   const [editable, setEditable] = useState(false)
+  const [deletable, setDeletable] = useState(false)
   const [commentText, setCommentText] = useState(text)
   const [loading, setLoading] = useState(false)
-  // const [isDeleted, setIsDeleted] = useState(false);
 
   useEffect(() => {
-    const user = getUser()
-    console.log(user)
-    setEditable(data?.user?.email === email)
-  }, [data, email, getUser])
+    getUser().then((user) => {
+      if (user.role === 'admin') {
+        setDeletable(true)
+      } else {
+        setEditable(user.email === email)
+        setDeletable(user.email === email)
+      }
+    })
+  }, [getUser, email])
 
   const handleEditComment = async () => {
     if (commentText.length === 0) {
@@ -48,7 +52,7 @@ export default function CommentCard({
     }
     setLoading(true)
     await axios
-      .patch("/api/comments", { text: commentText, id })
+      .patch('/api/comments', { text: commentText, id })
       .then(() => {
         setLoading(false)
         text = commentText
@@ -64,17 +68,12 @@ export default function CommentCard({
   }
 
   const handleDeleteComment = async () => {
-    if (confirm("Tem certeza que deseja deletar esse comentário?")) {
-      await axios.delete("/api/comments", { data: { id } }).then(() => {
-        // setIsDeleted(true);
+    if (confirm('Tem certeza que deseja deletar esse comentário?')) {
+      await axios.delete('/api/comments', { data: { id } }).then(() => {
         getComments()
       })
     }
   }
-
-  // if (isDeleted) {
-  //   return;
-  // }
 
   return (
     <div className="m-2 flex gap-3 rounded-md bg-zinc-700 p-2">
@@ -89,7 +88,7 @@ export default function CommentCard({
           <p className="w-full text-start text-sm text-zinc-100">
             <span className="text-zinc-400">
               {nickname || name}
-              {": "}
+              {': '}
             </span>
             {commentText}
           </p>
@@ -105,7 +104,7 @@ export default function CommentCard({
                   Editar
                 </Button>
               )}
-              {editable && (
+              {deletable && (
                 <Button
                   className="max-h-5 w-fit gap-1 px-1.5 py-1 text-[0.5rem]"
                   variant="ghost"
@@ -118,8 +117,8 @@ export default function CommentCard({
             </div>
             <p className="flex-1 cursor-default text-end text-[0.5rem] text-muted-foreground">
               {updatedAt
-                ? format(new Date(updatedAt), "dd/MM/yyyy")
-                : format(new Date(createdAt), "dd/MM/yyyy")}
+                ? format(new Date(updatedAt), 'dd/MM/yyyy')
+                : format(new Date(createdAt), 'dd/MM/yyyy')}
             </p>
           </div>
         </div>

@@ -1,58 +1,66 @@
-import { prismaClient } from "@/lib/prisma"
+import { prismaClient } from '@/lib/prisma'
 
-import Album from "./components/album"
-import Validated from "./components/validated"
+import Album from './components/album'
+import Validated from './components/validated'
 
 export async function generateStaticParams() {
-  const events = await prismaClient.event.findMany({})
+  const events = await prismaClient.event.findMany({
+    where: {
+      publishDate: {
+        not: null,
+      },
+    },
+  })
 
   return events.map((event) => ({
     year: event.date.getFullYear().toString(),
-    slug: event.slug
+    slug: event.slug,
   }))
 }
 
 export default async function Page({
-  params: { year, slug }
+  params: { year, slug },
 }: {
   params: { year: string; slug: string }
 }) {
   const event = await prismaClient.event.findFirst({
     where: {
       AND: [
-        { slug: slug },
+        { slug },
         {
           date: {
             gte: new Date(`${year}-01-01`),
-            lte: new Date(`${year}-12-31`)
-          }
-        }
-      ]
-    }
+            lte: new Date(`${year}-12-31`),
+          },
+        },
+      ],
+    },
   })
 
   if (event?.publishDate) {
     const userValidator = await prismaClient.user.findFirst({
       where: {
-        email: event.validateByUserEmail
-      }
+        email: event.validateByUserEmail,
+      },
     })
-    return (
-      <Validated
-        userValidator={userValidator!}
-        publishDate={event.publishDate}
-        link={`/event/${year}/${slug}`}
-      />
-    )
+    if (userValidator !== null) {
+      return (
+        <Validated
+          userValidator={userValidator}
+          publishDate={event.publishDate}
+          link={`/event/${year}/${slug}`}
+        />
+      )
+    }
   }
 
   const photos = await prismaClient.photo.findMany({
     where: {
-      eventId: event?.id
+      eventId: event?.id,
     },
     orderBy: {
-      name: "asc"
-    }
+      name: 'asc',
+    },
   })
 
   const thumbnails = photos.map((photo) => {
@@ -60,7 +68,7 @@ export default async function Page({
       src: `https://lh4.googleusercontent.com/d/${photo.imageUrlId}=h250`,
       width: (250 * 3) / 2,
       height: 250,
-      key: photo.id
+      key: photo.id,
     }
   })
 

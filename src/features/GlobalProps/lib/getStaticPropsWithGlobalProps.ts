@@ -1,18 +1,18 @@
+import { GlobalProps } from '@/types'
 import {
   GetStaticProps,
   GetStaticPropsContext,
-  GetStaticPropsResult
-} from "next"
-import { fetchGlobalProps } from "./fetchGlobalProps"
-import { GlobalProps } from "@/types"
+  GetStaticPropsResult,
+} from 'next'
+import { fetchGlobalProps } from './fetchGlobalProps'
 
 export function getStaticPropsWithGlobalProps<
-  T extends Record<string, unknown>
+  T extends Record<string, unknown>,
 >(
   getStaticProps: (
     ctx: GetStaticPropsContext,
-    globalProps: GlobalProps
-  ) => Promise<GetStaticPropsResult<T>>
+    globalProps: GlobalProps,
+  ) => Promise<GetStaticPropsResult<T>>,
 ): GetStaticProps<T & GlobalProps> {
   // Construct getStaticProps function
   return async (ctx: GetStaticPropsContext) => {
@@ -25,7 +25,7 @@ export function getStaticPropsWithGlobalProps<
 
     // If redirect or notFound in result, return result as is, in this case
     // no page props will be provided
-    if ("redirect" in result || "notFound" in result) {
+    if ('redirect' in result || 'notFound' in result) {
       return result
     }
 
@@ -33,8 +33,8 @@ export function getStaticPropsWithGlobalProps<
     return {
       props: {
         ...result.props,
-        ...globalProps
-      }
+        ...globalProps,
+      },
       // revalidate: result.revalidate,
     }
   }

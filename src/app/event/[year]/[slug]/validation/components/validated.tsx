@@ -1,6 +1,6 @@
-"use client"
-import { User } from "@prisma/client"
-import { useRouter } from "next/navigation"
+'use client'
+import { User } from '@prisma/client'
+import { useRouter } from 'next/navigation'
 
 import {
   AlertDialog,
@@ -9,10 +9,10 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle
-} from "@/components/ui/alert-dialog"
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog'
 
-import { format } from "date-fns/esm"
+import { format } from 'date-fns/esm'
 
 type ValidatedProps = {
   userValidator: User
@@ -23,7 +23,7 @@ type ValidatedProps = {
 export default function Validated({
   userValidator,
   publishDate,
-  link
+  link,
 }: ValidatedProps) {
   const router = useRouter()
   return (
@@ -33,13 +33,13 @@ export default function Validated({
           <AlertDialogHeader>
             <AlertDialogTitle>Este evento já foi validado!</AlertDialogTitle>
             <AlertDialogDescription>
-              O usuário{" "}
+              O usuário{' '}
               <span className="text-bold text-white">
                 {userValidator?.nickname || userValidator?.name}
-              </span>{" "}
-              validou este evento em{" "}
+              </span>{' '}
+              validou este evento em{' '}
               <span className="text-bold text-white">
-                {format(publishDate, "dd/MM/yyyy")}
+                {format(publishDate, 'dd/MM/yyyy')}
               </span>
               . Por favor, clique em continuar para voltar à página do evento.
             </AlertDialogDescription>

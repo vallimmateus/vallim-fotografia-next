@@ -1,25 +1,25 @@
-"use client"
+'use client'
 
-import { Photo as PhotoPC, Event as EventPC } from "@prisma/client"
-import { useParams, useSearchParams } from "next/navigation"
-import React, { useState } from "react"
-import PhotoAlbum, { Photo as PhotoRPA } from "react-photo-album"
+import { Event as EventPC, Photo as PhotoPC } from '@prisma/client'
+import { useParams, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
+import PhotoAlbum, { Photo as PhotoRPA } from 'react-photo-album'
 
-import NextJsImage from "@/components/NextJsImage"
+import NextJsImage from '@/components/NextJsImage'
 
-import Comments from "./comments"
+import Comments from './comments'
 
-import Lightbox from "yet-another-react-lightbox"
-import "yet-another-react-lightbox/styles.css"
-import Counter from "yet-another-react-lightbox/plugins/counter"
-import Download from "yet-another-react-lightbox/plugins/download"
-import Fullscreen from "yet-another-react-lightbox/plugins/fullscreen"
-import Share from "yet-another-react-lightbox/plugins/share"
-import Slideshow from "yet-another-react-lightbox/plugins/slideshow"
-import Thumbnails from "yet-another-react-lightbox/plugins/thumbnails"
-import Zoom from "yet-another-react-lightbox/plugins/zoom"
-import "yet-another-react-lightbox/plugins/thumbnails.css"
-import "yet-another-react-lightbox/plugins/counter.css"
+import Lightbox from 'yet-another-react-lightbox'
+import Counter from 'yet-another-react-lightbox/plugins/counter'
+import 'yet-another-react-lightbox/plugins/counter.css'
+import Download from 'yet-another-react-lightbox/plugins/download'
+import Fullscreen from 'yet-another-react-lightbox/plugins/fullscreen'
+import Share from 'yet-another-react-lightbox/plugins/share'
+import Slideshow from 'yet-another-react-lightbox/plugins/slideshow'
+import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
+import 'yet-another-react-lightbox/plugins/thumbnails.css'
+import Zoom from 'yet-another-react-lightbox/plugins/zoom'
+import 'yet-another-react-lightbox/styles.css'
 
 type AlbumProps = {
   thumbnails: PhotoRPA[]
@@ -32,7 +32,7 @@ const deviceSizes = [640, 750, 828, 1080, 1200, 1920, 2048, 3840]
 
 export default function Album({ event, photos, thumbnails }: AlbumProps) {
   const searchParams = useSearchParams()
-  const photoNumber = Number(searchParams.get("photo"))
+  const photoNumber = Number(searchParams.get('photo'))
   const [index, setIndex] = useState(photoNumber || -1)
   const { slug, year }: { year: string; slug: string } = useParams()
 
@@ -53,18 +53,18 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
           share: {
             url: `https://www.vallimfotografia.com.br/event/${year}/${slug}?photo=${idx}`,
             title: event.name,
-            text: `Olha essa foto do evento ${event.name}`
+            text: `Olha essa foto do evento ${event.name}`,
           },
           srcSet: imageSizes.concat(...deviceSizes).map((size) => ({
             src: `https://lh4.googleusercontent.com/d/${photo.imageUrlId}=w${size}`,
             width: size,
-            height: Math.round((2 / 3) * size)
-          }))
+            height: Math.round((2 / 3) * size),
+          })),
         }))}
         on={{
           view: ({ index }) => {
             setIndex(index)
-          }
+          },
         }}
         open={index >= 0}
         index={index}
@@ -79,14 +79,14 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
           Comments,
           Slideshow,
           Thumbnails,
-          Zoom
+          Zoom,
         ]}
         carousel={{
-          finite: true
+          finite: true,
         }}
         controller={{
           closeOnBackdropClick: true,
-          closeOnPullDown: true
+          closeOnPullDown: true,
         }}
       />
     </div>

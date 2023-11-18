@@ -1,22 +1,23 @@
-import { prismaClient } from "@/lib/prisma"
-import { NextResponse } from "next/server"
+import { prismaClient } from '@/lib/prisma'
+import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
-  const data = req.headers.get("photoName")
+  const data = req.headers.get('photoName')
   try {
+    if (data === null) throw new Error('Missing photoName header')
     const photoData = await prismaClient.photo.findFirst({
       where: {
-        name: data!
-      }
+        name: data,
+      },
     })
 
     if (!photoData) {
-      throw new Error("Photo not found")
+      throw new Error('Photo not found')
     }
 
     const likes = await prismaClient.like.findMany({
       where: {
-        photoId: photoData.id
+        photoId: photoData.id,
       },
       include: {
         user: {
@@ -24,12 +25,12 @@ export async function GET(req: Request) {
             name: true,
             nickname: true,
             image: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     })
-    return NextResponse.json({ likes, message: "success" }, { status: 200 })
+    return NextResponse.json({ likes, message: 'success' }, { status: 200 })
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
   }
@@ -40,42 +41,42 @@ export async function POST(req: Request) {
   try {
     const photoData = await prismaClient.photo.findFirst({
       where: {
-        name: data.photoName
-      }
+        name: data.photoName,
+      },
     })
 
-    if (!photoData) {
-      throw new Error("Photo not found")
+    if (photoData === null) {
+      throw new Error('Photo not found')
     }
 
     const userData = await prismaClient.user.findFirst({
       where: {
-        email: data.email
-      }
+        email: data.email,
+      },
     })
 
-    if (!userData) {
-      throw new Error("User not found")
+    if (userData === null) {
+      throw new Error('User not found')
     }
 
     await prismaClient.like.create({
       data: {
         photo: {
           connect: {
-            id: photoData.id
-          }
+            id: photoData.id,
+          },
         },
         user: {
           connect: {
-            id: userData.id
-          }
-        }
-      }
+            id: userData.id,
+          },
+        },
+      },
     })
 
     return NextResponse.json(
-      { message: "O usuário curtiu a foto com sucesso" },
-      { status: 200 }
+      { message: 'O usuário curtiu a foto com sucesso' },
+      { status: 200 },
     )
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
@@ -85,14 +86,15 @@ export async function POST(req: Request) {
 export async function DELETE(req: Request) {
   const data: { id: string } = await req.json()
   try {
+    if (data.id === null) throw new Error('Missing id header')
     await prismaClient.like.delete({
       where: {
-        id: data.id
-      }
+        id: data.id,
+      },
     })
     return NextResponse.json(
-      { message: "O usuário retirou a curtida com sucesso" },
-      { status: 200 }
+      { message: 'O usuário retirou a curtida com sucesso' },
+      { status: 200 },
     )
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })

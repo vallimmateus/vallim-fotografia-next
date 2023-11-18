@@ -1,41 +1,41 @@
-import Link from "next/link"
+import Link from 'next/link'
 
-import EventCard from "@/components/ui/event-card"
-import { prismaClient } from "@/lib/prisma"
+import EventCard from '@/components/ui/event-card'
+import { prismaClient } from '@/lib/prisma'
 
-import { format } from "date-fns"
+import { format } from 'date-fns'
 
 export async function generateStaticParams() {
   return [
-    { category: "party" },
-    { category: "event" },
-    { category: "personal" }
+    { category: 'party' },
+    { category: 'event' },
+    { category: 'personal' },
   ]
 }
 
 export default async function Page({
-  params: { category }
+  params: { category },
 }: {
   params: { category: string }
 }) {
-  let pageName: string = ""
-  if (category === "party") pageName = "Festas"
-  if (category === "event") pageName = "Eventos"
-  if (category === "personal") pageName = "Pessoais"
+  let pageName = ''
+  if (category === 'party') pageName = 'Festas'
+  if (category === 'event') pageName = 'Eventos'
+  if (category === 'personal') pageName = 'Pessoais'
   const events = await prismaClient.event.findMany({
     where: {
-      type: category
+      type: category,
     },
     orderBy: {
-      date: "desc"
+      date: 'desc',
     },
     include: {
       organizations: {
         include: {
-          organization: true
-        }
-      }
-    }
+          organization: true,
+        },
+      },
+    },
   })
 
   return (
@@ -53,7 +53,7 @@ export default async function Page({
               >
                 <EventCard
                   cover={event.coverUrl}
-                  date={format(event.date, "dd/MM/yyyy")}
+                  date={format(event.date, 'dd/MM/yyyy')}
                   name={event.name}
                   logo={
                     event.organizations

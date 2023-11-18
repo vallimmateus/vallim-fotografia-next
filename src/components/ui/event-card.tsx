@@ -1,10 +1,10 @@
-"use client"
-import Image from "next/image"
-import { useEffect, useState } from "react"
-import ContentLoader from "react-content-loader"
+'use client'
+import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import ContentLoader from 'react-content-loader'
 
-import { imageLoader } from "@/lib/imageLoader"
-import { cn } from "@/lib/utils"
+import { imageLoader } from '@/lib/imageLoader'
+import { cn } from '@/lib/utils'
 
 type EventCardProps = {
   date?: string
@@ -17,12 +17,6 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
   const [isLoadingCover, setIsLoadingCover] = useState(true)
   const [isLoadingName, setIsLoadingName] = useState(true)
   const [isLoadingDate, setIsLoadingDate] = useState(true)
-
-  // useEffect(() => {
-  //   if (!cover) {
-  //     setIsLoadingCover(false);
-  //   }
-  // }, [cover]);
 
   useEffect(() => {
     if (date) {
@@ -50,19 +44,19 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
               logo.map(
                 (logoUrl, index) =>
                   logoUrl &&
-                  logoUrl !== "" && (
+                  logoUrl !== '' && (
                     <Image
                       loader={imageLoader}
                       alt={`Logo of organization`}
                       src={logoUrl}
                       width={40}
                       height={40}
-                      className={cn("h-10 w-10 object-contain shadow", {
-                        "-ml-5": index > 0
+                      className={cn('h-10 w-10 object-contain shadow', {
+                        '-ml-5': index > 0,
                       })}
                       key={index}
                     />
-                  )
+                  ),
               )}
           </div>
           <div className="relative w-full overflow-hidden transition-all group-hover:brightness-95">
@@ -83,7 +77,7 @@ export default function EventCard({ cover, date, name, logo }: EventCardProps) {
                 alt={`Cover image for party ${name}.`}
                 width={420}
                 height={280}
-                className={cn({ "opacity-0": isLoadingCover })}
+                className={cn({ 'opacity-0': isLoadingCover })}
                 onLoad={() => {
                   setIsLoadingCover(false)
                 }}

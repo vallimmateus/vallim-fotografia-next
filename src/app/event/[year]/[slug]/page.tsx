@@ -1,10 +1,8 @@
-import React from "react"
+import { prismaClient } from '@/lib/prisma'
 
-import { prismaClient } from "@/lib/prisma"
-
-import Album from "./components/album"
-import NotValidate from "./components/not-validate"
-import { Organization } from "./components/organization"
+import Album from './components/album'
+import NotValidate from './components/not-validate'
+import { Organization } from './components/organization'
 
 export const dynamicParams = false
 
@@ -13,39 +11,39 @@ export async function generateStaticParams() {
 
   return events.map((event) => ({
     year: event.date.getFullYear().toString(),
-    slug: event.slug
+    slug: event.slug,
   }))
 }
 
 export default async function Page({
-  params: { year, slug }
+  params: { year, slug },
 }: {
   params: { year: string; slug: string }
 }) {
   const event = await prismaClient.event.findFirst({
     where: {
       AND: [
-        { slug: slug },
+        { slug },
         {
           date: {
             gte: new Date(`${year}-01-01`),
-            lte: new Date(`${year}-12-31`)
-          }
-        }
-      ]
+            lte: new Date(`${year}-12-31`),
+          },
+        },
+      ],
     },
     include: {
       photos: {
         orderBy: {
-          name: "asc"
-        }
+          name: 'asc',
+        },
       },
       organizations: {
         include: {
-          organization: true
-        }
-      }
-    }
+          organization: true,
+        },
+      },
+    },
   })
 
   if (!event?.publishDate) {
@@ -58,7 +56,7 @@ export default async function Page({
     return {
       src: `https://lh4.googleusercontent.com/d/${photo.imageUrlId}=w250`,
       width: 250,
-      height: (250 * 2) / 3
+      height: (250 * 2) / 3,
     }
   })
   return (

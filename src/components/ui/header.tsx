@@ -1,21 +1,21 @@
-"use client"
+'use client'
 
-import { Event, User } from "@prisma/client"
-import { signIn, signOut, useSession } from "next-auth/react"
-import Image from "next/image"
-import Link from "next/link"
-import { useCallback, useEffect, useState } from "react"
+import { Event, User } from '@prisma/client'
+import { signIn, signOut, useSession } from 'next-auth/react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useCallback, useEffect, useState } from 'react'
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu"
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -23,15 +23,15 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle
-} from "@/components/ui/navigation-menu"
-import { imageLoader } from "@/lib/imageLoader"
-import { cn } from "@/lib/utils"
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu'
+import { imageLoader } from '@/lib/imageLoader'
+import { cn } from '@/lib/utils'
 
-import { HamburgerMenuIcon } from "@radix-ui/react-icons"
-import axios from "axios"
-import { format } from "date-fns"
-import { ChevronRightIcon, LogInIcon, LogOutIcon } from "lucide-react"
+import { HamburgerMenuIcon } from '@radix-ui/react-icons'
+import axios from 'axios'
+import { format } from 'date-fns'
+import { ChevronRightIcon, LogInIcon, LogOutIcon } from 'lucide-react'
 
 export function Header() {
   const { status, data } = useSession()
@@ -42,19 +42,19 @@ export function Header() {
 
   const getUserData = useCallback(async (email: string) => {
     await axios
-      .get("/api/user", { headers: { userEmail: email } })
+      .get('/api/user', { headers: { userEmail: email } })
       .then((res) => setUser(res.data.userData))
   }, [])
 
   const getParties = useCallback(async () => {
     await axios
-      .get("/api/events", { headers: { type: "party", quantity: 4 } })
+      .get('/api/events', { headers: { type: 'party', quantity: 4 } })
       .then((res) => setParties(res.data.eventData))
   }, [])
 
   const getEvents = useCallback(async () => {
     await axios
-      .get("/api/events", { headers: { type: "event", quantity: 2 } })
+      .get('/api/events', { headers: { type: 'event', quantity: 2 } })
       .then((res) => setEvents(res.data.eventData))
   }, [])
 
@@ -78,8 +78,8 @@ export function Header() {
   }, [getEvents, getParties])
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   useEffect(() => {
@@ -91,11 +91,11 @@ export function Header() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all",
+        'sticky top-0 z-50 flex w-screen flex-row items-center justify-center bg-zinc-950 shadow-lg shadow-black transition-all',
         {
-          "h-20": clientWindowHeight <= 50,
-          "h-14": clientWindowHeight > 50
-        }
+          'h-20': clientWindowHeight <= 50,
+          'h-14': clientWindowHeight > 50,
+        },
       )}
     >
       <div className="grid w-full max-w-screen-xl items-center p-4 max-xl:px-10 max-md:grid-cols-2 md:grid-cols-3">
@@ -137,7 +137,7 @@ export function Header() {
                             <Link
                               className="group relative flex h-full w-full select-none flex-col overflow-hidden rounded-md bg-muted no-underline outline-none focus:shadow-md"
                               href={`/event/${new Date(
-                                parties[0].date
+                                parties[0].date,
                               ).getFullYear()}/${parties[0].slug}`}
                             >
                               <div className="h-full w-full">
@@ -158,7 +158,7 @@ export function Header() {
                                   <p className="text-sm leading-tight text-zinc-200">
                                     {format(
                                       new Date(parties[0].date),
-                                      "dd/MM/yyyy"
+                                      'dd/MM/yyyy',
                                     )}
                                   </p>
                                 </div>
@@ -180,7 +180,7 @@ export function Header() {
                                 {party.name}
                               </div>
                               <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-                                {format(new Date(party.date), "dd/MM/yyyy")}
+                                {format(new Date(party.date), 'dd/MM/yyyy')}
                               </p>
                             </a>
                           </NavigationMenuLink>
@@ -215,7 +215,7 @@ export function Header() {
                             <Link
                               className="group relative flex h-56 w-full select-none flex-col overflow-hidden rounded-md bg-muted no-underline outline-none focus:shadow-md"
                               href={`/event/${new Date(
-                                event.date
+                                event.date,
                               ).getFullYear()}/${event.slug}`}
                             >
                               <div className="h-full w-full">
@@ -234,7 +234,7 @@ export function Header() {
                                     {event.name}
                                   </p>
                                   <p className="text-sm leading-tight text-zinc-200">
-                                    {format(new Date(event.date), "dd/MM/yyyy")}
+                                    {format(new Date(event.date), 'dd/MM/yyyy')}
                                   </p>
                                 </div>
                               </div>
@@ -261,7 +261,7 @@ export function Header() {
         </div>
 
         <div className="flex justify-end max-md:hidden">
-          {status === "authenticated" && user ? (
+          {status === 'authenticated' && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Avatar className="h-8 w-8">
@@ -318,7 +318,7 @@ export function Header() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-52">
-              {status === "authenticated" && user ? (
+              {status === 'authenticated' && user ? (
                 <>
                   <DropdownMenuLabel>
                     <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export function Header() {
               <DropdownMenuItem>
                 <Link href="/category/event">Eventos</Link>
               </DropdownMenuItem>
-              {status === "authenticated" && user && (
+              {status === 'authenticated' && user && (
                 <>
                   <DropdownMenuSeparator />
 

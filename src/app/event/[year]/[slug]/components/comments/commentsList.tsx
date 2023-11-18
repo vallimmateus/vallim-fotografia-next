@@ -1,19 +1,20 @@
-"use client"
-import { ScrollArea } from "@/components/ui/scroll-area"
+'use client'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
-import CommentCard from "./commentCard"
-import { CommentWithUserType } from "./commentsContext"
+import { User } from '@prisma/client'
+import CommentCard from './commentCard'
+import { CommentWithUserType } from './commentsContext'
 
 type CommentsListProps = {
   comments: CommentWithUserType[]
   getComments: () => void
-  getUser: () => void
+  getUser: () => Promise<User>
 }
 
 export default function CommentsList({
   comments,
   getComments,
-  getUser
+  getUser,
 }: CommentsListProps) {
   return (
     <ScrollArea className="-mt-6 flex-1">

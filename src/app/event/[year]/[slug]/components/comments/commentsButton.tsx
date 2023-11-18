@@ -1,7 +1,7 @@
-import { useCommentsContext } from "./commentsContext"
+import { useCommentsContext } from './commentsContext'
 
-import { MessagesSquare } from "lucide-react"
-import { IconButton, useLightboxState } from "yet-another-react-lightbox"
+import { MessagesSquare } from 'lucide-react'
+import { IconButton, useLightboxState } from 'yet-another-react-lightbox'
 
 export default function CommentsButton() {
   const { toggle } = useCommentsContext()
