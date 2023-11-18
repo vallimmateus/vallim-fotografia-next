@@ -123,7 +123,7 @@ export function Header() {
                 </NavigationMenuLink>
               </NavigationMenuItem>
               <NavigationMenuItem>
-                <NavigationMenuLink href="/parties">
+                <NavigationMenuLink href="/category/party">
                   <NavigationMenuTrigger>
                     Festas Universitárias
                   </NavigationMenuTrigger>
