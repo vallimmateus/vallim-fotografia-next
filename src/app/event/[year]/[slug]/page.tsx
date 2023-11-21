@@ -4,7 +4,7 @@ import Album from './components/album'
 import NotValidate from './components/not-validate'
 import { Organization } from './components/organization'
 
-export const dynamicParams = false
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   const events = await prismaClient.event.findMany({})
