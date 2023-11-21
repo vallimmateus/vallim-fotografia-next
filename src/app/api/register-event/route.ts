@@ -55,38 +55,68 @@ export async function POST(req: Request) {
   }
 
   try {
-    await prismaClient.event.create({
-      data: {
-        name: data.name,
-        coverUrl: data.coverUrl,
-        logoUrl: data.logoUrl,
-        type: data.type,
-        slug: data.slug,
-        fid: data.fid.map((singleFid) => {
-          return singleFid.value
-        }),
-        date: data.date,
-        publishDate: data.publishDate,
-        createdAt: data.createdAt,
-        photos: {
-          create: photos,
-        },
-        organizations: {
-          create: allOrganizations.map((singleOrganization) => ({
-            organization: {
-              connect: {
-                id: singleOrganization.id,
-              },
+    if (data.validateByUserEmail) {
+      await prismaClient.event.create({
+        data: {
+          name: data.name,
+          type: data.type,
+          coverUrl: data.coverUrl,
+          slug: data.slug,
+          fid: data.fid.map((singleFid) => {
+            return singleFid.value
+          }),
+          date: data.date,
+          publishDate: data.publishDate,
+          createdAt: data.createdAt,
+          logoUrl: data.logoUrl,
+          validateBy: {
+            connect: {
+              email: data.validateByUserEmail,
             },
-          })),
-        },
-        validateBy: {
-          connect: {
-            email: data.validateByUserEmail,
+          },
+          photos: {
+            create: photos,
+          },
+          organizations: {
+            create: allOrganizations.map((singleOrganization) => ({
+              organization: {
+                connect: {
+                  id: singleOrganization.id,
+                },
+              },
+            })),
           },
         },
-      },
-    })
+      })
+    } else {
+      await prismaClient.event.create({
+        data: {
+          name: data.name,
+          type: data.type,
+          coverUrl: data.coverUrl,
+          slug: data.slug,
+          fid: data.fid.map((singleFid) => {
+            return singleFid.value
+          }),
+          date: data.date,
+          publishDate: data.publishDate,
+          createdAt: data.createdAt,
+          logoUrl: data.logoUrl,
+          photos: {
+            create: photos,
+          },
+          organizations: {
+            create: allOrganizations.map((singleOrganization) => ({
+              organization: {
+                connect: {
+                  id: singleOrganization.id,
+                },
+              },
+            })),
+          },
+        },
+      })
+    }
     return NextResponse.json(
       { message: 'Evento criado com sucesso!' },
       { status: 200 },

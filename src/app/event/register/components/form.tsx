@@ -1,4 +1,5 @@
 'use client'
+import { revalidatePath } from 'next/cache'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
@@ -108,10 +109,27 @@ export default function FormEvent() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true)
-    await axios.post('/api/register-event', { ...values }).then(() => {
-      setOpenModal(true)
-      setLoading(false)
-    })
+    await axios
+      .post('/api/register-event', { ...values })
+      .then(() => {
+        setOpenModal(true)
+      })
+      .catch(() => {
+        alert('Ocorreu um erro ao criar o evento.')
+      })
+      .finally(() => {
+        setLoading(false)
+        revalidatePath(
+          `event/${values.date.getFullYear().toString()}/${values.slug}`,
+          'page',
+        )
+        revalidatePath(
+          `event/${values.date.getFullYear().toString()}/${
+            values.slug
+          }/validation`,
+          'page',
+        )
+      })
   }
   return (
     <div className="flex w-full justify-center">
