@@ -113,12 +113,6 @@ export default function FormEvent() {
       .post('/api/register-event', { ...values })
       .then(() => {
         setOpenModal(true)
-      })
-      .catch(() => {
-        alert('Ocorreu um erro ao criar o evento.')
-      })
-      .finally(() => {
-        setLoading(false)
         revalidatePath(
           `event/${values.date.getFullYear().toString()}/${values.slug}`,
           'page',
@@ -129,6 +123,14 @@ export default function FormEvent() {
           }/validation`,
           'page',
         )
+        revalidatePath(`category/${values.type}`, 'page')
+        revalidatePath('/')
+      })
+      .catch(() => {
+        alert('Ocorreu um erro ao criar o evento.')
+      })
+      .finally(() => {
+        setLoading(false)
       })
   }
   return (
