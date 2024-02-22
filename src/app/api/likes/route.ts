@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
   const data = req.headers.get('photoName')
+  console.log('data ->', data)
   try {
     if (data === null) throw new Error('Missing photoName header')
     const photoData = await prismaClient.photo.findFirst({
@@ -10,6 +11,7 @@ export async function GET(req: Request) {
         name: data,
       },
     })
+    console.log('photoData ->', photoData)
 
     if (!photoData) {
       throw new Error('Photo not found')
@@ -30,6 +32,7 @@ export async function GET(req: Request) {
         },
       },
     })
+    console.log('likes ->', likes)
     return NextResponse.json({ likes, message: 'success' }, { status: 200 })
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
