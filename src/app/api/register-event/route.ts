@@ -22,7 +22,7 @@ export async function POST(req: Request) {
       .then((data) => {
         return data.data.map((photo: { name: string; img_id: string }) => {
           return {
-            name: photo.name,
+            name: photo.name.normalize('NFD').replace(/[\u0300-\u036f]/g, ''),
             imageUrlId: photo.img_id,
           }
         })

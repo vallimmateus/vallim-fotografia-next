@@ -2,16 +2,15 @@ import { prismaClient } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
-  const data = req.headers.get('photoName')
-  console.log('data ->', data)
+  let data = req.headers.get('photoName')
   try {
     if (data === null) throw new Error('Missing photoName header')
+    data = data.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     const photoData = await prismaClient.photo.findFirst({
       where: {
         name: data,
       },
     })
-    console.log('photoData ->', photoData)
 
     if (!photoData) {
       throw new Error('Photo not found')
@@ -32,7 +31,6 @@ export async function GET(req: Request) {
         },
       },
     })
-    console.log('likes ->', likes)
     return NextResponse.json({ likes, message: 'success' }, { status: 200 })
   } catch (err) {
     return NextResponse.json({ message: err }, { status: 403 })
@@ -42,9 +40,12 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const data: { photoName: string; email: string } = await req.json()
   try {
+    const photoName = data.photoName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
     const photoData = await prismaClient.photo.findFirst({
       where: {
-        name: data.photoName,
+        name: photoName,
       },
     })
 

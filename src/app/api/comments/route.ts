@@ -2,10 +2,10 @@ import { prismaClient } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
 export async function GET(req: Request) {
-  const data = req.headers.get('photoName')
+  let data = req.headers.get('photoName')
   try {
-    if (data === null)
-      throw new Error('Não foi possível o argumento photoName no header')
+    if (data === null) throw new Error('Missing photoName header')
+    data = data.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     const photoData = await prismaClient.photo.findFirst({
       where: {
         name: data,
@@ -36,9 +36,12 @@ export async function POST(req: Request) {
   const data: { comment: string; photoName: string; email: string } =
     await req.json()
   try {
+    const photoName = data.photoName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
     const photoData = await prismaClient.photo.findFirst({
       where: {
-        name: data.photoName,
+        name: photoName,
       },
     })
     await prismaClient.comment.create({
