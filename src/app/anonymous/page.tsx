@@ -70,7 +70,7 @@ export default function Page() {
     }
   }, [data, getAllAnonymousComments, user])
 
-  if (['admin', 'content-producer'].includes(user?.role || 'user')) {
+  if (!['admin', 'content-producer'].includes(user?.role || 'user')) {
     redirect('/')
     return <h1>Não autorizado!</h1>
   }
