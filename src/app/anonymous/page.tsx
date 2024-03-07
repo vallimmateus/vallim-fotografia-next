@@ -62,6 +62,8 @@ export default function Page() {
       } else if (user?.role === 'user') {
         redirect('/')
       }
+    } else if (status === 'unauthenticated') {
+      redirect('/')
     }
   }, [getAllAnonymousComments, user, status])
 
