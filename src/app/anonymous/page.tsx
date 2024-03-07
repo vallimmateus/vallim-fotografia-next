@@ -34,6 +34,7 @@ export default function Page() {
   const { status, data } = useSession()
   const [lastComments, setLastComments] = useState<LastComments>([])
   const [user, setUser] = useState<User>()
+  const [showComments, setShowComments] = useState(false)
 
   const getUserData = useCallback(async (email: string) => {
     await axios
@@ -45,6 +46,7 @@ export default function Page() {
     await axios
       .get('/api/anonymous-comments')
       .then((res) => setLastComments(res.data.lastComments))
+      .then(() => setShowComments(true))
   }, [])
 
   useEffect(() => {
@@ -54,49 +56,47 @@ export default function Page() {
   }, [data, getUserData, user])
 
   useEffect(() => {
-    if (data?.user?.email && !user) {
-      getAllAnonymousComments()
+    if (status === 'authenticated' && user) {
+      if (['admin', 'content-producer'].includes(user?.role)) {
+        getAllAnonymousComments()
+      } else if (user?.role === 'user') {
+        redirect('/')
+      }
     }
-  }, [data, getAllAnonymousComments, user])
+  }, [getAllAnonymousComments, user, status])
 
-  if (status === 'loading') {
+  if (showComments) {
+    return (
+      <div className="flex flex-1 flex-col items-center py-12">
+        <h1 className="border-b-[1px] pb-2 text-5xl font-bold">
+          Comentários anônimos 😈
+        </h1>
+        <ul className="flex w-full flex-wrap items-center justify-center gap-8 py-4">
+          {lastComments &&
+            lastComments.map((comment, idx) => {
+              return (
+                <li
+                  key={idx}
+                  className="flex h-36 w-full max-w-md gap-4 overflow-hidden rounded-lg border-2 border-black bg-zinc-950 transition-all hover:shadow-lg hover:shadow-zinc-800"
+                >
+                  <ImageDownloader
+                    eventName={comment.photo.event.name}
+                    imageUrlId={comment.photo.imageUrlId}
+                    fileName={comment.photo.name}
+                  />
+                  <div className="flex flex-1 flex-col gap-2 py-2 pr-2">
+                    <p className="font-bold text-zinc-300">
+                      {comment.photo.event.name}
+                    </p>
+                    <CopyComment text={comment.text} />
+                  </div>
+                </li>
+              )
+            })}
+        </ul>
+      </div>
+    )
+  } else {
     return <h1>Carregando...</h1>
-  } else if (status === 'unauthenticated') {
-    redirect('/')
-  } else if (status === 'authenticated' && data) {
-    if (['admin', 'content-producer'].includes(user?.role || 'user')) {
-      return (
-        <div className="flex flex-1 flex-col items-center py-12">
-          <h1 className="border-b-[1px] pb-2 text-5xl font-bold">
-            Comentários anônimos 😈
-          </h1>
-          <ul className="flex w-full flex-wrap items-center justify-center gap-8 py-4">
-            {lastComments &&
-              lastComments.map((comment, idx) => {
-                return (
-                  <li
-                    key={idx}
-                    className="flex h-36 w-full max-w-md gap-4 overflow-hidden rounded-lg border-2 border-black bg-zinc-950 transition-all hover:shadow-lg hover:shadow-zinc-800"
-                  >
-                    <ImageDownloader
-                      eventName={comment.photo.event.name}
-                      imageUrlId={comment.photo.imageUrlId}
-                      fileName={comment.photo.name}
-                    />
-                    <div className="flex flex-1 flex-col gap-2 py-2 pr-2">
-                      <p className="font-bold text-zinc-300">
-                        {comment.photo.event.name}
-                      </p>
-                      <CopyComment text={comment.text} />
-                    </div>
-                  </li>
-                )
-              })}
-          </ul>
-        </div>
-      )
-    } else {
-      redirect('/')
-    }
   }
 }
