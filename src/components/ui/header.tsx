@@ -256,6 +256,19 @@ export function Header() {
                   </NavigationMenuContent>
                 )}
               </NavigationMenuItem>
+              {status === 'authenticated' &&
+                ['admin', 'content-producer'].includes(
+                  user?.role || 'user',
+                ) && (
+                  <NavigationMenuItem>
+                    <NavigationMenuLink
+                      className={navigationMenuTriggerStyle()}
+                      href="/anonymous"
+                    >
+                      Comentários anônimos 😈
+                    </NavigationMenuLink>
+                  </NavigationMenuItem>
+                )}
             </NavigationMenuList>
           </NavigationMenu>
         </div>
@@ -354,6 +367,14 @@ export function Header() {
               <DropdownMenuItem>
                 <Link href="/category/event">Eventos</Link>
               </DropdownMenuItem>
+              {status === 'authenticated' &&
+                ['admin', 'content-producer'].includes(
+                  user?.role || 'user',
+                ) && (
+                  <DropdownMenuItem>
+                    <Link href="/anonymous">Comentários anônimos 😈</Link>
+                  </DropdownMenuItem>
+                )}
               {status === 'authenticated' && user && (
                 <>
                   <DropdownMenuSeparator />
