@@ -2,6 +2,7 @@
 import { User } from '@prisma/client'
 import axios from 'axios'
 import { useSession } from 'next-auth/react'
+import { redirect } from 'next/navigation'
 import { useCallback, useEffect, useState } from 'react'
 import CopyComment from './components/copy-comment'
 import ImageDownloader from './components/image-downloader'
@@ -68,6 +69,11 @@ export default function Page() {
       getAllAnonymousComments()
     }
   }, [data, getAllAnonymousComments, user])
+
+  if (['admin', 'content-producer'].includes(user?.role || 'user')) {
+    redirect('/')
+    return <h1>Não autorizado!</h1>
+  }
 
   return (
     <div className="flex flex-1 flex-col items-center py-12">
