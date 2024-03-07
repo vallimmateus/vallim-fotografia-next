@@ -277,7 +277,7 @@ export function Header() {
           {status === 'authenticated' && user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-8 w-8 cursor-pointer">
                   <AvatarFallback>
                     {user.name?.[0].toUpperCase()}
                   </AvatarFallback>
