@@ -23,7 +23,6 @@ import { cn } from '@/lib/utils'
 import CommentsList from './commentsList'
 import Likes from './likes'
 
-import { Label } from '@/components/ui/label'
 import { PaperPlaneIcon, UpdateIcon } from '@radix-ui/react-icons'
 import axios from 'axios'
 import { ArrowRightIcon, VenetianMask } from 'lucide-react'
@@ -74,7 +73,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
 
   const [comments, setComments] = useState<CommentWithUserType[]>([])
   const [likes, setLikes] = useState<LikesWithUserType[]>([])
-  const [anonymous, setAnonymous] = useState<boolean>(false)
+  const [anonymous, setAnonymous] = useState<boolean>(true)
 
   useEffect(() => {
     if (open && !currentSlide) {
@@ -125,7 +124,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
   }, [data?.user?.email])
 
   const handleNewComment = async () => {
-    if (status === 'unauthenticated') {
+    if (status === 'unauthenticated' && !anonymous) {
       signIn()
     } else if (status === 'loading') {
       alert('Aguarde um momento...')
@@ -151,6 +150,12 @@ export default function CommentsComponent({ children }: ComponentProps) {
     getComments()
     getLikes()
   }, [currentSlide, getComments, getLikes])
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      setAnonymous(false)
+    }
+  }, [currentSlide, status])
 
   return (
     <CommentsContext.Provider value={context}>
@@ -203,14 +208,32 @@ export default function CommentsComponent({ children }: ComponentProps) {
             </div>
             <div className="flex flex-col gap-2">
               <Suspense fallback={<p>Loading...</p>}>
-                <Likes
-                  likes={likes}
-                  getLikes={getLikes}
-                  handleLoginCLick={handleLoginCLick}
-                />
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger
+                      className={cn({ 'cursor-default': anonymous })}
+                    >
+                      <Likes
+                        likes={likes}
+                        getLikes={getLikes}
+                        handleLoginCLick={handleLoginCLick}
+                      />
+                    </TooltipTrigger>
+                    {status === 'unauthenticated' && anonymous && (
+                      <TooltipContent className="max-w-[250px] bg-secondary text-start">
+                        <p className="text-sm font-light text-secondary-foreground">
+                          Curtida anônima
+                        </p>
+                        <p className="text-[0.75rem] font-thin text-muted-foreground">
+                          Faça login para curtir com seu nome
+                        </p>
+                      </TooltipContent>
+                    )}
+                  </Tooltip>
+                </TooltipProvider>
               </Suspense>
               <div className="relative flex flex-row gap-2">
-                {status !== 'authenticated' && (
+                {/* {status !== 'authenticated' && (
                   <div className="absolute left-0 top-0 z-10 -m-2 flex h-[calc(100%+1rem)] w-[calc(100%+1rem)] flex-col items-center justify-center gap-2 rounded bg-zinc-600/40 backdrop-blur-sm">
                     <Label className="w-2/3">
                       Você precisa realizar o login antes de comentar ou curtir
@@ -219,7 +242,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
                       Login
                     </Button>
                   </div>
-                )}
+                )} */}
                 <Textarea
                   placeholder="Comente aqui..."
                   onChange={(e) => setNewComment(e.target.value)}
@@ -231,13 +254,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
                 />
                 <div className="grid grid-rows-2 space-y-1">
                   <Button
-                    onClick={() => {
-                      if (status !== 'authenticated') {
-                        handleLoginCLick()
-                      } else {
-                        handleNewComment()
-                      }
-                    }}
+                    onClick={handleNewComment}
                     className={cn('transition-all', {
                       'bg-red-700 text-white hover:bg-red-800': anonymous,
                     })}
@@ -252,20 +269,34 @@ export default function CommentsComponent({ children }: ComponentProps) {
                           className="w-full"
                           onClick={() => setAnonymous(!anonymous)}
                           size="sm"
-                          disabled={status !== 'authenticated'}
+                          disabled={
+                            status === 'loading' ||
+                            (status === 'unauthenticated' && anonymous)
+                          }
                         >
                           <VenetianMask size={16} />
                         </Toggle>
                       </TooltipTrigger>
-                      <TooltipContent className="max-w-[250px] bg-secondary text-start">
-                        <p className="text-sm font-light text-secondary-foreground">
-                          Comentário anônimo
-                        </p>
-                        <p className="text-[0.75rem] font-thin text-muted-foreground">
-                          Se você enviar um comentário anônimo, não poderá
-                          editar nem excluir.
-                        </p>
-                      </TooltipContent>
+                      {status === 'unauthenticated' && anonymous ? (
+                        <TooltipContent className="max-w-[250px] bg-secondary text-start">
+                          <p className="text-sm font-light text-secondary-foreground">
+                            Comentário anônimo
+                          </p>
+                          <p className="text-[0.75rem] font-thin text-muted-foreground">
+                            Faça login para comentar com seu nome
+                          </p>
+                        </TooltipContent>
+                      ) : (
+                        <TooltipContent className="max-w-[250px] bg-secondary text-start">
+                          <p className="text-sm font-light text-secondary-foreground">
+                            Comentário anônimo
+                          </p>
+                          <p className="text-[0.75rem] font-thin text-muted-foreground">
+                            Se você enviar um comentário anônimo, não poderá
+                            editar nem excluir.
+                          </p>
+                        </TooltipContent>
+                      )}
                     </Tooltip>
                   </TooltipProvider>
                 </div>
