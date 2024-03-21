@@ -26,6 +26,7 @@ import Likes from './likes'
 import { PaperPlaneIcon, UpdateIcon } from '@radix-ui/react-icons'
 import axios from 'axios'
 import { ArrowRightIcon, VenetianMask } from 'lucide-react'
+import Image from 'next/image'
 import {
   ComponentProps,
   makeUseContext,
@@ -263,10 +264,10 @@ export default function CommentsComponent({ children }: ComponentProps) {
                   </Button>
                   <TooltipProvider>
                     <Tooltip>
-                      <TooltipTrigger>
+                      <TooltipTrigger asChild>
                         <Toggle
                           id="anonymous"
-                          className="w-full"
+                          className="group relative w-full overflow-hidden bg-gradient-to-br duration-300 hover:from-[#EC1187] hover:to-[#FF8D10]"
                           onClick={() => setAnonymous(!anonymous)}
                           size="sm"
                           disabled={
@@ -274,7 +275,17 @@ export default function CommentsComponent({ children }: ComponentProps) {
                             (status === 'unauthenticated' && anonymous)
                           }
                         >
-                          <VenetianMask size={16} />
+                          <div className="absolute flex h-full w-full items-center justify-center transition-all group-hover:-translate-y-full">
+                            <VenetianMask size={16} />
+                          </div>
+                          <div className="absolute flex h-full w-full translate-y-full items-center justify-center transition-all group-hover:translate-y-0">
+                            <Image
+                              src="/eel_ngl.png"
+                              alt="EEL NGL"
+                              width={22}
+                              height={22}
+                            />
+                          </div>
                         </Toggle>
                       </TooltipTrigger>
                       {status === 'unauthenticated' && anonymous ? (
