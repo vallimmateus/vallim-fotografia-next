@@ -1,6 +1,9 @@
 import { prismaClient } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 300
+
 export async function GET() {
   try {
     const lastComments = await prismaClient.comment.findMany({
