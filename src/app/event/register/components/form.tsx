@@ -54,6 +54,7 @@ export const formSchema = z.object({
     z.literal('event'),
     z.literal('personal'),
   ]),
+  source: z.union([z.literal('drive'), z.literal('r2')]),
   description: z.string().optional(),
   logoUrl: z.string().optional(),
   organization: z.array(
@@ -192,6 +193,35 @@ export default function FormEvent() {
                           <RadioGroupItem value="personal" id="personal" />
                         </FormControl>
                         <FormLabel>Pessoal</FormLabel>
+                      </FormItem>
+                    </RadioGroup>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="source"
+              render={({ field }) => (
+                <FormItem className="flex w-full max-w-xl flex-col px-8">
+                  <FormLabel>Onde estão as fotos?</FormLabel>
+                  <FormControl>
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value="drive" id="drive" />
+                        </FormControl>
+                        <FormLabel>Drive USP</FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <RadioGroupItem value="r2" id="r2" />
+                        </FormControl>
+                        <FormLabel>Drive VallimFotografia</FormLabel>
                       </FormItem>
                     </RadioGroup>
                   </FormControl>

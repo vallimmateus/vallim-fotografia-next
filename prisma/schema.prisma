@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum SourceData {
+  drive
+  r2
+}
+
 model Event {
   id                  String                  @id @default(cuid())
   name                String
@@ -15,6 +20,7 @@ model Event {
   coverUrl            String                  @unique
   slug                String
   fid                 String[]                @unique
+  source              SourceData              @default(drive)
   date                DateTime
   publishDate         DateTime?
   createdAt           DateTime                @default(now())
@@ -48,7 +54,7 @@ model OrganizationsOnEvents {
 model Photo {
   id         String    @id @default(cuid())
   imageUrlId String    @unique
-  name       String    @unique
+  name       String
   eventId    String
   comments   Comment[]
   likes      Like[]
@@ -103,6 +109,12 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+enum Role {
+  user
+  admin
+  contentProducer
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -110,7 +122,7 @@ model User {
   emailVerified DateTime?
   image         String?
   nickname      String?
-  role          String    @default("user")
+  role          Role      @default(user)
   accounts      Account[]
   comment       Comment[]
   Event         Event[]

@@ -13,10 +13,26 @@ export async function POST(req: Request) {
   const data: z.infer<typeof formSchema> = await req.json()
   let photos: PhotoListProps = []
 
+  let macroId: string
+  if (data.source === 'drive') {
+    macroId =
+      'AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA'
+  } else if (data.source === 'r2') {
+    macroId =
+      'AKfycbxkwlMk8iKIMUJoyCXAtUgY0Xxmen1W4I7iFajlu2eQbIzuLJvLVpcukjE8-KOYfEVKQA'
+  } else {
+    return NextResponse.json(
+      { message: 'Fonte de fotos não reconhecida' },
+      { status: 400 },
+    )
+  }
+
+  // usp              => AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA
+  // vallimfotografia => AKfycbxkwlMk8iKIMUJoyCXAtUgY0Xxmen1W4I7iFajlu2eQbIzuLJvLVpcukjE8-KOYfEVKQA
+
   for (const singleFid of data.fid) {
     const newPhotos = await fetch(
-      'https://script.google.com/macros/s/AKfycbz-CRLaRXTcJkbUF2jW4kj8zMT99nyM6qGxyHsEolexa3AAk7zCqB6c2s3uMpmWiN64cA/exec?fid=' +
-        singleFid.value,
+      `https://script.google.com/macros/s/${macroId}/exec?fid=${singleFid.value}`,
     )
       .then((res) => res.json())
       .then((data) => {
