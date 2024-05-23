@@ -257,9 +257,7 @@ export function Header() {
                 )}
               </NavigationMenuItem>
               {status === 'authenticated' &&
-                ['admin', 'content-producer'].includes(
-                  user?.role || 'user',
-                ) && (
+                ['admin', 'contentProducer'].includes(user?.role || 'user') && (
                   <NavigationMenuItem>
                     <NavigationMenuLink
                       className={navigationMenuTriggerStyle()}
@@ -368,9 +366,7 @@ export function Header() {
                 <Link href="/category/event">Eventos</Link>
               </DropdownMenuItem>
               {status === 'authenticated' &&
-                ['admin', 'content-producer'].includes(
-                  user?.role || 'user',
-                ) && (
+                ['admin', 'contentProducer'].includes(user?.role || 'user') && (
                   <DropdownMenuItem>
                     <Link href="/anonymous">Comentários anônimos 😈</Link>
                   </DropdownMenuItem>
