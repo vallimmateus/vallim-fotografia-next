@@ -57,7 +57,7 @@ export default function Page() {
 
   useEffect(() => {
     if (status === 'authenticated' && user) {
-      if (['admin', 'content-producer'].includes(user?.role)) {
+      if (['admin', 'contentProducer'].includes(user?.role)) {
         getAllAnonymousComments()
       } else if (user?.role === 'user') {
         redirect('/')
