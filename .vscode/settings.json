@@ -10,5 +10,17 @@
     "typescript",
     "typescriptreact"
   ],
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "sqltools.connections": [
+    {
+      "previewLimit": 50,
+      "server": "aws-0-sa-east-1.pooler.supabase.com",
+      "port": 5432,
+      "driver": "PostgreSQL",
+      "name": "Vallim Fotografia",
+      "database": "postgres",
+      "username": "postgres.gzfqrsggfarwhhmvoqyp",
+      "password": "Mv6095810901.!"
+    }
+  ]
 }

@@ -11,8 +11,16 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: '**.r2.cloudflarestorage.com',
+      },
     ],
-    domains: ['drive.google.com', '**.googleusercontent.com'],
+    domains: [
+      'drive.google.com',
+      '**.googleusercontent.com',
+      '**.r2.cloudflarestorage.com',
+    ],
   },
   experimental: {
     serverActions: true,

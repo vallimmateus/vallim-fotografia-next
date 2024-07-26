@@ -42,8 +42,9 @@ export default function Album({ event, photos, thumbnails }: AlbumProps) {
         photos={thumbnails}
         layout="rows"
         onClick={({ index }) => setIndex(index)}
-        targetRowHeight={147}
+        targetRowHeight={256}
         renderPhoto={NextJsImage}
+        defaultContainerWidth={500}
       />
       <Lightbox
         slides={photos.map((photo, idx) => ({

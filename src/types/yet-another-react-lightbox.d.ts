@@ -9,6 +9,11 @@ declare module 'yet-another-react-lightbox' {
       photosList?: Photo[]
     }
   }
+
+  interface SlideImage {
+    thumbnail?: string
+    onError?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void
+  }
 }
 
 export { Comments as default }
