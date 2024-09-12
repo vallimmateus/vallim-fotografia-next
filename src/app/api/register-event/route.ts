@@ -1,4 +1,4 @@
-import { FormDataSchema } from '@/app/event/__register/components/form'
+// import { FormDataSchema } from '@/app/event/__register/components/form'
 import { prismaClient } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
