@@ -1,5 +1,7 @@
 import { r2 } from '@/lib/cloudflare'
 import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
+import { Client, Command } from '@smithy/smithy-client'
+
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner'
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
@@ -16,12 +18,12 @@ export async function POST(req: Request) {
     const { path, contentType } = uploadBodySchema.parse(body)
 
     const signedUrl = await getSignedUrl(
-      r2,
+      r2 as Client<any, any, any, any>,
       new PutObjectCommand({
         Bucket: process.env.CLOUDFLARE_R2_BUCKET,
         Key: path,
         ContentType: contentType,
-      }),
+      }) as Command<any, any, any>,
       { expiresIn: hourInSeconds },
     )
 
@@ -44,11 +46,11 @@ export async function GET(req: NextRequest) {
       Object.fromEntries(req.nextUrl.searchParams),
     )
     const signedUrl = await getSignedUrl(
-      r2,
+      r2 as Client<any, any, any, any>,
       new GetObjectCommand({
         Bucket: process.env.CLOUDFLARE_R2_BUCKET,
         Key: photo,
-      }),
+      }) as Command<any, any, any>,
       { expiresIn: hourInSeconds * 24 },
     )
     return NextResponse.json(
