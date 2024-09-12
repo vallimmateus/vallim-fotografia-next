@@ -1,5 +1,5 @@
 import { prismaClient } from '@/lib/prisma'
-import { fetchEvent, fetchPhotos } from './actions'
+import { fetchEvent, fetchPhotos, getAllSignedUrl } from './actions'
 import Album from './components/album'
 import { OrganizationLogo } from '@/components/organization-logo'
 import { Fragment, useContext } from 'react'
@@ -38,29 +38,6 @@ const eventData = Prisma.validator<Prisma.EventDefaultArgs>()({
 })
 
 type EventWithOrganizationAndPhotos = Prisma.EventGetPayload<typeof eventData>
-
-export const getAllSignedUrl = async (
-  photo: string,
-  eventId: string,
-  type?: 'miniature' | 'thumbnail',
-) => {
-  const response = await fetch(
-    `${basePath}/api/get-signed-url?${new URLSearchParams({
-      photo: `${eventId}/${type ? photo.split('.').join(`.${type}.`) : photo}`,
-    })}`,
-    {
-      next: {
-        tags: [`photo-${type ?? 'original'}-${eventId}-${photo}`],
-        revalidate: 5 * 60 * 60,
-      },
-    },
-  )
-  const { signedUrl } = (await response.json()) as {
-    signedUrl: string
-    message: string
-  }
-  return signedUrl
-}
 
 export default async function Page({ params }: { params: Params }) {
   const responseEvent = await fetch(`${basePath}/api/photos`, {

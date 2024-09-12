@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useSearchParams, useParams } from 'next/navigation'
 import { useInView } from 'react-intersection-observer'
 
-import { fetchPhotos, fetchSinglePhoto } from '../actions'
+import { fetchPhotos, fetchSinglePhoto, getAllSignedUrl } from '../actions'
 import { PhotoWithUrlSigneds } from '@/types'
 import { ImageCard } from './photo'
 
@@ -27,7 +27,6 @@ import { revalidateTag } from 'next/cache'
 import PhotoAlbum from 'react-photo-album'
 import { Photo, Prisma } from '@prisma/client'
 import { basePath } from '@/lib/constants'
-import { getAllSignedUrl } from '../page'
 
 const offsetToFetchLightbox = 15
 const offsetToFetchMiniatures = 50

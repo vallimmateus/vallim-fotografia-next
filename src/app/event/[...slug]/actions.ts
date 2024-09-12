@@ -5,6 +5,7 @@ import { UserContext } from '@/providers/user'
 import { PhotoWithUrlSigneds } from '@/types'
 import { Photo, Event, User } from '@prisma/client'
 import { useContext } from 'react'
+import { basePath } from '@/lib/constants'
 
 type EventWithOrganizationAndUrl = Event & {
   OrganizationsOnEvents: Array<{
@@ -165,6 +166,29 @@ export async function fetchEvent({
 }
 
 // const hoursInSeconds = 60 ** 2
+
+export const getAllSignedUrl = async (
+  photo: string,
+  eventId: string,
+  type?: 'miniature' | 'thumbnail',
+) => {
+  const response = await fetch(
+    `${basePath}/api/get-signed-url?${new URLSearchParams({
+      photo: `${eventId}/${type ? photo.split('.').join(`.${type}.`) : photo}`,
+    })}`,
+    {
+      next: {
+        tags: [`photo-${type ?? 'original'}-${eventId}-${photo}`],
+        revalidate: 5 * 60 * 60,
+      },
+    },
+  )
+  const { signedUrl } = (await response.json()) as {
+    signedUrl: string
+    message: string
+  }
+  return signedUrl
+}
 
 export async function getUrlSigned(
   photoName: string,
