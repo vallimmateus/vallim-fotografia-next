@@ -2,7 +2,7 @@ import { prismaClient } from '@/lib/prisma'
 import { fetchEvent, fetchPhotos, getAllSignedUrl } from './actions'
 import Album from './components/album'
 import { OrganizationLogo } from '@/components/organization-logo'
-import { Fragment, useContext } from 'react'
+import { Fragment, Suspense, useContext } from 'react'
 import { UserContext } from '@/providers/user'
 import { basePath } from '@/lib/constants'
 import { Prisma } from '@prisma/client'
@@ -12,6 +12,10 @@ import { Loader2 } from 'lucide-react'
 type Params = {
   slug: [string, string]
 }
+
+export const revalidate = 60 * 60 * 24 * 7
+
+export const dynamicParams = true
 
 export async function generateStaticParams() {
   const events = await prismaClient.event.findMany({}).then((events) => {
@@ -40,6 +44,8 @@ const eventData = Prisma.validator<Prisma.EventDefaultArgs>()({
 type EventWithOrganizationAndPhotos = Prisma.EventGetPayload<typeof eventData>
 
 export default async function Page({ params }: { params: Params }) {
+  console.log('basePath:', basePath)
+  console.log('params:', params)
   const responseEvent = await fetch(`${basePath}/api/photos`, {
     headers: {
       year: params.slug[0],
@@ -47,7 +53,6 @@ export default async function Page({ params }: { params: Params }) {
     },
     method: 'GET',
     next: {
-      revalidate: process.env.NODE_ENV === 'development' ? 20 : 5 * 60,
       tags: [`event-${params.slug[0]}-${params.slug[1]}`],
     },
   })
@@ -155,7 +160,9 @@ export default async function Page({ params }: { params: Params }) {
           </div>
         </div>
       </div>
-      <Album initialPhotos={photos} eventId={event.id} />
+      <Suspense fallback={<div>Carregando...</div>}>
+        <Album initialPhotos={photos} eventId={event.id} />
+      </Suspense>
     </div>
   )
 }
