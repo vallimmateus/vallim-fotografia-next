@@ -1,4 +1,5 @@
 import { DocumentReference } from 'firebase/firestore'
+import { Photo as PhotoPrismaType } from '@prisma/client'
 
 type MultiFid = {
   fid: string
@@ -76,4 +77,10 @@ type PhotoFS = {
   comments?: CommentFS[]
   likes?: Like[]
   reports?: ReportFS[]
+}
+
+type PhotoWithUrlSigneds = PhotoPrismaType & {
+  signedUrlOriginal?: string
+  signedUrlMiniature?: string
+  signedUrlThumbnail?: string
 }

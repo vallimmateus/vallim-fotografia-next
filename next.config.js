@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
+    unoptimized: true,
     remotePatterns: [
       {
         protocol: 'https',
@@ -11,11 +12,21 @@ const nextConfig = {
         protocol: 'https',
         hostname: '**.googleusercontent.com',
       },
+      {
+        protocol: 'https',
+        hostname: '**.r2.cloudflarestorage.com',
+      },
     ],
-    domains: ['drive.google.com', '**.googleusercontent.com'],
+    domains: [
+      'drive.google.com',
+      '**.googleusercontent.com',
+      '**.r2.cloudflarestorage.com',
+    ],
   },
-  experimental: {
-    serverActions: true,
+  logging: {
+    fetches: {
+      fullUrl: true,
+    },
   },
 }
 

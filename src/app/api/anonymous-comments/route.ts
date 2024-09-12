@@ -8,9 +8,9 @@ export async function GET() {
   try {
     const lastComments = await prismaClient.comment.findMany({
       include: {
-        photo: {
+        Photo: {
           include: {
-            event: {
+            Event: {
               select: {
                 name: true,
                 type: true,

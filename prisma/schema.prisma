@@ -7,46 +7,42 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum SourceData {
-  drive
-  r2
-}
-
 model Event {
-  id                  String                  @id @default(cuid())
-  name                String
-  type                String
-  description         String?
-  coverUrl            String                  @unique
-  slug                String
-  fid                 String[]                @unique
-  source              SourceData              @default(drive)
-  date                DateTime
-  publishDate         DateTime?
-  createdAt           DateTime                @default(now())
-  updatedAt           DateTime?               @updatedAt
-  logoUrl             String?                 @unique
-  validateByUserEmail String?
-  validateBy          User?                   @relation(fields: [validateByUserEmail], references: [email])
-  organizations       OrganizationsOnEvents[]
-  photos              Photo[]
+  id                    String                  @id @default(cuid())
+  name                  String
+  type                  String
+  description           String?
+  coverUrl              String                  @unique
+  slug                  String
+  fid                   String[]                @unique
+  date                  DateTime
+  publishDate           DateTime?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime?
+  logoUrl               String?                 @unique
+  validateByUserEmail   String?
+  source                SourceData              @default(drive)
+  User                  User?                   @relation(fields: [validateByUserEmail], references: [email])
+  OrganizationsOnEvents OrganizationsOnEvents[]
+  Photo                 Photo[]
 
   @@unique([name, date])
 }
 
 model Organization {
-  id      String                  @id @default(cuid())
-  name    String                  @unique
-  logoUrl String?                 @unique
-  events  OrganizationsOnEvents[]
+  id                    String                  @id @default(cuid())
+  name                  String                  @unique
+  logoFileName          String?                 @unique(map: "Organization_logoUrl_key")
+  slug                  String                  @unique
+  OrganizationsOnEvents OrganizationsOnEvents[]
 }
 
 model OrganizationsOnEvents {
   id             String       @id @default(cuid())
   organizationId String
   eventId        String
-  event          Event        @relation(fields: [eventId], references: [id])
-  organization   Organization @relation(fields: [organizationId], references: [id])
+  Event          Event        @relation(fields: [eventId], references: [id])
+  Organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([organizationId, eventId])
 }
@@ -56,20 +52,20 @@ model Photo {
   imageUrlId String    @unique
   name       String
   eventId    String
-  comments   Comment[]
-  likes      Like[]
-  event      Event     @relation(fields: [eventId], references: [id])
+  Comment    Comment[]
+  Like       Like[]
+  Event      Event     @relation(fields: [eventId], references: [id])
 }
 
 model Comment {
   id        String    @id @default(cuid())
   text      String
   createdAt DateTime  @default(now())
-  updatedAt DateTime? @updatedAt
+  updatedAt DateTime?
   photoId   String
   userId    String
-  photo     Photo     @relation(fields: [photoId], references: [id])
-  user      User      @relation(fields: [userId], references: [id])
+  Photo     Photo     @relation(fields: [photoId], references: [id])
+  User      User      @relation(fields: [userId], references: [id])
 }
 
 model Like {
@@ -77,8 +73,8 @@ model Like {
   createdAt DateTime @default(now())
   photoId   String
   userId    String
-  photo     Photo    @relation(fields: [photoId], references: [id])
-  user      User     @relation(fields: [userId], references: [id])
+  Photo     Photo    @relation(fields: [photoId], references: [id])
+  User      User     @relation(fields: [userId], references: [id])
 
   @@unique([photoId, userId])
 }
@@ -124,9 +120,9 @@ model User {
   nickname      String?
   role          Role      @default(user)
   accounts      Account[]
-  comment       Comment[]
+  Comment       Comment[]
   Event         Event[]
-  likes         Like[]
+  Like          Like[]
   sessions      Session[]
 }
 
@@ -136,4 +132,9 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+enum SourceData {
+  drive
+  r2
 }

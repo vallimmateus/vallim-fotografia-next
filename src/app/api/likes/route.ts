@@ -21,7 +21,7 @@ export async function GET(req: Request) {
         photoId: photoData.id,
       },
       include: {
-        user: {
+        User: {
           select: {
             name: true,
             nickname: true,
@@ -65,12 +65,12 @@ export async function POST(req: Request) {
 
     await prismaClient.like.create({
       data: {
-        photo: {
+        Photo: {
           connect: {
             id: photoData.id,
           },
         },
-        user: {
+        User: {
           connect: {
             id: userData.id,
           },
