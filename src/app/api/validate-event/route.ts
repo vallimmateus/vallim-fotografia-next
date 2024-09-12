@@ -25,8 +25,8 @@ export async function POST(req: Request) {
       },
       data: {
         publishDate: date,
-        validateBy: {
-          connect: { email },
+        validateByUserEmail: {
+          set: email,
         },
       },
     })
