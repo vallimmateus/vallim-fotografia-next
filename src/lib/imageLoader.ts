@@ -45,7 +45,8 @@ export async function loaderR2({ src }: ImageLoaderProps) {
     {
       method: 'GET',
       next: {
-        revalidate: process.env.NODE_ENV === 'development' ? 20 : 2 * hoursInSeconds,
+        revalidate:
+          process.env.NODE_ENV === 'development' ? 20 : 2 * hoursInSeconds,
       },
     },
   )
