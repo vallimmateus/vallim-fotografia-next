@@ -51,6 +51,8 @@ export async function GET(req: Request) {
           },
         },
       })
+
+    if (events.length === 0) throw new Error('Event not found')
     const event = events[0]
     return NextResponse.json({ event, message: 'success' }, { status: 200 })
   } catch (err) {
