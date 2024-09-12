@@ -17,18 +17,18 @@ export const revalidate = 60 * 60 * 24 * 7
 
 export const dynamicParams = true
 
-export async function generateStaticParams() {
-  const events = await prismaClient.event.findMany({}).then((events) => {
-    return events.map((event) => ({
-      slug: [event.date.getFullYear().toString(), event.slug],
-    }))
-  })
-  return [
-    {
-      slug: ['2024', 'quimicarreguem'],
-    },
-  ]
-}
+// export async function generateStaticParams() {
+//   const events = await prismaClient.event.findMany({}).then((events) => {
+//     return events.map((event) => ({
+//       slug: [event.date.getFullYear().toString(), event.slug],
+//     }))
+//   })
+//   return [
+//     {
+//       slug: ['2024', 'quimicarreguem'],
+//     },
+//   ]
+// }
 
 const eventData = Prisma.validator<Prisma.EventDefaultArgs>()({
   include: {
