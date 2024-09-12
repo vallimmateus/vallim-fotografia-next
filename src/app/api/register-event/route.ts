@@ -9,9 +9,9 @@ type PhotoListProps = {
   imageUrlId: string
 }[]
 
-export async function POST(req: Request) {
-  
-}
+// export async function POST(req: Request) {
+
+// }
 
 // export async function POST(req: Request) {
 //   const data: z.infer<typeof FormDataSchema> = await req.json()
