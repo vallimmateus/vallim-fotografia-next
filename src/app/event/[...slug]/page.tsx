@@ -62,7 +62,7 @@ export default async function Page({ params }: { params: Params }) {
     },
   })
   console.log('responseEvent', responseEvent)
-  if (!responseEvent.ok) {
+  if (responseEvent.status !== 200) {
     throw new Error('Failed to fetch event')
   }
   const { event } = (await responseEvent.json()) as {
