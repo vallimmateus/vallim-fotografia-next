@@ -23,7 +23,11 @@ export async function generateStaticParams() {
       slug: [event.date.getFullYear().toString(), event.slug],
     }))
   })
-  return events
+  return [
+    {
+      slug: ['2024', 'quimicarreguem'],
+    },
+  ]
 }
 
 const eventData = Prisma.validator<Prisma.EventDefaultArgs>()({
@@ -46,6 +50,7 @@ type EventWithOrganizationAndPhotos = Prisma.EventGetPayload<typeof eventData>
 export default async function Page({ params }: { params: Params }) {
   console.log('basePath:', basePath)
   console.log('params:', params)
+  console.log('fetch:', `${basePath}/api/photos`)
   const responseEvent = await fetch(`${basePath}/api/photos`, {
     headers: {
       year: params.slug[0],
@@ -56,12 +61,14 @@ export default async function Page({ params }: { params: Params }) {
       tags: [`event-${params.slug[0]}-${params.slug[1]}`],
     },
   })
+  console.log('responseEvent', responseEvent)
   if (!responseEvent.ok) {
     throw new Error('Failed to fetch event')
   }
   const { event } = (await responseEvent.json()) as {
     event: EventWithOrganizationAndPhotos
   }
+  console.log('event', event)
 
   const photosWithSignedUrls = await Promise.all([
     ...event.Photo.slice(0, 15).map(async (photo) => ({

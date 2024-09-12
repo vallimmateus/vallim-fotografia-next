@@ -23,6 +23,10 @@ export async function GET(req: Request) {
   const slug = req.headers.get('slug')
   const year = req.headers.get('year')
 
+  console.log('GET /api/photos')
+  console.log('req:', req)
+  console.log('slug:', slug)
+  console.log('year:', year)
   try {
     if (slug === null || year === null) throw new Error('Missing headers')
     const events: EventWithOrganizationAndPhotos[] =
