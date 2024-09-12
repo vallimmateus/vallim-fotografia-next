@@ -134,12 +134,6 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-enum Role {
-  user
-  admin
-  contentProducer
-}
-
 enum SourceData {
   drive
   r2
