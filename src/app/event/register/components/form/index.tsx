@@ -3,7 +3,8 @@
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import Image from 'next/image'
 
-import { Organization } from '@prisma/client'
+import { Prisma } from '@prisma/client'
+import type { Organization } from '@prisma/client'
 import { zodResolver } from '@hookform/resolvers/zod'
 
 import { z } from 'zod'
@@ -27,7 +28,6 @@ import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -40,8 +40,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogFooter,
-  DialogClose,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
@@ -60,47 +58,128 @@ import {
   CommandList,
   CommandSeparator,
 } from '@/components/ui/command'
-import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
 import axios from 'axios'
 import { revalidateTag } from 'next/cache'
 import { loaderR2 } from '@/lib/imageLoader'
-import { FileState } from '@/components/ui/multi-image-dropzone'
+import {
+  FileState,
+  MultiImageDropzone,
+} from '@/components/ui/multi-image-dropzone'
+
+type OrganizationWithLogo = Organization & {
+  logoUrl?: string
+}
 
 export const FormDataSchema = z.object({
-  id: z.string().cuid().optional(),
   name: z.string({ required_error: 'Nome é obrigatório' }),
-  slug: z.string({ required_error: 'Slug é obrigatório' }),
+  slug: z
+    .string({
+      required_error: 'Slug é obrigatório',
+    })
+    .regex(
+      /^[a-zA-Z0-9-]+$/,
+      'Slug deve conter apenas caracteres alfanuméricos e "-"',
+    ),
   type: z.union([z.literal('party'), z.literal('event')]),
-  coverFileName: z.string({ required_error: 'Imagem de capa é obrigatória' }),
-  logoFileName: z.string().optional(),
+  eventLogo: z.instanceof(File).superRefine((f, ctx) => {
+    // First, add an issue if the mime type is wrong.
+    if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: `File must be one of [${ACCEPTED_MIME_TYPES.join(
+          ', ',
+        )}] but was ${f.type}`,
+      })
+    }
+    // Next add an issue if the file size is too large.
+    if (f.size > 2 * MB_BYTES) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_big,
+        type: 'array',
+        message: `The file must not be larger than ${2 * MB_BYTES} bytes: ${
+          f.size
+        }`,
+        maximum: 2 * MB_BYTES,
+        inclusive: true,
+      })
+    }
+  }),
   date: z.date({ required_error: 'Data é obrigatória' }),
   publishedAt: z.date().optional(),
-  organizations: z.array(
-    z.object({ name: z.string(), logoFileName: z.string().or(z.null()) }),
-    { required_error: 'Inclua pelo menos uma organização' },
-  ),
-  photos: z.array(z.object({ file: z.string(), key: z.string().optional() }), {
-    required_error: 'Fotos são obrigatórias',
+  organizations: z.array(z.custom<OrganizationWithLogo>(), {
+    required_error: 'Inclua pelo menos uma organização',
   }),
-  createdAt: z.date().optional(),
+
+  photos: z.array(
+    z.instanceof(File).superRefine((f, ctx) => {
+      // First, add an issue if the mime type is wrong.
+      if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `File must be one of [${ACCEPTED_MIME_TYPES.join(
+            ', ',
+          )}] but was ${f.type}`,
+        })
+      }
+      // Next add an issue if the file size is too large.
+      if (f.size > 2 * MB_BYTES) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.too_big,
+          type: 'array',
+          message: `The file must not be larger than ${2 * MB_BYTES} bytes: ${
+            f.size
+          }`,
+          maximum: 2 * MB_BYTES,
+          inclusive: true,
+        })
+      }
+    }),
+    {
+      required_error: 'Fotos são obrigatórias',
+    },
+  ),
+  coverFileName: z
+    .instanceof(File, { message: 'Imagem de capa é obrigatória' })
+    .superRefine((f, ctx) => {
+      // First, add an issue if the mime type is wrong.
+      if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: `File must be one of [${ACCEPTED_MIME_TYPES.join(
+            ', ',
+          )}] but was ${f.type}`,
+        })
+      }
+      // Next add an issue if the file size is too large.
+      if (f.size > 2 * MB_BYTES) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.too_big,
+          type: 'array',
+          message: `The file must not be larger than ${2 * MB_BYTES} bytes: ${
+            f.size
+          }`,
+          maximum: 2 * MB_BYTES,
+          inclusive: true,
+        })
+      }
+    }),
 })
 
-type Inputs = z.infer<typeof FormDataSchema>
+export type Inputs = z.infer<typeof FormDataSchema>
 
 const steps = [
   {
     id: 'Step 1',
     name: 'Informações do evento',
     fields: [
-      'id',
       'name',
       'slug',
       'type',
+      'eventLogo',
       'date',
       'publishedAt',
       'organizations',
-      'createdAt',
     ],
   },
   {
@@ -126,16 +205,18 @@ function createSlug(name: string) {
 }
 
 export function FormEvent({
-  initialOrganizations = [],
+  initialOrganizations,
 }: {
-  initialOrganizations: Organization[]
+  initialOrganizations: OrganizationWithLogo[]
 }) {
   const [currentStep, setCurrentStep] = useState(0)
   const [organizations, setOrganizations] =
-    useState<Organization[]>(initialOrganizations)
+    useState<OrganizationWithLogo[]>(initialOrganizations)
   const [file, setFile] = useState<File>()
+  const [filesStates, setFilesStates] = useState<FileState[]>([])
   const [organizationName, setOrganizationName] = useState<string>('')
   const [dialogOpen, setDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const form = useForm<Inputs>({
     resolver: zodResolver(FormDataSchema),
@@ -143,12 +224,25 @@ export function FormEvent({
       type: 'party',
       organizations: [],
       photos: [],
-      createdAt: new Date(),
     },
   })
 
-  const processForm: SubmitHandler<Inputs> = (data) => {
-    form.reset()
+  const processForm: SubmitHandler<Inputs> = async ({
+    name,
+    slug,
+    type,
+    eventLogo,
+    date,
+    publishedAt,
+    organizations,
+    photos,
+    coverFileName,
+  }) => {
+    setIsLoading(true)
+
+    // upload de todas as imagens
+
+    // se todas estiverem ok, criar o evento
   }
 
   type FieldName = keyof Inputs
@@ -229,34 +323,12 @@ export function FormEvent({
             className="mt-12 flex flex-1 flex-col items-center justify-center gap-6 py-12"
             onSubmit={form.handleSubmit(processForm)}
           >
+            <h2 className="text-base font-semibold leading-7 text-gray-100">
+              {steps[currentStep].name}
+            </h2>
+
             {currentStep === 0 && (
               <>
-                <h2 className="text-base font-semibold leading-7 text-gray-100">
-                  {steps[currentStep].name}
-                </h2>
-
-                {/* id */}
-                <FormField
-                  control={form.control}
-                  name="id"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Id do evento</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          onBlur={() => {
-                            field.onBlur()
-                            form.trigger('id')
-                          }}
-                          className="w-full"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 {/* name */}
                 <FormField
                   control={form.control}
@@ -270,7 +342,7 @@ export function FormEvent({
                           className="w-full"
                           onChange={(e) => {
                             field.onChange(e)
-                            createSlug(e.target.value)
+                            form.setValue('slug', createSlug(e.target.value))
                           }}
                         />
                       </FormControl>
@@ -287,14 +359,7 @@ export function FormEvent({
                     <FormItem>
                       <FormLabel>Slug do evento</FormLabel>
                       <FormControl>
-                        <Input
-                          {...field}
-                          onChange={(e) => {
-                            field.onChange(e)
-                            form.setValue('slug', createSlug(e.target.value))
-                          }}
-                          className="w-full"
-                        />
+                        <Input {...field} className="w-full" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -332,11 +397,11 @@ export function FormEvent({
                   )}
                 />
 
-                {/* logoFileName */}
+                {/* eventLogo */}
                 <FormField
                   control={form.control}
-                  name="logoFileName"
-                  render={() => (
+                  name="eventLogo"
+                  render={({ field }) => (
                     <FormItem>
                       <FormLabel>Logo do evento</FormLabel>
                       <FormControl>
@@ -345,8 +410,8 @@ export function FormEvent({
                           height={200}
                           value={file}
                           onChange={(file) => {
+                            field.onChange(file)
                             setFile(file)
-                            // TODO: form.setValue('logoFileName', file_path) criar um método para pegar o nome da pasta e arquivo
                           }}
                         />
                       </FormControl>
@@ -485,60 +550,37 @@ export function FormEvent({
                                 </CommandEmpty>
                                 {field.value.length > 0 && (
                                   <CommandGroup>
-                                    {field.value.map(
-                                      async (organization, idx) => {
-                                        const responseMiniature = await fetch(
-                                          `${baseUrl}/api/get-signed-url?${new URLSearchParams(
-                                            {
-                                              photo:
-                                                'logos/organizations/' +
-                                                organization.logoFileName?.split(
-                                                  '.',
-                                                )[0] +
-                                                '.miniature.webp',
-                                            },
-                                          )}`,
-                                          {
-                                            method: 'GET',
-                                            next: {
-                                              revalidate: 2 * hoursInSeconds,
-                                            },
-                                          },
-                                        )
-                                        const urlMiniature: {
-                                          signedUrl: string
-                                          message: string
-                                        } = await responseMiniature.json()
-                                        return (
-                                          <CommandItem
-                                            className="cursor-pointer"
-                                            value={organization.name}
-                                            key={idx}
-                                            onSelect={() => {
-                                              form.setValue(
-                                                'organizations',
-                                                field.value.filter(
-                                                  (org) =>
-                                                    org.name !==
-                                                    organization.name,
-                                                ),
-                                              )
-                                            }}
-                                          >
-                                            <Check className="mr-2 h-4 w-4" />
-                                            {organization.name}
+                                    {field.value.map((organization, idx) => {
+                                      return (
+                                        <CommandItem
+                                          className="cursor-pointer"
+                                          value={organization.name}
+                                          key={idx}
+                                          onSelect={() => {
+                                            form.setValue(
+                                              'organizations',
+                                              field.value.filter(
+                                                (org) =>
+                                                  org.name !==
+                                                  organization.name,
+                                              ),
+                                            )
+                                          }}
+                                        >
+                                          <Check className="mr-2 h-4 w-4" />
+                                          {organization.name}
+                                          {organization.logoUrl && (
                                             <Image
-                                              unoptimized
-                                              src={urlMiniature.signedUrl}
+                                              src={organization.logoUrl}
                                               className="ml-2 h-4 w-4"
                                               alt={organization.name}
                                               width={16}
                                               height={16}
                                             />
-                                          </CommandItem>
-                                        )
-                                      },
-                                    )}
+                                          )}
+                                        </CommandItem>
+                                      )
+                                    })}
                                   </CommandGroup>
                                 )}
                                 {field.value.length > 0 &&
@@ -554,29 +596,7 @@ export function FormEvent({
                                             .map((org) => org.name)
                                             .includes(organization.name),
                                       )
-                                      .map(async (organization, idx) => {
-                                        const responseMiniature = await fetch(
-                                          `${baseUrl}/api/get-signed-url?${new URLSearchParams(
-                                            {
-                                              photo:
-                                                'logos/organizations/' +
-                                                organization.logoFileName?.split(
-                                                  '.',
-                                                )[0] +
-                                                '.miniature.webp',
-                                            },
-                                          )}`,
-                                          {
-                                            method: 'GET',
-                                            next: {
-                                              revalidate: 2 * hoursInSeconds,
-                                            },
-                                          },
-                                        )
-                                        const urlMiniature: {
-                                          signedUrl: string
-                                          message: string
-                                        } = await responseMiniature.json()
+                                      .map((organization, idx) => {
                                         return (
                                           <CommandItem
                                             className="cursor-pointer"
@@ -589,8 +609,8 @@ export function FormEvent({
                                                   ...field.value,
                                                   {
                                                     ...organization,
-                                                    logoFileName:
-                                                      organization.logoFileName ??
+                                                    eventLogo:
+                                                      organization.logoUrl ??
                                                       null,
                                                   },
                                                 ].sort((a, b) =>
@@ -601,14 +621,15 @@ export function FormEvent({
                                           >
                                             <div className="mr-2 h-4 w-4" />
                                             {organization.name}
-                                            <Image
-                                              unoptimized
-                                              src={urlMiniature.signedUrl}
-                                              className="ml-2 h-4 w-4"
-                                              alt={organization.name}
-                                              width={16}
-                                              height={16}
-                                            />
+                                            {organization.logoUrl && (
+                                              <Image
+                                                src={organization.logoUrl}
+                                                className="ml-2 h-4 w-4"
+                                                alt={organization.name}
+                                                width={16}
+                                                height={16}
+                                              />
+                                            )}
                                           </CommandItem>
                                         )
                                       })}
@@ -647,6 +668,33 @@ export function FormEvent({
                 />
               </>
             )}
+
+            {currentStep === 1 && (
+              <>
+                {/* name */}
+                <FormField
+                  control={form.control}
+                  name="photos"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Fotos do evento</FormLabel>
+                      <FormControl>
+                        <MultiImageDropzone
+                          {...field}
+                          value={filesStates}
+                          onFilesAdded={(addedFiles) => {
+                            setFilesStates((prev) => [...prev, ...addedFiles])
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </>
+            )}
+
+            {currentStep === 2 && <></>}
           </form>
         </Form>
 
@@ -759,12 +807,12 @@ function NewOrganization({
 }: {
   organizationName: string
   setOrganizationName: (name: string) => void
-  setOrganizations: Dispatch<SetStateAction<Organization[]>>
+  setOrganizations: Dispatch<SetStateAction<OrganizationWithLogo[]>>
   setDialogOpen: Dispatch<SetStateAction<boolean>>
 }) {
   const [progressUpload, setProgressUpload] = useState<UploadFileState[]>([])
   const [isLoading, setIsLoading] = useState(false)
-  const [newOrganization, setNewOrganization] = useState<Organization>()
+  const [newOrganization, setNewOrganization] = useState<OrganizationWithLogo>()
 
   const form = useForm<InputsOrganization>({
     resolver: zodResolver(FormOrganizationScheama),
@@ -943,7 +991,11 @@ function NewOrganization({
       setIsLoading(!progressString)
       form.reset()
       setDialogOpen(false)
-      setOrganizations((organizations) => [...organizations, newOrganization])
+      setOrganizations((organizations) =>
+        [...organizations, newOrganization].sort((a, b) =>
+          a.name.localeCompare(b.name),
+        ),
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [progressUpload])

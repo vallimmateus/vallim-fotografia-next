@@ -16,7 +16,7 @@ export async function GET(req: Request) {
         photoId: photoData?.id,
       },
       include: {
-        user: {
+        User: {
           select: {
             name: true,
             nickname: true,
@@ -47,12 +47,12 @@ export async function POST(req: Request) {
     await prismaClient.comment.create({
       data: {
         text: data.comment,
-        photo: {
+        Photo: {
           connect: {
             id: photoData?.id,
           },
         },
-        user: {
+        User: {
           connect: {
             email: data.email,
           },

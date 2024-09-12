@@ -1,4 +1,4 @@
-import { Comment, Like, User } from '@prisma/client'
+import { Comment, Like, User, Prisma } from '@prisma/client'
 import { signIn, useSession } from 'next-auth/react'
 import {
   Suspense,
@@ -48,15 +48,30 @@ export type CommentWithUserType = Comment & {
   }
 }
 
-export type LikesWithUserType = Like & {
-  user: {
-    name: string
-    nickname: string
-    image: string
-    email: string
-    id: string
-  }
-}
+const LikeData = Prisma.validator<Prisma.LikeDefaultArgs>()({
+  include: {
+    User: {
+      select: {
+        name: true,
+        nickname: true,
+        image: true,
+        email: true,
+        id: true,
+      },
+    },
+  },
+})
+
+export type LikesWithUserType = Prisma.LikeGetPayload<typeof LikeData>
+// Like & {
+//   user: {
+//     name: string
+//     nickname: string
+//     image: string
+//     email: string
+//     id: string
+//   }
+// }
 
 const CommentsContext = createContext<CommentsContextType | null>(null)
 
@@ -100,7 +115,9 @@ export default function CommentsComponent({ children }: ComponentProps) {
 
   const getComments = useCallback(async () => {
     await axios
-      .get('/api/comments', { headers: { photoName: currentSlide?.alt } })
+      .get('/api/comments', {
+        headers: { photoName: currentSlide?.title?.toString() },
+      })
       .then((res) => {
         setComments(res.data.comments)
       })
@@ -108,12 +125,14 @@ export default function CommentsComponent({ children }: ComponentProps) {
 
   const getLikes = useCallback(async () => {
     await axios
-      .get('/api/likes', { headers: { photoName: currentSlide?.alt } })
+      .get('/api/likes', {
+        headers: { photoName: currentSlide?.title as string },
+      })
       .then((res) => {
         setLikes(res.data.likes)
       })
       .catch((err) => {
-        console.log(err)
+        console.error(err)
       })
   }, [currentSlide])
 
@@ -138,7 +157,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
     await axios
       .post('/api/comments', {
         comment: newComment,
-        photoName: currentSlide?.alt,
+        photoName: currentSlide?.title as string,
         email: anonymous ? 'anonymous' : data?.user?.email,
       })
       .then(() => {

@@ -80,7 +80,7 @@ type PhotoFS = {
 }
 
 type PhotoWithUrlSigneds = PhotoPrismaType & {
-  signedUrlOriginal: string
-  signedUrlMiniature: string
-  signedUrlThumbnail: string
+  signedUrlOriginal?: string
+  signedUrlMiniature?: string
+  signedUrlThumbnail?: string
 }

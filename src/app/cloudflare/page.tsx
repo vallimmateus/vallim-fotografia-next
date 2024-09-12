@@ -101,14 +101,18 @@ export default function Page() {
       />
       <Button
         onClick={async () => {
-          const res = await axios.get('/api/get-signed-url')
-          const url = res.data.url as string
+          const res = await axios.get('/api/get-signed-url', {
+            params: {
+              photo: 'clox5655q0024wrr4dfj76bh6/Quimicarreguem - 001.jpg',
+            },
+          })
+          const url = res.data.signedUrl as string
           setUrl(url)
         }}
       >
         ListBuckets
       </Button>
-      {url && <img src={url} alt="Picture of the author" />}
+      {url && <Image src={url} alt="Picture of the author" unoptimized fill />}
     </div>
   )
 }

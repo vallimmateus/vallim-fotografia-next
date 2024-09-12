@@ -1,5 +1,5 @@
 import { useSession } from 'next-auth/react'
-import { memo, useEffect, useState } from 'react'
+import { Fragment, memo, useEffect, useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -29,12 +29,12 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
   const { currentSlide } = useLightboxState()
 
   const [liked, setLiked] = useState(
-    likes.some((like) => like.user.email === data?.user?.email),
+    likes.some((like) => like.User.email === data?.user?.email),
   )
 
   useEffect(() => {
     if (status === 'authenticated' && data?.user) {
-      setLiked(likes.some((like) => like.user.email === data.user?.email))
+      setLiked(likes.some((like) => like.User.email === data.user?.email))
     }
   }, [data, currentSlide, status, likes])
 
@@ -45,13 +45,13 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
     }
     if (!liked === true) {
       await axios.post('/api/likes', {
-        photoName: currentSlide?.alt,
+        photoName: currentSlide?.title,
         email: data?.user?.email,
       })
     } else {
       await axios.delete('/api/likes', {
         data: {
-          id: likes.find((like) => like.user.email === data?.user?.email)?.id,
+          id: likes.find((like) => like.User.email === data?.user?.email)?.id,
         },
       })
     }
@@ -88,7 +88,7 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                     {likes
                       .slice(0, 3)
                       .map((like) => {
-                        return like.user.nickname || like.user.name
+                        return like.User.nickname || like.User.name
                       })
                       .join(', ')}
                   </p>
@@ -99,28 +99,27 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                   <h4 className="mb-4 text-sm font-bold leading-none">Likes</h4>
                   {likes.map((like, idx) => {
                     return (
-                      <>
+                      <Fragment key={idx}>
                         {idx !== 0 && (
                           <Separator className="my-1 bg-zinc-500" />
                         )}
-                        <div
-                          key={idx}
-                          className="w-42 flex items-center space-x-2"
-                        >
+                        <div className="w-42 flex items-center space-x-2">
                           <Avatar className="h-4 w-4">
                             <AvatarImage
-                              src={like.user.image}
-                              alt={like.user.nickname || like.user.name}
+                              src={like.User.image || ''}
+                              alt={
+                                like.User.nickname || (like.User.name as string)
+                              }
                             />
                             <AvatarFallback>
                               <PersonIcon className="h-3 w-3" />
                             </AvatarFallback>
                           </Avatar>
                           <p className="cursor-default truncate text-sm">
-                            {like.user.nickname || like.user.name}
+                            {like.User.nickname || like.User.name}
                           </p>
                         </div>
-                      </>
+                      </Fragment>
                     )
                   })}
                 </ScrollArea>
