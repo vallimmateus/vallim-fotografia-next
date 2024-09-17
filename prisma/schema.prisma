@@ -10,18 +10,16 @@ datasource db {
 model Event {
   id                    String                  @id @default(cuid())
   name                  String
-  type                  String
+  type                  EventType
   description           String?
-  coverUrl              String                  @unique
+  logoFileName          String                  @unique
+  coverFileName         String                  @unique
   slug                  String
-  fid                   String[]                @unique
   date                  DateTime
   publishDate           DateTime?
   createdAt             DateTime                @default(now())
   updatedAt             DateTime?
-  logoUrl               String?                 @unique
   validateByUserEmail   String?
-  source                SourceData              @default(drive)
   User                  User?                   @relation(fields: [validateByUserEmail], references: [email])
   OrganizationsOnEvents OrganizationsOnEvents[]
   Photo                 Photo[]
@@ -48,13 +46,14 @@ model OrganizationsOnEvents {
 }
 
 model Photo {
-  id         String    @id @default(cuid())
-  imageUrlId String    @unique
-  name       String
-  eventId    String
-  Comment    Comment[]
-  Like       Like[]
-  Event      Event     @relation(fields: [eventId], references: [id])
+  id            String    @id @default(cuid())
+  imageFileName String
+  eventId       String
+  Comment       Comment[]
+  Like          Like[]
+  Event         Event     @relation(fields: [eventId], references: [id])
+
+  @@unique([imageFileName, eventId])
 }
 
 model Comment {
@@ -118,7 +117,7 @@ model User {
   emailVerified DateTime?
   image         String?
   nickname      String?
-  role          Role      @default(user)
+  roles         Role[]    @default([user])
   accounts      Account[]
   Comment       Comment[]
   Event         Event[]
@@ -134,7 +133,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-enum SourceData {
-  drive
-  r2
+enum EventType {
+  party
+  event
 }

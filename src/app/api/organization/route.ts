@@ -7,6 +7,7 @@ import { GetObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3'
 
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
+import { revalidateTag } from 'next/cache'
 
 export async function GET() {
   try {
@@ -30,6 +31,8 @@ export async function POST(req: Request) {
         logoFileName,
       },
     })
+
+    revalidateTag('get-organizations')
 
     return NextResponse.json(
       {
