@@ -44,6 +44,5 @@ secret_*.txt
 
 src/app/event/_year/
 src/app/_category/
-src/app/_(home)/
 src/app/event/__register/
 .bkp/

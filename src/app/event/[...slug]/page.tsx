@@ -32,14 +32,38 @@ export const dynamicParams = true
 
 const eventData = Prisma.validator<Prisma.EventDefaultArgs>()({
   include: {
-    Photo: {
+    photo: {
       orderBy: {
-        name: 'asc',
+        imageFileName: 'asc',
       },
     },
-    OrganizationsOnEvents: {
+    organizationsOnEvents: {
       include: {
-        Organization: true,
+        organization: true,
+      },
+    },
+    photographers: {
+      include: {
+        photographer: {
+          select: {
+            user: {
+              select: {
+                name: true,
+                image: true,
+              },
+            },
+          },
+        },
+      },
+    },
+    completedValidators: {
+      select: {
+        userId: true,
+      },
+    },
+    pendingValidators: {
+      select: {
+        userId: true,
       },
     },
   },
@@ -48,76 +72,95 @@ const eventData = Prisma.validator<Prisma.EventDefaultArgs>()({
 type EventWithOrganizationAndPhotos = Prisma.EventGetPayload<typeof eventData>
 
 export default async function Page({ params }: { params: Params }) {
-  console.log('basePath:', basePath)
-  console.log('params:', params)
-  console.log('fetch:', `${basePath}/api/photos`)
-  const responseEvent = await fetch(`${basePath}/api/photos`, {
-    headers: {
-      year: params.slug[0],
-      slug: params.slug[1],
+  console.log(
+    'fetch:',
+    `${basePath}/api/events?select=["id"]&take=1&year=${params.slug[0]}&slug=${params.slug[1]}`,
+  )
+  const responseEvent = await fetch(
+    `${basePath}/api/events?select=["id"]&take=1&year=${params.slug[0]}&slug=${params.slug[1]}`,
+    {
+      next: {
+        revalidate: 60,
+      },
     },
-    method: 'GET',
-    next: {
-      tags: [`event-${params.slug[0]}-${params.slug[1]}`],
-    },
-  })
-  console.log('responseEvent', responseEvent)
+  )
+
   if (responseEvent.status !== 200) {
-    throw new Error('Failed to fetch event')
+    throw new Error('Failed to fetch eventId')
   }
-  const { event } = (await responseEvent.json()) as {
-    event: EventWithOrganizationAndPhotos
-  }
-  console.log('event', event)
 
-  const photosWithSignedUrls = await Promise.all([
-    ...event.Photo.slice(0, 15).map(async (photo) => ({
-      ...photo,
-      signedUrlOriginal: await getAllSignedUrl(photo.name, event.id),
-      signedUrlMiniature: await getAllSignedUrl(
-        photo.name,
-        event.id,
-        'miniature',
-      ),
-      signedUrlThumbnail: await getAllSignedUrl(
-        photo.name,
-        event.id,
-        'thumbnail',
-      ),
-    })),
-  ])
+  const event = await responseEvent.json()
 
-  const organizationsLogoWithSignedUrls = await Promise.all([
-    ...event.OrganizationsOnEvents.map(async ({ Organization }) => {
-      if (!Organization.logoFileName) {
-        return {
-          ...Organization,
-          signedUrlOriginal: undefined,
-          signedUrlMiniature: undefined,
-          signedUrlThumbnail: undefined,
-        }
-      }
-      return {
-        ...Organization,
-        signedUrlOriginal: await getAllSignedUrl(
-          Organization.logoFileName,
-          'logos/organizations',
-        ),
-        signedUrlMiniature: await getAllSignedUrl(
-          Organization.logoFileName,
-          'logos/organizations',
-          'miniature',
-        ),
-        signedUrlThumbnail: await getAllSignedUrl(
-          Organization.logoFileName,
-          'logos/organizations',
-          'thumbnail',
-        ),
-      }
-    }),
-  ])
+  // console.log('fetch:', `${basePath}/api/photos/event/${eventId.id}`)
+  // const responseEvent = await fetch(
+  //   `${basePath}/api/photos/event/${eventId.id}`,
+  //   {
+  //     method: 'GET',
+  //     next: {
+  //       tags: [`event-${eventId.id}`],
+  //     },
+  //   },
+  // )
+  // if (responseEvent.status !== 200) {
+  //   throw new Error('Failed to fetch event')
+  // }
+  // const photos = await responseEvent.json()
+  // console.log('photos:', photos)
+  // const { event } = (await responseEvent.json()) as {
+  //   event: EventWithOrganizationAndPhotos
+  // }
 
-  const photos = [...photosWithSignedUrls, ...event.Photo.slice(15)]
+  return null
+  // console.log('event', event)
+
+  // const photosWithSignedUrls = await Promise.all([
+  //   ...event.photo.slice(0, 15).map(async (photo) => ({
+  //     ...photo,
+  //     signedUrlOriginal: await getAllSignedUrl(photo.name, event.id),
+  //     signedUrlMiniature: await getAllSignedUrl(
+  //       photo.name,
+  //       event.id,
+  //       'miniature',
+  //     ),
+  //     signedUrlThumbnail: await getAllSignedUrl(
+  //       photo.name,
+  //       event.id,
+  //       'thumbnail',
+  //     ),
+  //   })),
+  // ])
+
+  // const organizationsLogoWithSignedUrls = await Promise.all([
+  //   ...event.OrganizationsOnEvents.map(async ({ Organization }) => {
+  //     if (!Organization.logoFileName) {
+  //       return {
+  //         ...Organization,
+  //         signedUrlOriginal: undefined,
+  //         signedUrlMiniature: undefined,
+  //         signedUrlThumbnail: undefined,
+  //       }
+  //     }
+  //     return {
+  //       ...Organization,
+  //       signedUrlOriginal: await getAllSignedUrl(
+  //         Organization.logoFileName,
+  //         'logos/organizations',
+  //       ),
+  //       signedUrlMiniature: await getAllSignedUrl(
+  //         Organization.logoFileName,
+  //         'logos/organizations',
+  //         'miniature',
+  //       ),
+  //       signedUrlThumbnail: await getAllSignedUrl(
+  //         Organization.logoFileName,
+  //         'logos/organizations',
+  //         'thumbnail',
+  //       ),
+  //     }
+  //   }),
+  // ])
+
+  // const photos = [...photosWithSignedUrls, ...event.Photo.slice(15)]
 
   return (
     <div className="w-full flex-1">

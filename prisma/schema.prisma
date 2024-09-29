@@ -19,28 +19,69 @@ model Event {
   publishDate           DateTime?
   createdAt             DateTime                @default(now())
   updatedAt             DateTime?
-  validateByUserEmail   String?
-  User                  User?                   @relation(fields: [validateByUserEmail], references: [email])
-  OrganizationsOnEvents OrganizationsOnEvents[]
-  Photo                 Photo[]
+  createdByUserId       String
+  createdByUser         User                    @relation(fields: [createdByUserId], references: [id])
+  organizationsOnEvents OrganizationsOnEvents[]
+  photo                 Photo[]
+  pendingValidators     ValidatorsOnEvents[]
+  completedValidators   ValidatedEvents[]
+  photographers         PhotographersOnEvents[]
 
   @@unique([name, date])
 }
 
+model PhotographersOnEvents {
+  id             String       @id @default(cuid())
+  photographerId String
+  eventId        String
+  event          Event        @relation(fields: [eventId], references: [id])
+  photographer   Photographer @relation(fields: [photographerId], references: [id])
+
+  @@unique([photographerId, eventId])
+}
+
+model ValidatorsOnEvents {
+  userId  String
+  eventId String
+  user    User   @relation(fields: [userId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  @@id([userId, eventId])
+}
+
+model ValidatedEvents {
+  userId  String
+  eventId String
+  user    User   @relation(fields: [userId], references: [id])
+  event   Event  @relation(fields: [eventId], references: [id])
+
+  @@id([userId, eventId])
+}
+
 model Organization {
-  id                    String                  @id @default(cuid())
-  name                  String                  @unique
-  logoFileName          String?                 @unique(map: "Organization_logoUrl_key")
-  slug                  String                  @unique
-  OrganizationsOnEvents OrganizationsOnEvents[]
+  id                    String                   @id @default(cuid())
+  name                  String                   @unique
+  logoFileName          String?                  @unique(map: "Organization_logoUrl_key")
+  slug                  String                   @unique
+  organizationsOnEvents OrganizationsOnEvents[]
+  adminMembers          MembersOnOrganizations[]
+}
+
+model MembersOnOrganizations {
+  userId         String
+  organizationId String
+  user           User         @relation(fields: [userId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  @@id([userId, organizationId])
 }
 
 model OrganizationsOnEvents {
   id             String       @id @default(cuid())
   organizationId String
   eventId        String
-  Event          Event        @relation(fields: [eventId], references: [id])
-  Organization   Organization @relation(fields: [organizationId], references: [id])
+  event          Event        @relation(fields: [eventId], references: [id])
+  organization   Organization @relation(fields: [organizationId], references: [id])
 
   @@unique([organizationId, eventId])
 }
@@ -49,9 +90,9 @@ model Photo {
   id            String    @id @default(cuid())
   imageFileName String
   eventId       String
-  Comment       Comment[]
-  Like          Like[]
-  Event         Event     @relation(fields: [eventId], references: [id])
+  comment       Comment[]
+  like          Like[]
+  event         Event     @relation(fields: [eventId], references: [id])
 
   @@unique([imageFileName, eventId])
 }
@@ -63,8 +104,8 @@ model Comment {
   updatedAt DateTime?
   photoId   String
   userId    String
-  Photo     Photo     @relation(fields: [photoId], references: [id])
-  User      User      @relation(fields: [userId], references: [id])
+  photo     Photo     @relation(fields: [photoId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
 }
 
 model Like {
@@ -72,8 +113,8 @@ model Like {
   createdAt DateTime @default(now())
   photoId   String
   userId    String
-  Photo     Photo    @relation(fields: [photoId], references: [id])
-  User      User     @relation(fields: [userId], references: [id])
+  photo     Photo    @relation(fields: [photoId], references: [id])
+  user      User     @relation(fields: [userId], references: [id])
 
   @@unique([photoId, userId])
 }
@@ -104,25 +145,40 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model Photographer {
+  id          String                  @id @default(cuid())
+  email       String
+  phone       String
+  assignments PhotographersOnEvents[]
+  userId      String?                 @unique
+  user        User?                   @relation(fields: [userId], references: [id])
+}
+
 enum Role {
   user
   admin
+  organizationMember
+  photographer
   contentProducer
 }
 
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  nickname      String?
-  roles         Role[]    @default([user])
-  accounts      Account[]
-  Comment       Comment[]
-  Event         Event[]
-  Like          Like[]
-  sessions      Session[]
+  id               String                   @id @default(cuid())
+  name             String?
+  email            String?                  @unique
+  emailVerified    DateTime?
+  image            String?
+  nickname         String?
+  roles            Role[]                   @default([user])
+  accounts         Account[]
+  comment          Comment[]
+  like             Like[]
+  sessions         Session[]
+  createdEvents    Event[]
+  eventsToValidate ValidatorsOnEvents[]
+  validatedEvents  ValidatedEvents[]
+  organizations    MembersOnOrganizations[]
+  photographer     Photographer?
 }
 
 model VerificationToken {
