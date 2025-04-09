@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     <html lang="pt-BR">
       <Providers>
         <body className="flex min-h-screen w-full flex-col overflow-x-hidden bg-background">
-          {/* <Header /> */}
+          <Header />
           {children}
           <Footer />
         </body>

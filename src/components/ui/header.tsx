@@ -47,15 +47,15 @@ export function Header() {
   }, [])
 
   const getParties = useCallback(async () => {
-    await axios
-      .get('/api/events', { headers: { type: 'party', quantity: 4 } })
-      .then((res) => setParties(res.data.eventData))
+    // await axios
+    //   .get('/api/events', { headers: { type: 'party', quantity: 4 } })
+    //   .then((res) => setParties(res.data.eventData))
   }, [])
 
   const getEvents = useCallback(async () => {
-    await axios
-      .get('/api/events', { headers: { type: 'event', quantity: 2 } })
-      .then((res) => setEvents(res.data.eventData))
+    // await axios
+    //   .get('/api/events', { headers: { type: 'event', quantity: 2 } })
+    //   .then((res) => setEvents(res.data.eventData))
   }, [])
 
   const handleLoginCLick = async () => {
