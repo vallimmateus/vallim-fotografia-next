@@ -22,7 +22,7 @@ model Event {
   createdByUserId       String
   createdByUser         User                    @relation(fields: [createdByUserId], references: [id])
   organizationsOnEvents OrganizationsOnEvents[]
-  photo                 Photo[]
+  photos                Photo[]
   pendingValidators     ValidatorsOnEvents[]
   completedValidators   ValidatedEvents[]
   photographers         PhotographersOnEvents[]
@@ -87,14 +87,31 @@ model OrganizationsOnEvents {
 }
 
 model Photo {
-  id            String    @id @default(cuid())
-  imageFileName String
-  eventId       String
-  comment       Comment[]
-  like          Like[]
-  event         Event     @relation(fields: [eventId], references: [id])
+  id               String         @id @default(cuid())
+  originalName     String
+  s3Key            String
+  uploadedByUserId String
+  createdAt        DateTime       @default(now())
+  eventId          String
+  comment          Comment[]
+  like             Like[]
+  event            Event          @relation(fields: [eventId], references: [id])
+  versions         PhotoVersion[]
 
-  @@unique([imageFileName, eventId])
+  @@unique([originalName, eventId])
+}
+
+model PhotoVersion {
+  id      String @id @default(cuid())
+  photoId String
+  type    String
+  s3Key   String
+  width   Int
+  height  Int
+  format  String
+  photo   Photo  @relation(fields: [photoId], references: [id])
+
+  @@unique([width, height, photoId])
 }
 
 model Comment {
