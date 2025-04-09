@@ -1,4 +1,4 @@
-import { Event, Prisma } from '@prisma/client'
+// import { Event, Prisma } from '@prisma/client'
 import Image from 'next/image'
 import Link from 'next/link'
 
@@ -8,10 +8,9 @@ import { LastEvents } from './components/last-events'
 import { prismaClient } from '@/lib/prisma'
 import { format } from 'date-fns'
 
-type Parties = [Event, Event, Event]
+// type Parties = [Event, Event, Event]
 
 export default async function Page() {
-
   const parties = await prismaClient.event.findMany({
     take: 3,
 
@@ -24,7 +23,7 @@ export default async function Page() {
     },
   })
 
-  const event = (await prismaClient.event.findFirst({
+  const event = await prismaClient.event.findFirst({
     where: {
       type: 'event',
     },
@@ -32,7 +31,7 @@ export default async function Page() {
     orderBy: {
       publishDate: 'desc',
     },
-  })) as Event
+  })
 
   return (
     <div className="flex flex-col items-center">
@@ -44,25 +43,27 @@ export default async function Page() {
         <LastEvents events={parties} />
       </div>
 
-      <div className="flex w-full justify-center bg-[url('/square_background.svg')] bg-cover bg-no-repeat">
-        <div className="flex h-96 w-full max-w-6xl items-center justify-between max-md:flex-col max-md:gap-2 max-md:pb-4">
-          <div className="flex min-w-max flex-col gap-3">
-            <h1 className="text-center text-5xl font-bold">Último evento</h1>
+      {event && (
+        <div className="flex w-full justify-center bg-[url('/square_background.svg')] bg-cover bg-no-repeat">
+          <div className="flex h-96 w-full max-w-6xl items-center justify-between max-md:flex-col max-md:gap-2 max-md:pb-4">
+            <div className="flex min-w-max flex-col gap-3">
+              <h1 className="text-center text-5xl font-bold">Último evento</h1>
 
-            <div className="flex w-full items-center justify-end gap-2 max-md:justify-center">
-              <p className="text-zinc-300">{event.name}</p>
+              <div className="flex w-full items-center justify-end gap-2 max-md:justify-center">
+                <p className="text-zinc-300">{event?.name}</p>
 
-              <p className="text-sm text-muted-foreground">
-                {format(event.date, 'dd/MM/yyyy')}
-              </p>
+                <p className="text-sm text-muted-foreground">
+                  {format(event.date, 'dd/MM/yyyy')}
+                </p>
+              </div>
+            </div>
+
+            <div className="mx-4 flex w-full max-md:max-w-sm max-md:justify-center md:h-4/5 md:justify-end">
+              <LastEvent event={event} />
             </div>
           </div>
-
-          <div className="mx-4 flex w-full max-md:max-w-sm max-md:justify-center md:h-4/5 md:justify-end">
-            <LastEvent event={event} />
-          </div>
         </div>
-      </div>
+      )}
 
       <div className="flex h-52 w-full justify-center bg-[#070708]">
         <div className="flex w-full max-w-6xl flex-col justify-center gap-5 px-8">
