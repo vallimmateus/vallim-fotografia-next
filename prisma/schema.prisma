@@ -92,27 +92,27 @@ model OrganizationsOnEvents {
 model Photo {
   id               String         @id @default(cuid())
   originalName     String
-  s3Key            String
   uploadedByUserId String
   createdAt        DateTime       @default(now())
   eventId          String
   comment          Comment[]
   like             Like[]
   event            Event          @relation(fields: [eventId], references: [id])
-  versions         PhotoVersion[]
+  photoVersions    PhotoVersion[]
 
   @@unique([originalName, eventId])
 }
 
 model PhotoVersion {
-  id      String @id @default(cuid())
-  photoId String
-  type    String
-  s3Key   String
-  width   Int
-  height  Int
-  format  String
-  photo   Photo  @relation(fields: [photoId], references: [id])
+  id       String @id @default(cuid())
+  photoId  String
+  type     String
+  fileName String
+  s3Key    String
+  width    Int
+  height   Int
+  format   String
+  photo    Photo  @relation(fields: [photoId], references: [id])
 
   @@unique([width, height, photoId])
 }
