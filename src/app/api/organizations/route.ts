@@ -1,7 +1,5 @@
-// POST /api/organizations (registrar nova organização)
-
 import { prismaClient } from '@/lib/prisma'
-import { Prisma } from '@prisma/client'
+import { Organization, Prisma } from '@prisma/client'
 import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
@@ -54,7 +52,16 @@ export async function GET(req: Request) {
       },
     })
 
-    return NextResponse.json(organizations, { status: 200 })
+    const organizationsWithLogo: Array<Organization & { logoUrl: string }> =
+      organizations.map((organization) => ({
+        ...organization,
+        logoUrl: `/images/${organization.logoS3Key}`,
+      }))
+
+    return NextResponse.json(
+      { data: { organizationsWithLogo } },
+      { status: 200 },
+    )
   } catch (error) {
     return NextResponse.json({ error }, { status: 500 })
   }
@@ -63,9 +70,11 @@ export async function GET(req: Request) {
 const bodySchema = z
   .object({
     name: z.string(),
-    logoFile: z.instanceof(File),
     slug: z.string(),
     adminMembers: z.array(z.string()).min(1),
+    logoOriginalName: z.string(),
+    logoS3Key: z.string(),
+    logoUploadedByUserId: z.string().cuid(),
   })
   .refine(
     (data) => {
@@ -84,17 +93,21 @@ const bodySchema = z
   )
 
 export async function POST(req: Request) {
-  const body = req.body
+  const body = await req.json()
   const validation = bodySchema.safeParse(body)
 
   if (!validation.success) {
-    return NextResponse.json(
-      { error: 'Invalid body parameters' },
-      { status: 400 },
-    )
+    return NextResponse.json({ error: validation.error }, { status: 400 })
   }
 
-  const { name, logoFile, slug, adminMembers } = validation.data
+  const {
+    name,
+    slug,
+    adminMembers,
+    logoUploadedByUserId,
+    logoOriginalName,
+    logoS3Key,
+  } = validation.data
 
   // Verifica se os usuários passados como administradores existem na tabela de usuários
   const users = await prismaClient.user.findMany({
@@ -120,15 +133,19 @@ export async function POST(req: Request) {
     })
   }
 
-  // Upload do arquivo de logo com suas 3 variações em .webp
-
   try {
     const organization = await prismaClient.organization.create({
       data: {
         name,
-        logoFileName: logoFile.name,
         slug,
-        adminMembers: {},
+        logoOriginalName,
+        logoS3Key,
+        logoUploadedByUserId,
+        adminMembers: {
+          create: adminMembers.map((userId) => ({
+            userId,
+          })),
+        },
       },
     })
 

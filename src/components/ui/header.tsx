@@ -34,7 +34,7 @@ import { format } from 'date-fns'
 import { ChevronRightIcon, LogInIcon, LogOutIcon } from 'lucide-react'
 
 export function Header() {
-  const { status, data } = useSession()
+  const { status, data, update } = useSession()
 
   const [parties, setParties] = useState<Event[]>([])
   const [events, setEvents] = useState<Event[]>([])
@@ -44,6 +44,7 @@ export function Header() {
     await axios
       .get('/api/user', { headers: { userEmail: email } })
       .then((res) => setUser(res.data.userData))
+      .catch((err) => console.error(err))
   }, [])
 
   const getParties = useCallback(async () => {
@@ -72,10 +73,10 @@ export function Header() {
     setClientWindowHeight(window.scrollY)
   }
 
-  useEffect(() => {
-    getParties()
-    getEvents()
-  }, [getEvents, getParties])
+  // useEffect(() => {
+  //   getParties()
+  //   getEvents()
+  // }, [getEvents, getParties])
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll)
@@ -84,7 +85,7 @@ export function Header() {
 
   useEffect(() => {
     if (data?.user?.email && !user) {
-      getUserData(data?.user?.email)
+      getUserData(data.user.email)
     }
   }, [data, getUserData, user])
 
@@ -100,19 +101,19 @@ export function Header() {
     >
       <div className="grid w-full max-w-screen-xl items-center p-4 max-xl:px-10 max-md:grid-cols-2 md:grid-cols-3">
         <div>
-          <Link href="/">
-            <Image
-              src="/vallim-fotografia.svg"
-              alt="Vallim Fotografia logo"
-              width={160}
-              height={64}
-              className="h-full max-h-16"
-            />
-          </Link>
+          {/* <Link href="/"> */}
+          <Image
+            src="/vallim-fotografia.svg"
+            alt="Vallim Fotografia logo"
+            width={160}
+            height={64}
+            className="h-full max-h-16"
+          />
+          {/* </Link> */}
         </div>
 
         <div className="flex justify-center max-md:hidden">
-          <NavigationMenu>
+          {/* <NavigationMenu>
             <NavigationMenuList className="flex gap-2">
               <NavigationMenuItem>
                 <NavigationMenuLink
@@ -268,7 +269,7 @@ export function Header() {
                   </NavigationMenuItem>
                 )}
             </NavigationMenuList>
-          </NavigationMenu>
+          </NavigationMenu> */}
         </div>
 
         <div className="flex justify-end max-md:hidden">
@@ -359,18 +360,20 @@ export function Header() {
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              {/* <DropdownMenuItem>
                 <Link href="/category/party">Festas</Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Link href="/category/event">Eventos</Link>
-              </DropdownMenuItem>
-              {status === 'authenticated' &&
-                ['admin', 'contentProducer'].includes(user?.role || 'user') && (
+              </DropdownMenuItem> */}
+              {/* {status === 'authenticated' &&
+                user?.roles?.some((role) =>
+                  ['admin', 'contentProducer'].includes(role),
+                ) && (
                   <DropdownMenuItem>
                     <Link href="/anonymous">Comentários anônimos 😈</Link>
                   </DropdownMenuItem>
-                )}
+                )} */}
               {status === 'authenticated' && user && (
                 <>
                   <DropdownMenuSeparator />

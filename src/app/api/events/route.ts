@@ -132,7 +132,7 @@ export async function GET(req: Request) {
       }
     }
 
-    const events = await prismaClient.event.findMany({
+    const events = await prismaClient.event.findFirst({
       take: limit,
       skip,
       where: whereClause,
@@ -141,10 +141,14 @@ export async function GET(req: Request) {
       },
       include: {
         completedValidators: true,
+        photos: true,
+        organizationsOnEvents: {
+          include: {
+            organization: true,
+          },
+        },
       },
     })
-
-    console.log(events)
 
     // Retorna os eventos
     return NextResponse.json(events, { status: 200 })

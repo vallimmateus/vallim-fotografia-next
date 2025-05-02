@@ -29,7 +29,10 @@ type InputProps = {
   onChange?: (files: FileState[]) => void | Promise<void>
   onFilesAdded?: (addedFiles: FileState[]) => void | Promise<void>
   disabled?: boolean
-  dropzoneOptions?: Omit<DropzoneOptions, 'disabled'>
+  dropzoneOptions?: Omit<DropzoneOptions, 'disabled'> & {
+    customName?: 'uuid' | 'fileName'
+    pathName?: string
+  }
 }
 
 const ERROR_MESSAGES = {
@@ -101,7 +104,22 @@ const MultiImageDropzone = React.forwardRef<HTMLInputElement, InputProps>(
         if (files) {
           const addedFiles = files.map<FileState>((file) => ({
             file,
-            key: uuidv4(),
+            key:
+              (dropzoneOptions?.pathName
+                ? dropzoneOptions.pathName.endsWith('/')
+                  ? dropzoneOptions.pathName
+                  : `${dropzoneOptions.pathName}/`
+                : '') +
+              (dropzoneOptions?.customName
+                ? (() => {
+                    switch (dropzoneOptions.customName) {
+                      case 'uuid':
+                        return uuidv4()
+                      case 'fileName':
+                        return file.name
+                    }
+                  })()
+                : file.name),
             progress: 'PENDING',
           }))
           // eslint-disable-next-line no-void

@@ -1,4 +1,4 @@
-import { Comment, Like, User, Prisma } from '@prisma/client'
+import { User, Prisma } from '@prisma/client'
 import { signIn, useSession } from 'next-auth/react'
 import {
   Suspense,
@@ -32,46 +32,39 @@ import {
   makeUseContext,
   useLightboxState,
 } from 'yet-another-react-lightbox'
+import { createComment, getAllComments } from './actions/comments'
+import { getAllLikes } from './actions/likes'
 
 export type CommentsContextType = {
   open: boolean
   toggle: () => void
 }
 
-export type CommentWithUserType = Comment & {
-  user: {
-    name: string
-    nickname: string
-    image: string
-    email: string
-    id: string
-  }
-}
-
-const LikeData = Prisma.validator<Prisma.LikeDefaultArgs>()({
+export type CommentWithUserType = Prisma.CommentGetPayload<{
   include: {
-    User: {
+    user: {
       select: {
-        name: true,
-        nickname: true,
-        image: true,
-        email: true,
-        id: true,
-      },
-    },
-  },
-})
+        name: true
+        nickname: true
+        image: true
+        email: true
+      }
+    }
+  }
+}>
 
-export type LikesWithUserType = Prisma.LikeGetPayload<typeof LikeData>
-// Like & {
-//   user: {
-//     name: string
-//     nickname: string
-//     image: string
-//     email: string
-//     id: string
-//   }
-// }
+export type LikesWithUserType = Prisma.LikeGetPayload<{
+  include: {
+    user: {
+      select: {
+        name: true
+        nickname: true
+        image: true
+        email: true
+      }
+    }
+  }
+}>
 
 const CommentsContext = createContext<CommentsContextType | null>(null)
 
@@ -114,22 +107,15 @@ export default function CommentsComponent({ children }: ComponentProps) {
   }
 
   const getComments = useCallback(async () => {
-    await axios
-      .get('/api/comments', {
-        headers: { photoName: currentSlide?.title?.toString() },
-      })
-      .then((res) => {
-        setComments(res.data.comments)
-      })
+    getAllComments(currentSlide?.title?.toString() as string).then((comments) =>
+      setComments(comments),
+    )
   }, [currentSlide])
 
   const getLikes = useCallback(async () => {
-    await axios
-      .get('/api/likes', {
-        headers: { photoName: currentSlide?.title as string },
-      })
-      .then((res) => {
-        setLikes(res.data.likes)
+    getAllLikes(currentSlide?.title?.toString() as string)
+      .then((likes) => {
+        setLikes(likes)
       })
       .catch((err) => {
         console.error(err)
@@ -154,16 +140,20 @@ export default function CommentsComponent({ children }: ComponentProps) {
       alert('O comentário não pode estar vazio.')
       return
     }
-    await axios
-      .post('/api/comments', {
-        comment: newComment,
-        photoName: currentSlide?.title as string,
-        email: anonymous ? 'anonymous' : data?.user?.email,
-      })
-      .then(() => {
+    if (anonymous || data?.user?.email) {
+      await createComment(
+        newComment,
+        currentSlide?.title as string,
+        anonymous ? 'anonymous' : (data?.user?.email as string),
+      ).then(() => {
         setNewComment('')
         getComments()
       })
+    } else {
+      alert(
+        'Você precisa estar logado para comentar ou então comente anonimamente.',
+      )
+    }
   }
 
   useEffect(() => {

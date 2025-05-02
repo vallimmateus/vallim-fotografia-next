@@ -11,6 +11,7 @@ import { User } from '@prisma/client'
 import { Pencil2Icon, PersonIcon, TrashIcon } from '@radix-ui/react-icons'
 import axios from 'axios'
 import { format } from 'date-fns'
+import { deleteComment, updateComment } from './actions/comments'
 
 type CommentCardProps = {
   comment: CommentWithUserType
@@ -51,8 +52,7 @@ export default function CommentCard({
       return
     }
     setLoading(true)
-    await axios
-      .patch('/api/comments', { text: commentText, id })
+    updateComment(commentText, id)
       .then(() => {
         setLoading(false)
         text = commentText
@@ -69,7 +69,7 @@ export default function CommentCard({
 
   const handleDeleteComment = async () => {
     if (confirm('Tem certeza que deseja deletar esse comentário?')) {
-      await axios.delete('/api/comments', { data: { id } }).then(() => {
+      await deleteComment(id).then(() => {
         getComments()
       })
     }

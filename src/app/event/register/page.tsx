@@ -1,11 +1,10 @@
-import { prismaClient } from '@/lib/prisma'
 import { FormEvent } from './form'
-import { getOrganizationsLogo } from './form/actions/get-organization-logo'
 import { Organization } from '@prisma/client'
 
 export default async function Page() {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
   const responseOrganizationsWithLogo = await fetch(
-    'http://localhost:3000/api/organizations',
+    `${baseUrl}/api/organizations`,
     {
       method: 'GET',
       headers: {
@@ -17,12 +16,14 @@ export default async function Page() {
       },
     },
   )
+
   if (!responseOrganizationsWithLogo.ok) {
     throw new Error('Failed to fetch organizations')
   }
+  const json = await responseOrganizationsWithLogo.json()
   const {
     data: { organizationsWithLogo },
-  } = (await responseOrganizationsWithLogo.json()) as {
+  } = json as {
     data: { organizationsWithLogo: Array<Organization & { logoUrl: string }> }
   }
   return (

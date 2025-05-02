@@ -23,10 +23,9 @@ type EventWithOrganizationAndUrl = Event & {
 }
 
 export async function fetchPhotos(eventId: string, limit?: number, skip = 0) {
-  let photos: Photo[]
-  photos = await prismaClient.photo.findMany({
+  const photos = await prismaClient.photo.findMany({
     orderBy: {
-      name: 'asc',
+      originalName: 'asc',
     },
     where: {
       eventId,
@@ -39,17 +38,7 @@ export async function fetchPhotos(eventId: string, limit?: number, skip = 0) {
       : {}),
   })
 
-  photos = await Promise.all(
-    photos.map(async (photo) => {
-      const urls = await getUrlSigned(photo.name, eventId)
-      return {
-        ...photo,
-        ...urls,
-      }
-    }),
-  )
-
-  return JSON.parse(JSON.stringify(photos)) as PhotoWithUrlSigneds[]
+  return JSON.parse(JSON.stringify(photos)) as Photo[]
 }
 
 export async function fetchSinglePhoto(eventId: string, index: number) {
@@ -84,13 +73,11 @@ export async function fetchSinglePhoto(eventId: string, index: number) {
 export async function fetchEvent({
   year,
   slug,
-  user,
 }: {
   year: string
   slug: string
-  user?: User
-}): Promise<EventWithOrganizationAndUrl | null> {
-  const event = await prismaClient.event.findFirst({
+}) {
+  return await prismaClient.event.findFirst({
     where: {
       AND: [
         { slug },
@@ -103,67 +90,117 @@ export async function fetchEvent({
       ],
     },
     include: {
-      OrganizationsOnEvents: {
+      organizationsOnEvents: {
         include: {
-          Organization: true,
+          organization: true,
         },
       },
-      _count: {
-        select: {
-          Photo: true,
+      photos: {
+        include: {
+          photoVersions: true,
         },
       },
-      Photo: {
-        select: {
-          id: true,
-          _count: {
+      photographers: {
+        include: {
+          photographer: {
             select: {
-              Comment: true,
-              Like: true,
+              user: {
+                select: {
+                  name: true,
+                  image: true,
+                },
+              },
             },
           },
-          ...(user && {
-            Like: {
-              where: {
-                userId: user.id,
-              },
-              select: {
-                id: true,
-                createdAt: true,
-              },
-            },
-          }),
         },
       },
     },
   })
-
-  if (!event) {
-    return null
-  }
-
-  const organizations = await Promise.all(
-    event.OrganizationsOnEvents.map(async (organization) => {
-      const logo = await getUrlSigned(
-        organization.Organization.logoFileName || '',
-        'logos/organizations',
-        true,
-      )
-      return {
-        ...organization,
-        Organization: {
-          ...organization.Organization,
-          url: logo.signedUrlOriginal,
-        },
-      }
-    }),
-  )
-
-  return {
-    ...event,
-    OrganizationsOnEvents: organizations,
-  }
 }
+
+// export async function fetchEvent({
+//   year,
+//   slug,
+//   user,
+// }: {
+//   year: string
+//   slug: string
+//   user?: User
+// }): Promise<EventWithOrganizationAndUrl | null> {
+//   const event = await prismaClient.event.findFirst({
+//     where: {
+//       AND: [
+//         { slug },
+//         {
+//           date: {
+//             gte: new Date(`${year}-01-01`),
+//             lte: new Date(`${year}-12-31`),
+//           },
+//         },
+//       ],
+//     },
+//     include: {
+//       OrganizationsOnEvents: {
+//         include: {
+//           Organization: true,
+//         },
+//       },
+//       _count: {
+//         select: {
+//           Photo: true,
+//         },
+//       },
+//       Photo: {
+//         select: {
+//           id: true,
+//           _count: {
+//             select: {
+//               Comment: true,
+//               Like: true,
+//             },
+//           },
+//           ...(user && {
+//             Like: {
+//               where: {
+//                 userId: user.id,
+//               },
+//               select: {
+//                 id: true,
+//                 createdAt: true,
+//               },
+//             },
+//           }),
+//         },
+//       },
+//     },
+//   })
+
+//   if (!event) {
+//     return null
+//   }
+
+//   const organizations = await Promise.all(
+//     event.OrganizationsOnEvents.map(async (organization) => {
+//       const logo = await getUrlSigned(
+//         organization.Organization.logoFileName || '',
+//         'logos/organizations',
+//         true,
+//       )
+//       return {
+//         ...organization,
+//         Organization: {
+//           ...organization.Organization,
+//           url: logo.signedUrlOriginal,
+//         },
+//       }
+//     }),
+//   )
+
+//   return {
+//     ...event,
+//     OrganizationsOnEvents: organizations,
+//   }
+// }
 
 // const hoursInSeconds = 60 ** 2
 
