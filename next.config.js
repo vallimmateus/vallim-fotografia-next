@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '1gb',
+    },
+  },
   images: {
     unoptimized: true,
     remotePatterns: [
@@ -33,12 +38,21 @@ const nextConfig = {
       fullUrl: true,
     },
   },
+  redirects() {
+    // Temporarily redirect to the new event page
+    return [
+      {
+        source: '/',
+        destination: '/event/2025/dgg-submundo',
+        permanent: true,
+      },
+    ]
+  },
   async rewrites() {
     return [
       {
         source: '/images/:path*',
-        destination:
-          'https://pub-b4d289cda78e4af7bee698e19458c393.r2.dev/:path*',
+        destination: 'https://d3edmjeascdk88.cloudfront.net/:path*',
       },
     ]
   },
