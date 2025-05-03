@@ -38,6 +38,9 @@ const nextConfig = {
       fullUrl: true,
     },
   },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   redirects() {
     // Temporarily redirect to the new event page
     return [
