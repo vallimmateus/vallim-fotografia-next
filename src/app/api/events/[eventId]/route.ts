@@ -1,5 +1,5 @@
 import { prismaClient } from '@/lib/prisma'
-import { NextResponse } from 'next/server'
+import { NextResponse, NextRequest } from 'next/server'
 import { z } from 'zod'
 
 const searchParamsSchema = z.object({
@@ -13,7 +13,7 @@ const searchParamsSchema = z.object({
  * If the validation fails, it returns a 400 status with an error message.
  * If the validation succeeds, it fetches the event details from the database using Prisma.
  *
- * @param {Request} _req - The incoming request object.
+ * @param {NextRequest} req - The incoming request object.
  * @param {Object} context - The context object containing route parameters.
  * @param {Object} context.params - The route parameters.
  * @param {string} context.params.eventId - The ID of the event to retrieve. Must be a valid CUID.
@@ -50,12 +50,12 @@ const searchParamsSchema = z.object({
  * }
  */
 export async function GET(
-  _req: Request,
+  req: NextRequest,
   { params }: { params: { eventId: string } },
 ) {
   const bodyParsed = searchParamsSchema.safeParse(params)
 
-  if (bodyParsed.error) {
+  if (!bodyParsed.success) {
     return NextResponse.json({ error: bodyParsed.error }, { status: 400 })
   }
 
@@ -69,9 +69,16 @@ export async function GET(
       },
     })
 
+    if (!event) {
+      return NextResponse.json({ error: 'Event not found' }, { status: 404 })
+    }
+
     // Retorna o evento específico
     return NextResponse.json(event, { status: 200 })
   } catch (error) {
-    return NextResponse.json({ error }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal Server Error' },
+      { status: 500 },
+    )
   }
 }
