@@ -8,7 +8,7 @@ type Params = {
   slug: [string, string]
 }
 
-export const revalidate = 60 * 60 * 24 * 7
+export const revalidate = 604800
 
 export const dynamicParams = true
 

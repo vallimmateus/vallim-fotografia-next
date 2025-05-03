@@ -38,16 +38,16 @@ const nextConfig = {
       fullUrl: true,
     },
   },
-  // redirects() {
-  //   // Temporarily redirect to the new event page
-  //   return [
-  //     {
-  //       source: '/',
-  //       destination: '/event/2025/dgg-submundo',
-  //       permanent: true,
-  //     },
-  //   ]
-  // },
+  redirects() {
+    // Temporarily redirect to the new event page
+    return [
+      {
+        source: '/',
+        destination: '/event/2025/dgg-submundo',
+        permanent: true,
+      },
+    ]
+  },
   async rewrites() {
     return [
       {
