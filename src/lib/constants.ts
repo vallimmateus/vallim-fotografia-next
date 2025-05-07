@@ -6,3 +6,10 @@ export const basePath =
       ? `https://${process.env.NEXT_PUBLIC_BASE_PATH}`
       : process.env.NEXT_PUBLIC_BASE_PATH)) ||
   'http://localhost:3000'
+
+export const s3Paths = {
+  folders: {
+    event: 'event',
+    organization: 'organization',
+  },
+}

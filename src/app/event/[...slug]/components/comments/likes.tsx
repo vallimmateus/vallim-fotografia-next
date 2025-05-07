@@ -15,8 +15,8 @@ import {
 import { LikesWithUserType } from './commentsContext'
 
 import { HeartFilledIcon, HeartIcon, PersonIcon } from '@radix-ui/react-icons'
-import axios from 'axios'
 import { useLightboxState } from 'yet-another-react-lightbox'
+import { createLike, deleteLike } from './actions/likes'
 
 type LikesProps = {
   likes: LikesWithUserType[]
@@ -29,12 +29,12 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
   const { currentSlide } = useLightboxState()
 
   const [liked, setLiked] = useState(
-    likes.some((like) => like.User.email === data?.user?.email),
+    likes.some((like) => like.user.email === data?.user?.email),
   )
 
   useEffect(() => {
     if (status === 'authenticated' && data?.user) {
-      setLiked(likes.some((like) => like.User.email === data.user?.email))
+      setLiked(likes.some((like) => like.user.email === data.user?.email))
     }
   }, [data, currentSlide, status, likes])
 
@@ -44,16 +44,15 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
       return
     }
     if (!liked === true) {
-      await axios.post('/api/likes', {
-        photoName: currentSlide?.title,
-        email: data?.user?.email,
-      })
+      await createLike(
+        currentSlide?.title as string,
+        data?.user?.email as string,
+      )
     } else {
-      await axios.delete('/api/likes', {
-        data: {
-          id: likes.find((like) => like.User.email === data?.user?.email)?.id,
-        },
-      })
+      await deleteLike(
+        likes.find((like) => like.user.email === (data.user?.email as string))
+          ?.id as string,
+      )
     }
     setLiked((prev) => !prev)
     getLikes()
@@ -88,7 +87,7 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                     {likes
                       .slice(0, 3)
                       .map((like) => {
-                        return like.User.nickname || like.User.name
+                        return like.user.nickname || like.user.name
                       })
                       .join(', ')}
                   </p>
@@ -106,9 +105,9 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                         <div className="w-42 flex items-center space-x-2">
                           <Avatar className="h-4 w-4">
                             <AvatarImage
-                              src={like.User.image || ''}
+                              src={like.user.image || ''}
                               alt={
-                                like.User.nickname || (like.User.name as string)
+                                like.user.nickname || (like.user.name as string)
                               }
                             />
                             <AvatarFallback>
@@ -116,7 +115,7 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
                             </AvatarFallback>
                           </Avatar>
                           <p className="cursor-default truncate text-sm">
-                            {like.User.nickname || like.User.name}
+                            {like.user.nickname || like.user.name}
                           </p>
                         </div>
                       </Fragment>

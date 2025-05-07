@@ -13,6 +13,9 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <meta name="apple-mobile-web-app-title" content="Vallim Fotografia" />
+      </head>
       <Providers>
         <body className="flex min-h-screen w-full flex-col overflow-x-hidden bg-background">
           <Header />

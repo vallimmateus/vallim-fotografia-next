@@ -6,6 +6,12 @@ import { IconButton, useLightboxState } from 'yet-another-react-lightbox'
 import { cn } from '@/lib/utils'
 import { forwardRef } from 'react'
 
+declare module 'yet-another-react-lightbox' {
+  interface Labels {
+    Comments?: string
+  }
+}
+
 const CommentsIcon = forwardRef<SVGSVGElement, LucideProps>(
   function CommentsIcon(props, ref) {
     const { className, ...rest } = props
@@ -44,10 +50,10 @@ export default function CommentsButton() {
   return (
     <IconButton
       className="group"
-      label="Comments"
       icon={CommentsIcon}
       onClick={toggle}
       disabled={!currentSlide}
+      label="Comments"
     />
   )
 }
