@@ -1,3 +1,5 @@
+'use server'
+
 import { prismaClient } from '@/lib/prisma'
 import { Organization } from '@prisma/client'
 
