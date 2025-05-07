@@ -99,7 +99,7 @@ export const FormDataSchema = z.object({
       'Slug deve conter apenas caracteres alfanuméricos e "-"',
     ),
   type: z.union([z.literal('party'), z.literal('event')]),
-  eventLogo: z.instanceof(File).superRefine((f, ctx) => {
+  eventLogo: z.any().superRefine((f, ctx) => {
     // First, add an issue if the mime type is wrong.
     if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
       ctx.addIssue({
@@ -131,7 +131,7 @@ export const FormDataSchema = z.object({
   photos: z
     .array(
       z.object({
-        file: z.instanceof(File).superRefine((f, ctx) => {
+        file: z.any().superRefine((f, ctx) => {
           // First, add an issue if the mime type is wrong.
           if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
             ctx.addIssue({
