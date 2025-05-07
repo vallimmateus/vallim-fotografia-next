@@ -27,12 +27,12 @@ export default async function Image({
       <div className="h-full w-full">
         <img
           src={`/images/${cover.src}`}
-          alt={`${slugPart} - Cover image`}
+          alt={`${cover.eventName} - Cover image`}
           className="h-full w-full object-contain object-center"
         />
         <img
           src={`/images/${cover.src.split('/original/')[0]}/logo.webp`}
-          alt={`${slugPart} - Logo event`}
+          alt={`${cover.eventName} - Logo event`}
           className="z-10 px-10 py-5"
         />
       </div>
