@@ -32,8 +32,17 @@ const ACCEPTED_MIME_TYPES = [
 const FormOrganizationSchema = z.object({
   name: z.string({ required_error: 'Nome é obrigatório' }),
   slug: z.string({ required_error: 'Slug é obrigatório' }),
-  image: z.instanceof(File).superRefine((f, ctx) => {
-    // First, add an issue if the mime type is wrong.
+  image: z.any().superRefine((f, ctx) => {
+    // Verifica se o arquivo é válido
+    if (!(f instanceof Blob)) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: 'Invalid file type. Expected a Blob.',
+      })
+      return
+    }
+
+    // Verifica o tipo MIME
     if (!ACCEPTED_MIME_TYPES.includes(f.type)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -42,7 +51,8 @@ const FormOrganizationSchema = z.object({
         )}] but was ${f.type}`,
       })
     }
-    // Next add an issue if the file size is too large.
+
+    // Verifica o tamanho do arquivo
     if (f.size > 2 * MB_BYTES) {
       ctx.addIssue({
         code: z.ZodIssueCode.too_big,
