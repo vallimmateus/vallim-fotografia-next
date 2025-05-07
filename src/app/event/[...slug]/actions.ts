@@ -49,3 +49,38 @@ export async function fetchEvent({
     },
   })
 }
+
+export async function getCoverImage({
+  year,
+  slug,
+}: {
+  year: string
+  slug: string
+}) {
+  const event = await prismaClient.event.findFirst({
+    where: {
+      AND: [
+        { slug },
+        {
+          date: {
+            gte: new Date(`${year}-01-01`),
+            lte: new Date(`${year}-12-31`),
+          },
+        },
+      ],
+    },
+    select: {
+      coverFileName: true,
+      name: true,
+    },
+  })
+  const photo = await prismaClient.photoVersion.findFirst({
+    where: {
+      AND: [{ fileName: event?.coverFileName }, { type: 'original' }],
+    },
+  })
+  return {
+    src: photo?.s3Key,
+    eventName: event?.name,
+  }
+}
