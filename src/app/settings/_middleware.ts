@@ -15,7 +15,8 @@ export function middleware(request: NextRequest) {
   const userRole = request.cookies.get('userRole')?.value || '' // Obtenha o papel do usuário (exemplo: via cookie)
 
   // Verifica se a rota tem permissões definidas
-  const allowedRoles = routePermissions[pathname]
+  const allowedRoles =
+    routePermissions[pathname as keyof typeof routePermissions]
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     // Redireciona para a página de acesso negado
     return NextResponse.redirect(new URL('/unauthorized', request.url))
