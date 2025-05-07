@@ -9,7 +9,6 @@ import { CommentWithUserType } from './commentsContext'
 
 import { User } from '@prisma/client'
 import { Pencil2Icon, PersonIcon, TrashIcon } from '@radix-ui/react-icons'
-import axios from 'axios'
 import { format } from 'date-fns'
 import { deleteComment, updateComment } from './actions/comments'
 
@@ -38,7 +37,7 @@ export default function CommentCard({
 
   useEffect(() => {
     getUser().then((user) => {
-      if (user.role === 'admin') {
+      if (user.roles.includes('admin')) {
         setDeletable(true)
       } else {
         setEditable(user.email === email)
@@ -78,7 +77,7 @@ export default function CommentCard({
   return (
     <div className="m-2 flex gap-3 rounded-md bg-zinc-700 p-2">
       <Avatar className="h-6 w-6">
-        <AvatarImage src={image} alt={nickname || name} />
+        <AvatarImage src={image || ''} alt={nickname || name || ''} />
         <AvatarFallback>
           <PersonIcon className="h-5 w-5" />
         </AvatarFallback>
