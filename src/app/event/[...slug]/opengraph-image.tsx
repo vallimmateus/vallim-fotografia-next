@@ -1,6 +1,4 @@
 import { ImageResponse } from 'next/og'
-import { join } from 'node:path'
-import { readFile } from 'node:fs/promises'
 
 import { getCoverImage } from './actions'
 
@@ -24,30 +22,16 @@ export default async function Image({
   if (!cover.src || !cover.eventName) {
     return new Response('Not Found', { status: 404 })
   }
-
-  const coverData = await readFile(join(process.cwd(), 'images', cover.src))
-  const coverSrc = Uint8Array.from(coverData).buffer
-
-  const logoData = await readFile(
-    join(
-      process.cwd(),
-      'images',
-      cover.src.split('/original/')[0],
-      'logo.webp',
-    ),
-  )
-  const logoSrc = Uint8Array.from(logoData).buffer
-
   return new ImageResponse(
     (
       <div className="h-full w-full">
         <img
-          src={coverSrc}
+          src={`/images/${cover.src}`}
           alt={`${slugPart} - Cover image`}
           className="h-full w-full object-contain object-center"
         />
         <img
-          src={logoSrc}
+          src={`/images/${cover.src.split('/original/')[0]}/logo.webp`}
           alt={`${slugPart} - Logo event`}
           className="z-10 px-10 py-5"
         />
