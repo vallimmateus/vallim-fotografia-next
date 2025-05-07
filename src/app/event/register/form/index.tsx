@@ -1,6 +1,6 @@
 'use client'
 
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { useState } from 'react'
 import Image from 'next/image'
 import type { Organization } from '@prisma/client'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -206,8 +206,6 @@ type StepsProps = {
   name: string
   fields?: Array<keyof Inputs>
 }[]
-
-const hoursInSeconds = 60 ** 2
 
 export function FormEvent({
   initialOrganizations,
@@ -471,19 +469,15 @@ export function FormEvent({
     })
 
     // criar as fotos no prisma
-    const photosOnPrisma = await createPrismaPhotos(
-      photos.map((photo) => ({
-        event: {
-          connect: {
-            id: event.id,
-          },
-        },
-        originalName: photo.file.name,
-        uploadedByUserId: user?.id,
-        fileS3Path: `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}`,
+    const photosOnPrisma = await createPrismaPhotos({
+      data: photos.map((photo) => ({
         file: photo.file,
+        fileS3Path: `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}`,
+        originalName: photo.file.name,
       })),
-    )
+      eventId: event.id,
+      uploadedByUserId: user?.id,
+    })
 
     console.log('event created', event)
     console.log('photos created', photosOnPrisma)
@@ -1084,7 +1078,12 @@ export function FormEvent({
           >
             <ChevronLeftIcon size={32} />
           </Button>
-          <Button className="h-10 w-10 p-0" variant="outline" onClick={next}>
+          <Button
+            className="h-10 w-10 p-0"
+            variant="outline"
+            onClick={next}
+            disabled={isLoading}
+          >
             <ChevronRightIcon size={32} />
           </Button>
         </div>
