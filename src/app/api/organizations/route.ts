@@ -120,17 +120,16 @@ export async function POST(req: Request) {
 
   // Se existirem usuários que não foram encontrados, ativa a chamada /api/new-user para enviar um email de convite
   if (users.length !== adminMembers.length) {
-    const missingUsers = adminMembers.filter(
-      (id) => !users.map((user) => user.id).includes(id),
-    )
-
-    await fetch('/api/users/invite', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ userIds: missingUsers }),
-    })
+    // const missingUsers = adminMembers.filter(
+    //   (id) => !users.map((user) => user.id).includes(id),
+    // )
+    // await fetch('/api/users/invite', {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //   },
+    //   body: JSON.stringify({ userIds: missingUsers }),
+    // })
   }
 
   try {
