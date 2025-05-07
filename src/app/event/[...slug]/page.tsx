@@ -4,17 +4,18 @@ import { OrganizationLogo } from '@/components/organization-logo'
 import { Fragment, Suspense } from 'react'
 import { Loader2 } from 'lucide-react'
 
-type Params = {
-  slug: [string, string]
-}
-
 export const revalidate = 604800
 
 export const dynamicParams = true
 
-export default async function Page({ params }: { params: Params }) {
-  const [year, slug] = params.slug
-  const event = await fetchEvent({ year, slug })
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ slug: [string, string] }>
+}) {
+  const { slug } = await params
+  const [year, slugPart] = slug
+  const event = await fetchEvent({ year, slug: slugPart })
 
   if (!event) {
     return (
