@@ -26,7 +26,7 @@ export async function GET(req: Request) {
 }
 
 const formSchema = z.object({
-  file: z.instanceof(File),
+  file: z.any(), // Substituí z.instanceof(File) por z.any()
   fileS3Key: z.string(),
   options: z
     .object({
@@ -66,10 +66,16 @@ export async function POST(req: Request) {
 
   const { file, fileS3Key, options } = formParsed.data
 
+  if (!(file instanceof Blob)) {
+    return NextResponse.json(
+      { error: 'Invalid file type. Expected a Blob.' },
+      { status: 400 },
+    )
+  }
+
   try {
-    const logoBuffer = await file.arrayBuffer()
-    const logoBufferSharp = Buffer.from(logoBuffer)
-    let sharpInstance = sharp(logoBufferSharp).toFormat(options.format, {
+    const logoBuffer = Buffer.from(await file.arrayBuffer()) // Converte Blob para Buffer
+    let sharpInstance = sharp(logoBuffer).toFormat(options.format, {
       quality: options.quality,
     })
 
