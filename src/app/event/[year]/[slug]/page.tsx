@@ -11,11 +11,11 @@ export const dynamicParams = true
 export default async function Page({
   params,
 }: {
-  params: Promise<{ slug: [string, string] }>
+  params: Promise<{ year: string; slug: string }>
 }) {
-  const { slug } = await params
-  const [year, slugPart] = slug
-  const event = await fetchEvent({ year, slug: slugPart })
+  const { year, slug } = await params
+  console.log(slug)
+  const event = await fetchEvent({ year, slug })
 
   if (!event) {
     return (
