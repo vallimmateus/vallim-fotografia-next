@@ -18,6 +18,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 import CommentsList from './commentsList'
@@ -133,11 +134,11 @@ export default function CommentsComponent({ children }: ComponentProps) {
     if (status === 'unauthenticated' && !anonymous) {
       signIn()
     } else if (status === 'loading') {
-      alert('Aguarde um momento...')
+      toast('Aguarde um momento...')
       return
     }
     if (newComment.length === 0) {
-      alert('O comentário não pode estar vazio.')
+      toast('O comentário não pode estar vazio.')
       return
     }
     if (anonymous || data?.user?.email) {
@@ -150,9 +151,14 @@ export default function CommentsComponent({ children }: ComponentProps) {
         getComments()
       })
     } else {
-      alert(
-        'Você precisa estar logado para comentar ou então comente anonimamente.',
-      )
+      toast('Faça login para comentar', {
+        description:
+          'Você precisa estar logado para comentar ou então comente anonimamente.',
+        action: {
+          onClick: () => handleLoginCLick(),
+          label: 'Login',
+        },
+      })
     }
   }
 

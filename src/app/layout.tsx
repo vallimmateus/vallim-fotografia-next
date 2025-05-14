@@ -4,6 +4,7 @@ import { Footer } from '@/components/ui/footer'
 import { Header } from '@/components/ui/header'
 import { Providers } from '@/providers'
 import './globals.css'
+import { Toaster } from '@/components/ui/sonner'
 
 export const metadata: Metadata = {
   title: 'Vallim Fotografia',
@@ -21,6 +22,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           <Header />
           {children}
           <Footer />
+          <Toaster />
         </body>
       </Providers>
     </html>
