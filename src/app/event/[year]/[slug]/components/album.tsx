@@ -21,6 +21,7 @@ import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import 'yet-another-react-lightbox/styles.css'
 import PhotoAlbum from 'react-photo-album'
 import { Prisma } from '@prisma/client'
+import Image from 'next/image'
 
 type PhotoWithVersions = Prisma.PhotoGetPayload<{
   include: {
@@ -36,6 +37,7 @@ type PhotoWithVersions = Prisma.PhotoGetPayload<{
         format: true
       }
     }
+    PhotoFace: true
   }
 }>
 
@@ -130,8 +132,49 @@ export default function Album({
                 (photoVersion) => photoVersion.type === 'thumbnail',
               )?.s3Key
             }`,
+            type: 'image',
+            width: photo.photoVersions.find(
+              (photoVersion) => photoVersion.type === 'original',
+            )?.width,
+            height: photo.photoVersions.find(
+              (photoVersion) => photoVersion.type === 'original',
+            )?.height,
           })) as Slide[]
         }
+        render={{
+          slide: ({ slide }) => (
+            <div className="relative flex h-full w-full items-center justify-center">
+              {photos
+                .find((photo) => photo.originalName === slide.title)
+                ?.PhotoFace.map((face) => (
+                  <div
+                    key={face.id}
+                    className="duration-2000 animate-fade-in absolute rounded border-2 border-solid border-primary opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
+                    style={{
+                      top: `${Math.max((face.boundingBoxTop - face.boundingBoxHeight * 0.1) * 100, 0)}%`,
+                      left: `${Math.max((face.boundingBoxLeft - face.boundingBoxWidth * 0.1) * 100, 0)}%`,
+                      width: `${face.boundingBoxWidth * 1.2 * 100}%`,
+                      height: `${face.boundingBoxHeight * 1.2 * 100}%`,
+                    }}
+                  />
+                )) || null}
+              {slide.type === 'image' && (
+                <Image
+                  src={slide.src}
+                  alt={slide.alt || slide.title?.toString() || eventId}
+                  draggable={false}
+                  className="h-full w-full object-contain"
+                  width={slide.width}
+                  height={slide.height}
+                  style={{
+                    maxWidth: `min(100%, ${slide.width}px)`,
+                    maxHeight: `min(100%, ${slide.height}px)`,
+                  }}
+                />
+              )}
+            </div>
+          ),
+        }}
         on={{
           view: ({ index }) => {
             setIndex(index)
