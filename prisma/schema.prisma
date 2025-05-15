@@ -110,7 +110,7 @@ model Photo {
   like             Like[]
   event            Event          @relation(fields: [eventId], references: [id])
   photoVersions    PhotoVersion[]
-  PhotoFace        PhotoFace[]
+  photoFace        PhotoFace[]
 
   @@unique([originalName, eventId])
 }
