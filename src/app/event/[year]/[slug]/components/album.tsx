@@ -142,38 +142,45 @@ export default function Album({
           })) as Slide[]
         }
         render={{
-          slide: ({ slide }) => (
-            <div className="relative flex h-full w-full items-center justify-center">
-              {photos
-                .find((photo) => photo.originalName === slide.title)
-                ?.PhotoFace.map((face) => (
-                  <div
-                    key={face.id}
-                    className="duration-2000 animate-fade-in absolute rounded border-2 border-solid border-primary opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
+          slide: ({ slide }) => {
+            return (
+              <div
+                className="relative flex max-h-full max-w-full items-center justify-center"
+                style={{
+                  aspectRatio: `${slide.width} / ${slide.height}`,
+                }}
+              >
+                {photos
+                  .find((photo) => photo.originalName === slide.title)
+                  ?.PhotoFace.map((face) => (
+                    <div
+                      key={face.id}
+                      className="duration-2000 absolute animate-fade-in rounded border-2 border-solid border-primary opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
+                      style={{
+                        top: `${Math.max((face.boundingBoxTop - face.boundingBoxHeight * 0.1) * 100, 0)}%`,
+                        left: `${Math.max((face.boundingBoxLeft - face.boundingBoxWidth * 0.1) * 100, 0)}%`,
+                        width: `${face.boundingBoxWidth * 1.2 * 100}%`,
+                        height: `${face.boundingBoxHeight * 1.2 * 100}%`,
+                      }}
+                    />
+                  )) || null}
+                {slide.type === 'image' && (
+                  <Image
+                    src={slide.src}
+                    alt={slide.alt || slide.title?.toString() || eventId}
+                    draggable={false}
+                    className="h-full w-full object-contain"
+                    width={slide.width}
+                    height={slide.height}
                     style={{
-                      top: `${Math.max((face.boundingBoxTop - face.boundingBoxHeight * 0.1) * 100, 0)}%`,
-                      left: `${Math.max((face.boundingBoxLeft - face.boundingBoxWidth * 0.1) * 100, 0)}%`,
-                      width: `${face.boundingBoxWidth * 1.2 * 100}%`,
-                      height: `${face.boundingBoxHeight * 1.2 * 100}%`,
+                      maxWidth: `min(100%, ${slide.width}px)`,
+                      maxHeight: `min(100%, ${slide.height}px)`,
                     }}
                   />
-                )) || null}
-              {slide.type === 'image' && (
-                <Image
-                  src={slide.src}
-                  alt={slide.alt || slide.title?.toString() || eventId}
-                  draggable={false}
-                  className="h-full w-full object-contain"
-                  width={slide.width}
-                  height={slide.height}
-                  style={{
-                    maxWidth: `min(100%, ${slide.width}px)`,
-                    maxHeight: `min(100%, ${slide.height}px)`,
-                  }}
-                />
-              )}
-            </div>
-          ),
+                )}
+              </div>
+            )
+          },
         }}
         on={{
           view: ({ index }) => {
