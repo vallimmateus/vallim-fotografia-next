@@ -26,8 +26,19 @@ model Event {
   pendingValidators     ValidatorsOnEvents[]
   completedValidators   ValidatedEvents[]
   photographers         PhotographersOnEvents[]
+  peopleOnEvents        PeopleOnEvents[]
 
   @@unique([name, date])
+}
+
+model PeopleOnEvents {
+  id      String @id @default(cuid())
+  userId  String
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id])
+  user    User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, eventId])
 }
 
 model PhotographersOnEvents {
@@ -223,7 +234,9 @@ model User {
   validatedEvents  ValidatedEvents[]
   organizations    MembersOnOrganizations[]
   photographer     Photographer?
-  PhotoFace        PhotoFace[]
+  photoFace        PhotoFace[]
+  rekognitionIds   String[]
+  peopleOnEvents   PeopleOnEvents[]
 }
 
 model VerificationToken {
