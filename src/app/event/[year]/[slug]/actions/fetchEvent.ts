@@ -30,7 +30,19 @@ export async function fetchEvent({
       photos: {
         include: {
           photoVersions: true,
-          PhotoFace: true,
+          photoFace: {
+            include: {
+              user: {
+                include: {
+                  _count: {
+                    select: {
+                      photoFace: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
       photographers: {

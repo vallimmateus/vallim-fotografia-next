@@ -22,7 +22,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 import CommentsList from './commentsList'
-import Likes from './likes'
+import { Likes } from '../likes'
 
 import { PaperPlaneIcon, UpdateIcon } from '@radix-ui/react-icons'
 import axios from 'axios'
@@ -33,8 +33,8 @@ import {
   makeUseContext,
   useLightboxState,
 } from 'yet-another-react-lightbox'
-import { createComment, getAllComments } from './actions/comments'
-import { getAllLikes } from './actions/likes'
+import { createComment, getAllComments } from '../../actions/comments'
+import { getAllLikes } from '../../actions/likes'
 
 export type CommentsContextType = {
   open: boolean

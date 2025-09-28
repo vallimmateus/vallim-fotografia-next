@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useSearchParams, useParams } from 'next/navigation'
+
+import { Prisma } from '@prisma/client'
 
 import { ImageCard } from './photo'
 
@@ -15,13 +17,14 @@ import {
   Thumbnails,
   Zoom,
 } from 'yet-another-react-lightbox/plugins'
-import Comments from './comments'
+import { Comments } from './comments'
 import 'yet-another-react-lightbox/plugins/counter.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import 'yet-another-react-lightbox/styles.css'
+
 import PhotoAlbum from 'react-photo-album'
-import { Prisma } from '@prisma/client'
-import Image from 'next/image'
+import { UserDialogProvider } from '@/context/UserDialogContext'
+import { Slide as SlideComponent } from './slide'
 
 type PhotoWithVersions = Prisma.PhotoGetPayload<{
   include: {
@@ -37,7 +40,6 @@ type PhotoWithVersions = Prisma.PhotoGetPayload<{
         format: true
       }
     }
-    PhotoFace: true
   }
 }>
 
@@ -51,7 +53,8 @@ export default function Album({
   const photos = initialPhotos
 
   const params = useParams()
-  const [year, slug] = params.slug as [string, string]
+  const year = params.year as string
+  const slug = params.slug as string
 
   const searchParams = useSearchParams()
   const photoParam = searchParams.get('photo')
@@ -60,161 +63,139 @@ export default function Album({
     photoNumber !== undefined ? photoNumber : -1,
   )
 
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams],
+  )
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="w-full">
-        <PhotoAlbum
-          photos={photos.map((photo) => ({
-            height: 256,
-            width: 384,
-            title: photo.originalName,
-            alt: photo.originalName,
-            key: photo.id,
-            imageUrlId: `/images/${
-              photo.photoVersions.find(
-                (photoVersion) => photoVersion.type === 'miniature',
-              )?.s3Key
-            }`,
-            eventId,
-          }))}
-          layout="rows"
-          onClick={({ index }) => setIndex(index)}
-          targetRowHeight={256}
-          renderRowContainer={({
-            rowContainerProps: { ...rowContainerProps },
-            children,
-            rowsCount,
-            rowIndex,
-          }) => (
-            <>
-              <div
-                {...rowContainerProps}
-                className="mb-5 flex justify-center gap-5"
-              >
-                {children}
-              </div>
-              {rowsCount === rowIndex + 1 &&
-                photos.length < initialPhotos.length && <p>última linha</p>}
-            </>
-          )}
-          spacing={20}
-          rowConstraints={{
-            maxPhotos: 5,
+    <UserDialogProvider>
+      <div className="flex flex-col gap-3">
+        <div className="w-full">
+          <PhotoAlbum
+            photos={photos.map((photo) => ({
+              height: 256,
+              width: 384,
+              title: photo.originalName,
+              alt: photo.originalName,
+              key: photo.id,
+              imageUrlId: `/images/${
+                photo.photoVersions.find(
+                  (photoVersion) => photoVersion.type === 'miniature',
+                )?.s3Key
+              }`,
+              eventId,
+            }))}
+            layout="rows"
+            onClick={({ index }) => {
+              setIndex(index)
+            }}
+            targetRowHeight={256}
+            renderRowContainer={({
+              rowContainerProps: { ...rowContainerProps },
+              children,
+              rowsCount,
+              rowIndex,
+            }) => (
+              <>
+                <div
+                  {...rowContainerProps}
+                  className="mb-5 flex justify-center gap-5"
+                >
+                  {children}
+                </div>
+                {rowsCount === rowIndex + 1 &&
+                  photos.length < initialPhotos.length && <p>última linha</p>}
+              </>
+            )}
+            spacing={20}
+            rowConstraints={{
+              maxPhotos: 5,
+            }}
+            renderPhoto={({ photo, imageProps }) => {
+              return (
+                <ImageCard
+                  key={photo.key}
+                  photo={photo}
+                  onClick={imageProps.onClick}
+                />
+              )
+            }}
+          />
+        </div>
+        <Lightbox
+          slides={
+            photos.map((photo, idx) => ({
+              photoId: photo.id,
+              type: 'image',
+              src: `/images/${
+                photo.photoVersions.find(
+                  (photoVersion) => photoVersion.type === 'original',
+                )?.s3Key
+              }`,
+              alt: photo.originalName,
+              title: photo.originalName,
+              share: {
+                url: `https://www.vallimfotografia.com.br/event/${year}/${slug}?photo=${idx}`,
+                title: eventId,
+                text: `Olha essa foto do evento ${eventId}`,
+              },
+              thumbnail: `/images/${
+                photo.photoVersions.find(
+                  (photoVersion) => photoVersion.type === 'thumbnail',
+                )?.s3Key
+              }`,
+              width: photo.photoVersions.find(
+                (photoVersion) => photoVersion.type === 'original',
+              )?.width,
+              height: photo.photoVersions.find(
+                (photoVersion) => photoVersion.type === 'original',
+              )?.height,
+            })) as Slide[]
+          }
+          render={{
+            slide: (props) => <SlideComponent {...props} />,
           }}
-          renderPhoto={({ photo, imageProps }) => {
-            return (
-              <ImageCard
-                key={photo.key}
-                photo={photo}
-                onClick={imageProps.onClick}
-              />
-            )
+          on={{
+            view: ({ index }) => {
+              setIndex(index)
+              createQueryString('photo', (index + 1).toString())
+            },
+          }}
+          open={index >= 0}
+          index={index}
+          close={() => setIndex(-1)}
+          slideshow={{ delay: 2500 }}
+          plugins={[
+            Share,
+            Download,
+            Fullscreen,
+            Counter,
+            Comments,
+            Slideshow,
+            Thumbnails,
+            Zoom,
+          ]}
+          carousel={{
+            finite: true,
+          }}
+          controller={{
+            closeOnBackdropClick: true,
+            closeOnPullDown: true,
+          }}
+          thumbnails={{
+            showToggle: true,
+            padding: 0,
+            border: 0,
+            borderRadius: 5,
           }}
         />
       </div>
-      <Lightbox
-        slides={
-          photos.map((photo, idx) => ({
-            src: `/images/${
-              photo.photoVersions.find(
-                (photoVersion) => photoVersion.type === 'original',
-              )?.s3Key
-            }`,
-            alt: photo.originalName,
-            title: photo.originalName,
-            share: {
-              url: `https://www.vallimfotografia.com.br/event/${year}/${slug}?photo=${idx}`,
-              title: eventId,
-              text: `Olha essa foto do evento ${eventId}`,
-            },
-            thumbnail: `/images/${
-              photo.photoVersions.find(
-                (photoVersion) => photoVersion.type === 'thumbnail',
-              )?.s3Key
-            }`,
-            type: 'image',
-            width: photo.photoVersions.find(
-              (photoVersion) => photoVersion.type === 'original',
-            )?.width,
-            height: photo.photoVersions.find(
-              (photoVersion) => photoVersion.type === 'original',
-            )?.height,
-          })) as Slide[]
-        }
-        render={{
-          slide: ({ slide }) => {
-            return (
-              <div
-                className="relative flex max-h-full max-w-full items-center justify-center"
-                style={{
-                  aspectRatio: `${slide.width} / ${slide.height}`,
-                }}
-              >
-                {photos
-                  .find((photo) => photo.originalName === slide.title)
-                  ?.PhotoFace.map((face) => (
-                    <div
-                      key={face.id}
-                      className="duration-2000 absolute animate-fade-in rounded border-2 border-solid border-primary opacity-0 transition-opacity hover:opacity-100 active:opacity-100"
-                      style={{
-                        top: `${Math.max((face.boundingBoxTop - face.boundingBoxHeight * 0.1) * 100, 0)}%`,
-                        left: `${Math.max((face.boundingBoxLeft - face.boundingBoxWidth * 0.1) * 100, 0)}%`,
-                        width: `${face.boundingBoxWidth * 1.2 * 100}%`,
-                        height: `${face.boundingBoxHeight * 1.2 * 100}%`,
-                      }}
-                    />
-                  )) || null}
-                {slide.type === 'image' && (
-                  <Image
-                    src={slide.src}
-                    alt={slide.alt || slide.title?.toString() || eventId}
-                    draggable={false}
-                    className="h-full w-full object-contain"
-                    width={slide.width}
-                    height={slide.height}
-                    style={{
-                      maxWidth: `min(100%, ${slide.width}px)`,
-                      maxHeight: `min(100%, ${slide.height}px)`,
-                    }}
-                  />
-                )}
-              </div>
-            )
-          },
-        }}
-        on={{
-          view: ({ index }) => {
-            setIndex(index)
-          },
-        }}
-        open={index >= 0}
-        index={index}
-        close={() => setIndex(-1)}
-        slideshow={{ delay: 2500 }}
-        plugins={[
-          Share,
-          Download,
-          Fullscreen,
-          Counter,
-          Comments,
-          Slideshow,
-          Thumbnails,
-          Zoom,
-        ]}
-        carousel={{
-          finite: true,
-        }}
-        controller={{
-          closeOnBackdropClick: true,
-          closeOnPullDown: true,
-        }}
-        thumbnails={{
-          showToggle: true,
-          padding: 0,
-          border: 0,
-          borderRadius: 5,
-        }}
-      />
-    </div>
+    </UserDialogProvider>
   )
 }

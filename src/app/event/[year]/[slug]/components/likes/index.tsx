@@ -1,5 +1,5 @@
 import { useSession } from 'next-auth/react'
-import { Fragment, memo, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
@@ -12,11 +12,11 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip'
 
-import { LikesWithUserType } from './commentsContext'
+import { LikesWithUserType } from '../comments/commentsContext'
 
 import { HeartFilledIcon, HeartIcon, PersonIcon } from '@radix-ui/react-icons'
 import { useLightboxState } from 'yet-another-react-lightbox'
-import { createLike, deleteLike } from './actions/likes'
+import { createLike, deleteLike } from '../../actions/likes'
 
 type LikesProps = {
   likes: LikesWithUserType[]
@@ -141,4 +141,4 @@ function Likes({ likes, getLikes, handleLoginCLick }: LikesProps) {
   )
 }
 
-export default memo(Likes)
+export { Likes }
