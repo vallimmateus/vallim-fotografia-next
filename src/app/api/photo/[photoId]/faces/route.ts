@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server'
 
 export async function GET(
   req: Request,
-  { params }: { params: { photoId: string } },
+  { params }: { params: Promise<{ photoId: string }> },
 ) {
   const { photoId } = await params
   const faces = await prismaClient.photoFace.findMany({
