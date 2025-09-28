@@ -1,8 +1,8 @@
-import { fetchEvent } from './actions'
-import Album from './components/album'
-import { OrganizationLogo } from '@/components/organization-logo'
 import { Fragment, Suspense } from 'react'
+import Album from './components/album'
+import { fetchEvent } from './actions'
 import { Loader2 } from 'lucide-react'
+import { OrganizationLogo } from '@/components/organization-logo'
 
 export const revalidate = 604800
 
@@ -14,7 +14,6 @@ export default async function Page({
   params: Promise<{ year: string; slug: string }>
 }) {
   const { year, slug } = await params
-  console.log(slug)
   const event = await fetchEvent({ year, slug })
 
   if (!event) {

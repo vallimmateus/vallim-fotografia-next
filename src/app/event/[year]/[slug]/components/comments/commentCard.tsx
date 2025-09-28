@@ -10,7 +10,7 @@ import { CommentWithUserType } from './commentsContext'
 import { User } from '@prisma/client'
 import { Pencil2Icon, PersonIcon, TrashIcon } from '@radix-ui/react-icons'
 import { format } from 'date-fns'
-import { deleteComment, updateComment } from './actions/comments'
+import { deleteComment, updateComment } from '../../actions/comments'
 
 type CommentCardProps = {
   comment: CommentWithUserType

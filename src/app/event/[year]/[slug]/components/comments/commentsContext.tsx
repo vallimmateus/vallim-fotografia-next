@@ -18,10 +18,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
+import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 import CommentsList from './commentsList'
-import Likes from './likes'
+import { Likes } from '../likes'
 
 import { PaperPlaneIcon, UpdateIcon } from '@radix-ui/react-icons'
 import axios from 'axios'
@@ -32,8 +33,8 @@ import {
   makeUseContext,
   useLightboxState,
 } from 'yet-another-react-lightbox'
-import { createComment, getAllComments } from './actions/comments'
-import { getAllLikes } from './actions/likes'
+import { createComment, getAllComments } from '../../actions/comments'
+import { getAllLikes } from '../../actions/likes'
 
 export type CommentsContextType = {
   open: boolean
@@ -133,11 +134,11 @@ export default function CommentsComponent({ children }: ComponentProps) {
     if (status === 'unauthenticated' && !anonymous) {
       signIn()
     } else if (status === 'loading') {
-      alert('Aguarde um momento...')
+      toast('Aguarde um momento...')
       return
     }
     if (newComment.length === 0) {
-      alert('O comentário não pode estar vazio.')
+      toast('O comentário não pode estar vazio.')
       return
     }
     if (anonymous || data?.user?.email) {
@@ -150,9 +151,14 @@ export default function CommentsComponent({ children }: ComponentProps) {
         getComments()
       })
     } else {
-      alert(
-        'Você precisa estar logado para comentar ou então comente anonimamente.',
-      )
+      toast('Faça login para comentar', {
+        description:
+          'Você precisa estar logado para comentar ou então comente anonimamente.',
+        action: {
+          onClick: () => handleLoginCLick(),
+          label: 'Login',
+        },
+      })
     }
   }
 
@@ -222,6 +228,7 @@ export default function CommentsComponent({ children }: ComponentProps) {
                   <Tooltip>
                     <TooltipTrigger
                       className={cn({ 'cursor-default': anonymous })}
+                      asChild
                     >
                       <Likes
                         likes={likes}
@@ -243,16 +250,6 @@ export default function CommentsComponent({ children }: ComponentProps) {
                 </TooltipProvider>
               </Suspense>
               <div className="relative flex flex-row gap-2">
-                {/* {status !== 'authenticated' && (
-                  <div className="absolute left-0 top-0 z-10 -m-2 flex h-[calc(100%+1rem)] w-[calc(100%+1rem)] flex-col items-center justify-center gap-2 rounded bg-zinc-600/40 backdrop-blur-sm">
-                    <Label className="w-2/3">
-                      Você precisa realizar o login antes de comentar ou curtir
-                    </Label>
-                    <Button size="sm" onClick={handleLoginCLick}>
-                      Login
-                    </Button>
-                  </div>
-                )} */}
                 <Textarea
                   placeholder="Comente aqui..."
                   onChange={(e) => setNewComment(e.target.value)}

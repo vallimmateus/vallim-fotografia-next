@@ -1,7 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { useSearchParams, useParams } from 'next/navigation'
+
+import { Prisma } from '@prisma/client'
 
 import { ImageCard } from './photo'
 
@@ -15,12 +17,14 @@ import {
   Thumbnails,
   Zoom,
 } from 'yet-another-react-lightbox/plugins'
-import Comments from './comments'
+import { Comments } from './comments'
 import 'yet-another-react-lightbox/plugins/counter.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import 'yet-another-react-lightbox/styles.css'
+
 import PhotoAlbum from 'react-photo-album'
-import { Prisma } from '@prisma/client'
+import { UserDialogProvider } from '@/context/UserDialogContext'
+import { Slide as SlideComponent } from './slide'
 
 type PhotoWithVersions = Prisma.PhotoGetPayload<{
   include: {
@@ -49,7 +53,8 @@ export default function Album({
   const photos = initialPhotos
 
   const params = useParams()
-  const [year, slug] = params.slug as [string, string]
+  const year = params.year as string
+  const slug = params.slug as string
 
   const searchParams = useSearchParams()
   const photoParam = searchParams.get('photo')
@@ -58,113 +63,139 @@ export default function Album({
     photoNumber !== undefined ? photoNumber : -1,
   )
 
+  const createQueryString = useCallback(
+    (name: string, value: string) => {
+      const params = new URLSearchParams(searchParams.toString())
+      params.set(name, value)
+
+      return params.toString()
+    },
+    [searchParams],
+  )
+
   return (
-    <div className="flex flex-col gap-3">
-      <div className="w-full">
-        <PhotoAlbum
-          photos={photos.map((photo) => ({
-            height: 256,
-            width: 384,
-            title: photo.originalName,
-            alt: photo.originalName,
-            key: photo.id,
-            imageUrlId: `/images/${
-              photo.photoVersions.find(
-                (photoVersion) => photoVersion.type === 'miniature',
-              )?.s3Key
-            }`,
-            eventId,
-          }))}
-          layout="rows"
-          onClick={({ index }) => setIndex(index)}
-          targetRowHeight={256}
-          renderRowContainer={({
-            rowContainerProps: { ...rowContainerProps },
-            children,
-            rowsCount,
-            rowIndex,
-          }) => (
-            <>
-              <div
-                {...rowContainerProps}
-                className="mb-5 flex justify-center gap-5"
-              >
-                {children}
-              </div>
-              {rowsCount === rowIndex + 1 &&
-                photos.length < initialPhotos.length && <p>última linha</p>}
-            </>
-          )}
-          spacing={20}
-          rowConstraints={{
-            maxPhotos: 5,
+    <UserDialogProvider>
+      <div className="flex flex-col gap-3">
+        <div className="w-full">
+          <PhotoAlbum
+            photos={photos.map((photo) => ({
+              height: 256,
+              width: 384,
+              title: photo.originalName,
+              alt: photo.originalName,
+              key: photo.id,
+              imageUrlId: `/images/${
+                photo.photoVersions.find(
+                  (photoVersion) => photoVersion.type === 'miniature',
+                )?.s3Key
+              }`,
+              eventId,
+            }))}
+            layout="rows"
+            onClick={({ index }) => {
+              setIndex(index)
+            }}
+            targetRowHeight={256}
+            renderRowContainer={({
+              rowContainerProps: { ...rowContainerProps },
+              children,
+              rowsCount,
+              rowIndex,
+            }) => (
+              <>
+                <div
+                  {...rowContainerProps}
+                  className="mb-5 flex justify-center gap-5"
+                >
+                  {children}
+                </div>
+                {rowsCount === rowIndex + 1 &&
+                  photos.length < initialPhotos.length && <p>última linha</p>}
+              </>
+            )}
+            spacing={20}
+            rowConstraints={{
+              maxPhotos: 5,
+            }}
+            renderPhoto={({ photo, imageProps }) => {
+              return (
+                <ImageCard
+                  key={photo.key}
+                  photo={photo}
+                  onClick={imageProps.onClick}
+                />
+              )
+            }}
+          />
+        </div>
+        <Lightbox
+          slides={
+            photos.map((photo, idx) => ({
+              photoId: photo.id,
+              type: 'image',
+              src: `/images/${
+                photo.photoVersions.find(
+                  (photoVersion) => photoVersion.type === 'original',
+                )?.s3Key
+              }`,
+              alt: photo.originalName,
+              title: photo.originalName,
+              share: {
+                url: `https://www.vallimfotografia.com.br/event/${year}/${slug}?photo=${idx}`,
+                title: eventId,
+                text: `Olha essa foto do evento ${eventId}`,
+              },
+              thumbnail: `/images/${
+                photo.photoVersions.find(
+                  (photoVersion) => photoVersion.type === 'thumbnail',
+                )?.s3Key
+              }`,
+              width: photo.photoVersions.find(
+                (photoVersion) => photoVersion.type === 'original',
+              )?.width,
+              height: photo.photoVersions.find(
+                (photoVersion) => photoVersion.type === 'original',
+              )?.height,
+            })) as Slide[]
+          }
+          render={{
+            slide: (props) => <SlideComponent {...props} />,
           }}
-          renderPhoto={({ photo, imageProps }) => {
-            return (
-              <ImageCard
-                key={photo.key}
-                photo={photo}
-                onClick={imageProps.onClick}
-              />
-            )
+          on={{
+            view: ({ index }) => {
+              setIndex(index)
+              createQueryString('photo', (index + 1).toString())
+            },
+          }}
+          open={index >= 0}
+          index={index}
+          close={() => setIndex(-1)}
+          slideshow={{ delay: 2500 }}
+          plugins={[
+            Share,
+            Download,
+            Fullscreen,
+            Counter,
+            Comments,
+            Slideshow,
+            Thumbnails,
+            Zoom,
+          ]}
+          carousel={{
+            finite: true,
+          }}
+          controller={{
+            closeOnBackdropClick: true,
+            closeOnPullDown: true,
+          }}
+          thumbnails={{
+            showToggle: true,
+            padding: 0,
+            border: 0,
+            borderRadius: 5,
           }}
         />
       </div>
-      <Lightbox
-        slides={
-          photos.map((photo, idx) => ({
-            src: `/images/${
-              photo.photoVersions.find(
-                (photoVersion) => photoVersion.type === 'original',
-              )?.s3Key
-            }`,
-            alt: photo.originalName,
-            title: photo.originalName,
-            share: {
-              url: `https://www.vallimfotografia.com.br/event/${year}/${slug}?photo=${idx}`,
-              title: eventId,
-              text: `Olha essa foto do evento ${eventId}`,
-            },
-            thumbnail: `/images/${
-              photo.photoVersions.find(
-                (photoVersion) => photoVersion.type === 'thumbnail',
-              )?.s3Key
-            }`,
-          })) as Slide[]
-        }
-        on={{
-          view: ({ index }) => {
-            setIndex(index)
-          },
-        }}
-        open={index >= 0}
-        index={index}
-        close={() => setIndex(-1)}
-        slideshow={{ delay: 2500 }}
-        plugins={[
-          Share,
-          Download,
-          Fullscreen,
-          Counter,
-          Comments,
-          Slideshow,
-          Thumbnails,
-          Zoom,
-        ]}
-        carousel={{
-          finite: true,
-        }}
-        controller={{
-          closeOnBackdropClick: true,
-          closeOnPullDown: true,
-        }}
-        thumbnails={{
-          showToggle: true,
-          padding: 0,
-          border: 0,
-          borderRadius: 5,
-        }}
-      />
-    </div>
+    </UserDialogProvider>
   )
 }

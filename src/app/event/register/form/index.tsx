@@ -69,6 +69,7 @@ import { createPrismaEvent } from './actions/create-event'
 import { createPrismaPhotos } from './actions/create-photos'
 import createSlug from './utils/createSlug'
 import { NewOrganization } from './new-organization'
+import { uploadInBatches } from './utils/uploadInBatches'
 
 const MB_BYTES = 1024 ** 2
 const ACCEPTED_MIME_TYPES = [
@@ -357,83 +358,81 @@ export function FormEvent({
     setIsLoading(false)
 
     // upload das imagens no s3
-    await Promise.all([
-      ...photos.map(async (photo) => {
-        await Promise.all([
-          // uploadImage original
-          uploadImage(
-            photo.file,
-            `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/original/${photo.key}`,
-            {
-              quality: 100,
-              format: imageTypesToExtension[photo.file.type],
-              onUploadProgress: (progressEvent) => {
-                let progress = 0
-                if (progressEvent.progress) {
-                  progress = progressEvent.progress * 100
-                } else if (progressEvent.total && progressEvent.loaded) {
-                  progress = (progressEvent.loaded / progressEvent.total) * 100
-                }
-                updateProgress(photo.file.name, progress / 3)
-              },
-              onError: () => {
-                updateProgress(photo.file.name, 'ERROR')
-              },
+    await uploadInBatches(photos, async (photo) => {
+      await Promise.all([
+        // uploadImage original
+        uploadImage(
+          photo.file,
+          `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/original/${photo.key}`,
+          {
+            quality: 100,
+            format: imageTypesToExtension[photo.file.type],
+            onUploadProgress: (progressEvent) => {
+              let progress = 0
+              if (progressEvent.progress) {
+                progress = progressEvent.progress * 100
+              } else if (progressEvent.total && progressEvent.loaded) {
+                progress = (progressEvent.loaded / progressEvent.total) * 100
+              }
+              updateProgress(photo.file.name, progress / 3)
             },
-          ),
-          // uploadImage miniature
-          uploadImage(
-            photo.file,
-            `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/miniature/${photo.key}`,
-            {
-              maxSize: 512,
-              quality: 80,
-              onUploadProgress: (progressEvent) => {
-                let progress = 0
-                if (progressEvent.progress) {
-                  progress = progressEvent.progress * 100
-                } else if (progressEvent.total && progressEvent.loaded) {
-                  progress = (progressEvent.loaded / progressEvent.total) * 100
-                }
-                updateProgress(photo.file.name, progress / 3)
-              },
-              onError: () => {
-                updateProgress(photo.file.name, 'ERROR')
-              },
+            onError: () => {
+              updateProgress(photo.file.name, 'ERROR')
             },
-          ),
-          // uploadImage thumbnail
-          uploadImage(
-            photo.file,
-            `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/thumbnail/${photo.key}`,
-            {
-              maxSize: 128,
-              quality: 60,
-              onUploadProgress: (progressEvent) => {
-                let progress = 0
-                if (progressEvent.progress) {
-                  progress = progressEvent.progress * 100
-                } else if (progressEvent.total && progressEvent.loaded) {
-                  progress = (progressEvent.loaded / progressEvent.total) * 100
-                }
-                updateProgress(photo.file.name, progress / 3)
-              },
-              onError: () => {
-                updateProgress(photo.file.name, 'ERROR')
-              },
+          },
+        ),
+        // uploadImage miniature
+        uploadImage(
+          photo.file,
+          `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/miniature/${photo.key}`,
+          {
+            maxSize: 512,
+            quality: 80,
+            onUploadProgress: (progressEvent) => {
+              let progress = 0
+              if (progressEvent.progress) {
+                progress = progressEvent.progress * 100
+              } else if (progressEvent.total && progressEvent.loaded) {
+                progress = (progressEvent.loaded / progressEvent.total) * 100
+              }
+              updateProgress(photo.file.name, progress / 3)
             },
-          ),
-        ])
-      }),
-      uploadImage(
-        eventLogo,
-        `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/logo.webp`,
-        {
-          format: 'webp',
-          quality: 100,
-        },
-      ),
-    ])
+            onError: () => {
+              updateProgress(photo.file.name, 'ERROR')
+            },
+          },
+        ),
+        // uploadImage thumbnail
+        uploadImage(
+          photo.file,
+          `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/thumbnail/${photo.key}`,
+          {
+            maxSize: 128,
+            quality: 60,
+            onUploadProgress: (progressEvent) => {
+              let progress = 0
+              if (progressEvent.progress) {
+                progress = progressEvent.progress * 100
+              } else if (progressEvent.total && progressEvent.loaded) {
+                progress = (progressEvent.loaded / progressEvent.total) * 100
+              }
+              updateProgress(photo.file.name, progress / 3)
+            },
+            onError: () => {
+              updateProgress(photo.file.name, 'ERROR')
+            },
+          },
+        ),
+      ])
+    })
+    await uploadImage(
+      eventLogo,
+      `${s3Paths.folders.event}/${date.getUTCFullYear()}/${date.getUTCMonth() + 1}/${slug}/logo.webp`,
+      {
+        format: 'webp',
+        quality: 100,
+      },
+    )
 
     // amazon rekognition
 
