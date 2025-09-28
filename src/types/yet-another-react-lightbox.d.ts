@@ -14,6 +14,15 @@ declare module 'yet-another-react-lightbox' {
     thumbnail?: string
     onError?: (event: React.SyntheticEvent<HTMLImageElement, Event>) => void
   }
+
+  interface GenericSlide {
+    photoId: string
+    share: {
+      url: string
+      title: string
+      text: string
+    }
+  }
 }
 
 export { Comments as default }
